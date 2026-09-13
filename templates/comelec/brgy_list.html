@@ -1,0 +1,17 @@
+<table>
+    <tr>
+        <th>Barangay</th>
+        <th>Action</th>
+    </tr>
+
+    {% for brgy in barangays %}
+        <tr>
+            <td>{{ brgy.name }}</td>
+            <td><a href="{% url 'delete-brgy' brgy.pk %}">Delete</a></td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td>No barangay data found.</td>
+        </tr>
+    {% endfor %}
+</table>
