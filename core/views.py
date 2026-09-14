@@ -933,7 +933,7 @@ def admin_application_reinstatement_detail(request, application_id):
             "application": application,
         }
     )
-@login_required
+
 def approve_applicant_for_biometrics(applicant, notification_title, notification_message):
 
     applicant.status = "APPROVED"
