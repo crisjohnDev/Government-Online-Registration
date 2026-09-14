@@ -1,0 +1,1333 @@
+
+{% extends "admin.html" %}
+
+{% block title %}
+Applicant Biometrics
+{% endblock %}
+
+{% block page_title %}
+Applicant Biometrics
+{% endblock %}
+
+{% block page_subtitle %}
+Capture applicant fingerprints and electronic signature
+{% endblock %}
+
+{% block extra_css %}
+<style>
+
+/* =========================================================
+   BIOMETRICS PAGE
+========================================================= */
+
+.biometrics-page {
+    width: 100%;
+}
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.bio-page-header {
+    background: #ffffff;
+    border: 1px solid #e1e5ea;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+}
+
+.bio-page-header h4 {
+    color: #172033;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.bio-page-header p {
+    font-size: 13px;
+}
+
+/* =========================================================
+   COMMON CARD
+========================================================= */
+
+.bio-card {
+    background: #ffffff;
+    border: 1px solid #e1e5ea;
+    box-shadow: 0 2px 7px rgba(0, 0, 0, 0.04);
+}
+
+.bio-card-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e8ed;
+    padding: 16px 20px;
+}
+
+.bio-card-header h5 {
+    margin: 0;
+    color: #172033;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.bio-card-body {
+    padding: 20px;
+}
+
+/* =========================================================
+   APPLICANT SUMMARY
+========================================================= */
+
+.bio-applicant-summary {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.bio-applicant-icon {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eaf2ff;
+    color: #0038a8;
+    font-size: 22px;
+}
+
+.bio-applicant-name {
+    color: #172033;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 3px;
+}
+
+.bio-applicant-id {
+    color: #6b7280;
+    font-size: 12px;
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.bio-status-label {
+    display: block;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    margin-bottom: 7px;
+}
+
+.bio-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 11px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid transparent;
+}
+
+.bio-status-approved {
+    background: #dff6e8;
+    color: #146c43;
+    border-color: #badbcc;
+}
+
+.bio-status-review {
+    background: #dff3fa;
+    color: #087990;
+    border-color: #b6effb;
+}
+
+.bio-status-pending {
+    background: #fff4d6;
+    color: #856404;
+    border-color: #ffe69c;
+}
+
+.bio-status-disapproved {
+    background: #fbe2e5;
+    color: #b02a37;
+    border-color: #f1aeb5;
+}
+
+.bio-status-verified {
+    background: #dff6e8;
+    color: #146c43;
+    border-color: #badbcc;
+}
+
+.bio-status-biometric-pending {
+    background: #fff4d6;
+    color: #856404;
+    border-color: #ffe69c;
+}
+
+.bio-status-unverified {
+    background: #eef0f2;
+    color: #495057;
+    border-color: #d8dce0;
+}
+
+/* =========================================================
+   NOTICE
+========================================================= */
+
+.bio-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 17px 20px;
+    margin-bottom: 20px;
+    border: 1px solid;
+}
+
+.bio-notice-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.bio-notice-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.bio-notice-text {
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.bio-notice-warning {
+    background: #fff9e6;
+    border-color: #ffe69c;
+    color: #664d03;
+}
+
+.bio-notice-success {
+    background: #edf9f1;
+    border-color: #badbcc;
+    color: #0f5132;
+}
+
+/* =========================================================
+   CAPTURE CARD
+========================================================= */
+
+.bio-capture-card {
+    height: 100%;
+    background: #ffffff;
+    border: 1px solid #e1e5ea;
+    box-shadow: 0 2px 7px rgba(0, 0, 0, 0.04);
+}
+
+.bio-capture-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e8ed;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.bio-capture-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #172033;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.bio-capture-title i {
+    color: #0038a8;
+    font-size: 18px;
+}
+
+.bio-capture-body {
+    padding: 25px;
+    text-align: center;
+}
+
+/* =========================================================
+   CAPTURE STATUS
+========================================================= */
+
+.bio-captured {
+    background: #dff6e8;
+    color: #146c43;
+    border: 1px solid #badbcc;
+}
+
+.bio-not-captured {
+    background: #eef0f2;
+    color: #495057;
+    border: 1px solid #d8dce0;
+}
+
+.bio-capture-status {
+    padding: 5px 9px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+/* =========================================================
+   FINGERPRINT PREVIEW
+========================================================= */
+
+.bio-fingerprint-preview {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 20px;
+    background: #f7f8fa;
+    border: 1px solid #dfe4ea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bio-fingerprint-preview i {
+    font-size: 78px;
+}
+
+.bio-fingerprint-preview.captured i {
+    color: #198754;
+}
+
+.bio-fingerprint-preview.pending i {
+    color: #9aa1aa;
+}
+
+/* =========================================================
+   CAPTURE MESSAGE
+========================================================= */
+
+.bio-capture-message {
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    font-size: 12px;
+    line-height: 1.5;
+    border: 1px solid;
+}
+
+.bio-message-success {
+    background: #edf9f1;
+    border-color: #badbcc;
+    color: #146c43;
+}
+
+.bio-message-info {
+    background: #f7f8fa;
+    border-color: #dfe4ea;
+    color: #5f6368;
+}
+
+/* =========================================================
+   SIGNATURE
+========================================================= */
+
+.bio-signature-preview {
+    min-height: 220px;
+    background: #f7f8fa;
+    border: 1px solid #dfe4ea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    margin-bottom: 18px;
+}
+
+.bio-signature-preview img {
+    max-width: 500px;
+    max-height: 190px;
+    object-fit: contain;
+    background: #ffffff;
+    border: 1px solid #e1e5ea;
+    padding: 10px;
+}
+
+.bio-empty-signature {
+    text-align: center;
+    color: #8b929b;
+}
+
+.bio-empty-signature i {
+    display: block;
+    font-size: 54px;
+    margin-bottom: 8px;
+}
+
+.bio-empty-signature span {
+    font-size: 13px;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.bio-capture-btn {
+    min-width: 180px;
+    border-radius: 0;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 16px;
+}
+
+.bio-back-btn {
+    border-radius: 0;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   COMPLETION STATUS
+========================================================= */
+
+.bio-completion-card {
+    background: #ffffff;
+    border: 1px solid #e1e5ea;
+    box-shadow: 0 2px 7px rgba(0, 0, 0, 0.04);
+}
+
+.bio-completion-item {
+    height: 100%;
+    padding: 17px;
+    border: 1px solid #e1e5ea;
+    background: #ffffff;
+}
+
+.bio-completion-icon {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+}
+
+.bio-completion-icon.complete {
+    color: #198754;
+    background: #edf9f1;
+}
+
+.bio-completion-icon.pending {
+    color: #6c757d;
+    background: #f1f3f5;
+}
+
+.bio-completion-icon.warning {
+    color: #856404;
+    background: #fff9e6;
+}
+
+.bio-completion-title {
+    color: #202733;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.bio-completion-description {
+    display: block;
+    color: #737b87;
+    font-size: 11px;
+    line-height: 1.5;
+    margin-top: 3px;
+}
+
+/* =========================================================
+   FINAL VERIFICATION
+========================================================= */
+
+.bio-final-status {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 17px 20px;
+    margin-top: 20px;
+    border: 1px solid;
+}
+
+.bio-final-status i {
+    font-size: 26px;
+    flex-shrink: 0;
+}
+
+.bio-final-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 3px;
+}
+
+.bio-final-description {
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 767.98px) {
+
+    .bio-page-header {
+        padding: 18px;
+    }
+
+    .bio-page-header .btn {
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    .bio-card-body {
+        padding: 16px;
+    }
+
+    .bio-applicant-summary {
+        align-items: flex-start;
+    }
+
+    .bio-capture-body {
+        padding: 20px 16px;
+    }
+
+    .bio-fingerprint-preview {
+        width: 150px;
+        height: 150px;
+    }
+
+    .bio-capture-btn {
+        width: 100%;
+    }
+
+}
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container-fluid px-0 biometrics-page">
+
+
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+
+    <div class="bio-page-header">
+
+        <div class="row align-items-center">
+
+            <div class="col-md">
+
+                <h4>
+                    Applicant Biometrics
+                </h4>
+
+                <p class="text-muted mb-0 mt-1">
+                    Complete biometric registration for the approved applicant.
+                </p>
+
+            </div>
+
+            <div class="col-md-auto">
+
+                <a
+                    href="{% url 'admin-applications' %}"
+                    class="btn btn-outline-secondary bio-back-btn"
+                >
+                    <i class="bi bi-arrow-left me-1"></i>
+                    Back to Applications
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         APPLICANT INFORMATION
+    ====================================================== -->
+
+    <div class="bio-card mb-4">
+
+        <div class="bio-card-body">
+
+            <div class="row align-items-center">
+
+
+                <!-- APPLICANT -->
+
+                <div class="col-lg-6">
+
+                    <div class="bio-applicant-summary">
+
+                        <div class="bio-applicant-icon">
+                            <i class="bi bi-person"></i>
+                        </div>
+
+                        <div>
+
+                            <div class="bio-applicant-name">
+
+                                {{ applicant.lastname }},
+                                {{ applicant.firstname }}
+                                {{ applicant.middlename }}
+
+                            </div>
+
+                            <div class="bio-applicant-id">
+                                Applicant ID #{{ applicant.id }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div class="col-lg-6 mt-4 mt-lg-0">
+
+                    <div class="row g-3">
+
+
+                        <!-- APPLICATION STATUS -->
+
+                        <div class="col-md-6">
+
+                            <span class="bio-status-label">
+                                Application Status
+                            </span>
+
+                            {% if applicant.status == "APPROVED" %}
+
+                                <span class="bio-status-badge bio-status-approved">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Approved
+                                </span>
+
+                            {% elif applicant.status == "REVIEW" %}
+
+                                <span class="bio-status-badge bio-status-review">
+                                    Review
+                                </span>
+
+                            {% elif applicant.status == "PENDING" %}
+
+                                <span class="bio-status-badge bio-status-pending">
+                                    Pending
+                                </span>
+
+                            {% elif applicant.status == "DISAPPROVED" %}
+
+                                <span class="bio-status-badge bio-status-disapproved">
+                                    Disapproved
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- VERIFICATION STATUS -->
+
+                        <div class="col-md-6">
+
+                            <span class="bio-status-label">
+                                Verification Status
+                            </span>
+
+                            {% if applicant.verification_status == "VERIFIED" %}
+
+                                <span class="bio-status-badge bio-status-verified">
+                                    <i class="bi bi-shield-check me-1"></i>
+                                    Verified
+                                </span>
+
+                            {% elif applicant.verification_status == "BIOMETRICS_PENDING" %}
+
+                                <span class="bio-status-badge bio-status-biometric-pending">
+                                    <i class="bi bi-hourglass-split me-1"></i>
+                                    Biometrics Pending
+                                </span>
+
+                            {% else %}
+
+                                <span class="bio-status-badge bio-status-unverified">
+                                    <i class="bi bi-shield me-1"></i>
+                                    Unverified
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         IMPORTANT NOTICE
+    ====================================================== -->
+
+    {% if applicant.verification_status == "BIOMETRICS_PENDING" %}
+
+        <div class="bio-notice bio-notice-warning">
+
+            <div class="bio-notice-icon">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+
+            <div>
+
+                <div class="bio-notice-title">
+                    Verification Required
+                </div>
+
+                <p class="bio-notice-text">
+
+                    This applicant's registration has been
+                    <strong>approved</strong>, but biometric verification
+                    is still pending.
+
+                    Both fingerprints and the electronic signature must
+                    be successfully captured before the applicant can be
+                    marked as verified.
+
+                </p>
+
+            </div>
+
+        </div>
+
+    {% elif applicant.verification_status == "VERIFIED" %}
+
+        <div class="bio-notice bio-notice-success">
+
+            <div class="bio-notice-icon">
+                <i class="bi bi-shield-check"></i>
+            </div>
+
+            <div>
+
+                <div class="bio-notice-title">
+                    Applicant Verified
+                </div>
+
+                <p class="bio-notice-text">
+
+                    The applicant has completed the required fingerprints
+                    and electronic signature.
+
+                </p>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- =====================================================
+         BIOMETRIC CAPTURE
+    ====================================================== -->
+
+    <div class="row g-4">
+
+
+        <!-- =================================================
+             LEFT FINGER
+        ================================================== -->
+
+        <div class="col-lg-6">
+
+            <div class="bio-capture-card">
+
+                <div class="bio-capture-card-header">
+
+                    <div class="bio-capture-title">
+
+                        <i class="bi bi-fingerprint"></i>
+
+                        Left Finger
+
+                    </div>
+
+
+                    {% if biometric.left_finger_template %}
+
+                        <span class="bio-capture-status bio-captured">
+                            Captured
+                        </span>
+
+                    {% else %}
+
+                        <span class="bio-capture-status bio-not-captured">
+                            Not Captured
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="bio-capture-body">
+
+
+                    <div
+                        class="
+                            bio-fingerprint-preview
+                            {% if biometric.left_finger_template %}
+                                captured
+                            {% else %}
+                                pending
+                            {% endif %}
+                        "
+                    >
+
+                        <i class="bi bi-fingerprint"></i>
+
+                    </div>
+
+
+                    {% if biometric.left_finger_template %}
+
+                        <div class="bio-capture-message bio-message-success">
+
+                            <i class="bi bi-check-circle me-1"></i>
+
+                            Left fingerprint captured successfully.
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="bio-capture-message bio-message-info">
+
+                            <i class="bi bi-info-circle me-1"></i>
+
+                            Place the applicant's left finger on the
+                            fingerprint scanner.
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <button
+                        type="button"
+                        class="btn btn-primary bio-capture-btn"
+                        id="captureLeftFinger"
+                    >
+
+                        <i class="bi bi-fingerprint me-1"></i>
+
+                        {% if biometric.left_finger_template %}
+                            Recapture Left Finger
+                        {% else %}
+                            Capture Left Finger
+                        {% endif %}
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             RIGHT FINGER
+        ================================================== -->
+
+        <div class="col-lg-6">
+
+            <div class="bio-capture-card">
+
+                <div class="bio-capture-card-header">
+
+                    <div class="bio-capture-title">
+
+                        <i class="bi bi-fingerprint"></i>
+
+                        Right Finger
+
+                    </div>
+
+
+                    {% if biometric.right_finger_template %}
+
+                        <span class="bio-capture-status bio-captured">
+                            Captured
+                        </span>
+
+                    {% else %}
+
+                        <span class="bio-capture-status bio-not-captured">
+                            Not Captured
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="bio-capture-body">
+
+
+                    <div
+                        class="
+                            bio-fingerprint-preview
+                            {% if biometric.right_finger_template %}
+                                captured
+                            {% else %}
+                                pending
+                            {% endif %}
+                        "
+                    >
+
+                        <i class="bi bi-fingerprint"></i>
+
+                    </div>
+
+
+                    {% if biometric.right_finger_template %}
+
+                        <div class="bio-capture-message bio-message-success">
+
+                            <i class="bi bi-check-circle me-1"></i>
+
+                            Right fingerprint captured successfully.
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="bio-capture-message bio-message-info">
+
+                            <i class="bi bi-info-circle me-1"></i>
+
+                            Place the applicant's right finger on the
+                            fingerprint scanner.
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <button
+                        type="button"
+                        class="btn btn-primary bio-capture-btn"
+                        id="captureRightFinger"
+                    >
+
+                        <i class="bi bi-fingerprint me-1"></i>
+
+                        {% if biometric.right_finger_template %}
+                            Recapture Right Finger
+                        {% else %}
+                            Capture Right Finger
+                        {% endif %}
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             ELECTRONIC SIGNATURE
+        ================================================== -->
+
+        <div class="col-12">
+
+            <div class="bio-capture-card">
+
+                <div class="bio-capture-card-header">
+
+                    <div class="bio-capture-title">
+
+                        <i class="bi bi-pen"></i>
+
+                        Electronic Signature
+
+                    </div>
+
+
+                    {% if biometric.signature %}
+
+                        <span class="bio-capture-status bio-captured">
+                            Captured
+                        </span>
+
+                    {% else %}
+
+                        <span class="bio-capture-status bio-not-captured">
+                            Not Captured
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="bio-capture-body">
+
+
+                    {% if biometric.signature %}
+
+                        <div class="mb-3">
+
+                            <div class="text-muted small mb-2">
+                                Captured Signature
+                            </div>
+
+                            <div class="bio-signature-preview">
+
+                                <img
+                                    src="{{ biometric.signature.url }}"
+                                    alt="Applicant Signature"
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="bio-capture-message bio-message-success">
+
+                            <i class="bi bi-check-circle me-1"></i>
+
+                            Electronic signature captured successfully.
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="bio-signature-preview">
+
+                            <div class="bio-empty-signature">
+
+                                <i class="bi bi-pen"></i>
+
+                                <span>
+                                    No signature captured
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <button
+                        type="button"
+                        class="btn btn-primary bio-capture-btn"
+                        id="captureSignature"
+                    >
+
+                        <i class="bi bi-pen me-1"></i>
+
+                        {% if biometric.signature %}
+                            Recapture Signature
+                        {% else %}
+                            Capture Signature
+                        {% endif %}
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             COMPLETION STATUS
+        ================================================== -->
+
+        <div class="col-12">
+
+            <div class="bio-completion-card">
+
+                <div class="bio-card-header">
+
+                    <h5>
+                        Biometric Registration Status
+                    </h5>
+
+                </div>
+
+
+                <div class="bio-card-body">
+
+
+                    <div class="row g-3">
+
+
+                        <!-- FINGERPRINTS -->
+
+                        <div class="col-md-4">
+
+                            <div class="bio-completion-item">
+
+                                <div class="d-flex align-items-center">
+
+                                    {% if biometric.biometrics_completed %}
+
+                                        <div class="bio-completion-icon complete">
+
+                                            <i class="bi bi-check-circle-fill"></i>
+
+                                        </div>
+
+                                    {% else %}
+
+                                        <div class="bio-completion-icon pending">
+
+                                            <i class="bi bi-circle"></i>
+
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    <div class="ms-3">
+
+                                        <div class="bio-completion-title">
+                                            Fingerprints
+                                        </div>
+
+                                        <span class="bio-completion-description">
+
+                                            {% if biometric.biometrics_completed %}
+
+                                                Left and right fingerprints completed
+
+                                            {% else %}
+
+                                                Both fingerprints are required
+
+                                            {% endif %}
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- SIGNATURE -->
+
+                        <div class="col-md-4">
+
+                            <div class="bio-completion-item">
+
+                                <div class="d-flex align-items-center">
+
+                                    {% if biometric.signature_completed %}
+
+                                        <div class="bio-completion-icon complete">
+
+                                            <i class="bi bi-check-circle-fill"></i>
+
+                                        </div>
+
+                                    {% else %}
+
+                                        <div class="bio-completion-icon pending">
+
+                                            <i class="bi bi-circle"></i>
+
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    <div class="ms-3">
+
+                                        <div class="bio-completion-title">
+                                            Signature
+                                        </div>
+
+                                        <span class="bio-completion-description">
+
+                                            {% if biometric.signature_completed %}
+
+                                                Electronic signature completed
+
+                                            {% else %}
+
+                                                Electronic signature required
+
+                                            {% endif %}
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- OVERALL -->
+
+                        <div class="col-md-4">
+
+                            <div class="bio-completion-item">
+
+                                <div class="d-flex align-items-center">
+
+                                    {% if biometric.completed %}
+
+                                        <div class="bio-completion-icon complete">
+
+                                            <i class="bi bi-shield-check"></i>
+
+                                        </div>
+
+                                    {% else %}
+
+                                        <div class="bio-completion-icon warning">
+
+                                            <i class="bi bi-shield-exclamation"></i>
+
+                                        </div>
+
+                                    {% endif %}
+
+
+                                    <div class="ms-3">
+
+                                        <div class="bio-completion-title">
+                                            Overall Verification
+                                        </div>
+
+                                        <span class="bio-completion-description">
+
+                                            {% if biometric.completed %}
+
+                                                Verification completed
+
+                                            {% else %}
+
+                                                Verification still pending
+
+                                            {% endif %}
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- =================================================
+                         FINAL VERIFICATION MESSAGE
+                    ================================================== -->
+
+                    {% if biometric.completed %}
+
+                        <div
+                            class="bio-final-status bio-notice-success"
+                        >
+
+                            <i class="bi bi-shield-check"></i>
+
+                            <div>
+
+                                <div class="bio-final-title">
+                                    Applicant Verified
+                                </div>
+
+                                <div class="bio-final-description">
+
+                                    The applicant has completed both
+                                    fingerprints and the electronic
+                                    signature.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% else %}
+
+                        <div
+                            class="bio-final-status bio-notice-warning"
+                        >
+
+                            <i class="bi bi-shield-exclamation"></i>
+
+                            <div>
+
+                                <div class="bio-final-title">
+                                    Applicant Not Yet Verified
+                                </div>
+
+                                <div class="bio-final-description">
+
+                                    The applicant will remain unverified
+                                    until both fingerprints and the
+                                    electronic signature have been
+                                    successfully captured.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

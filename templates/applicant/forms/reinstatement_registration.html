@@ -1,0 +1,899 @@
+
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Reinstatement Request
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    /* =========================================================
+       PAGE HEADER
+    ========================================================= */
+
+    .registration-header {
+        background: #ffffff;
+        border: 1px solid #dbe3ef;
+        border-left: 5px solid #0038a8;
+        padding: 24px 28px;
+        margin-bottom: 24px;
+    }
+
+    .registration-header h1 {
+        margin: 0;
+        color: #002b7f;
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .registration-header p {
+        margin: 7px 0 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .application-badge {
+        display: inline-block;
+        margin-top: 14px;
+        padding: 6px 12px;
+        background: #eaf2ff;
+        border: 1px solid #c9dcff;
+        color: #0038a8;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+
+    /* =========================================================
+       STEP INDICATOR
+    ========================================================= */
+
+    .step-wrapper {
+        display: flex;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .step {
+        display: flex;
+        align-items: center;
+        flex: 1;
+    }
+
+    .step:last-child {
+        flex: 0 0 auto;
+    }
+
+    .step-number {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .step.active .step-number {
+        background: #0038a8;
+        color: #ffffff;
+    }
+
+    .step.completed .step-number {
+        background: #198754;
+        color: #ffffff;
+    }
+
+    .step-label {
+        margin-left: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    .step.active .step-label {
+        color: #0038a8;
+    }
+
+    .step-line {
+        height: 2px;
+        background: #dbe3ef;
+        flex: 1;
+        margin: 0 14px;
+    }
+
+    .step-line.completed {
+        background: #198754;
+    }
+
+
+    /* =========================================================
+       ERROR ALERT
+    ========================================================= */
+
+    .error-alert {
+        background: #fff1f2;
+        border: 1px solid #fecdd3;
+        border-left: 5px solid #ce1126;
+        color: #9f1239;
+        padding: 14px 18px;
+        margin-bottom: 24px;
+        font-size: 14px;
+    }
+
+
+    /* =========================================================
+       CARD
+    ========================================================= */
+
+    .form-card {
+        background: #ffffff;
+        border: 1px solid #dbe3ef;
+        margin-bottom: 24px;
+    }
+
+    .form-card-header {
+        padding: 18px 22px;
+        border-bottom: 1px solid #dbe3ef;
+        background: #f8fafc;
+    }
+
+    .form-card-header h2,
+    .form-card-header h3 {
+        margin: 0;
+        color: #1e3a8a;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .form-card-header p {
+        margin: 5px 0 0;
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .form-card-body {
+        padding: 24px;
+    }
+
+
+    /* =========================================================
+       FORM
+    ========================================================= */
+
+    .form-label {
+        color: #334155;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 7px;
+    }
+
+    .form-control {
+        min-height: 44px;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+        color: #1e293b;
+        font-size: 14px;
+    }
+
+    .form-control:focus {
+        border-color: #0038a8;
+        box-shadow: 0 0 0 3px rgba(0, 56, 168, .10);
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    .form-text {
+        color: #64748b;
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+       APPLICANT INFORMATION
+    ========================================================= */
+
+    .record-found {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-left: 5px solid #198754;
+        padding: 14px 16px;
+        margin-bottom: 20px;
+        color: #166534;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .record-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #198754;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .applicant-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1px;
+        background: #dbe3ef;
+        border: 1px solid #dbe3ef;
+    }
+
+    .applicant-item {
+        background: #ffffff;
+        padding: 15px 17px;
+    }
+
+    .applicant-label {
+        display: block;
+        margin-bottom: 5px;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+    .applicant-value {
+        color: #1e293b;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 5px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+    }
+
+    .status-active {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+    }
+
+    .status-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+
+
+    /* =========================================================
+       BUTTONS
+    ========================================================= */
+
+    .button-row {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 22px;
+    }
+
+    .btn-government {
+        background: #0038a8;
+        border: 1px solid #0038a8;
+        color: #ffffff;
+        min-height: 44px;
+        padding: 10px 22px;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .btn-government:hover {
+        background: #002b7f;
+        border-color: #002b7f;
+        color: #ffffff;
+    }
+
+    .btn-submit {
+        background: #198754;
+        border: 1px solid #198754;
+        color: #ffffff;
+        min-height: 44px;
+        padding: 10px 22px;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .btn-submit:hover {
+        background: #157347;
+        border-color: #157347;
+        color: #ffffff;
+    }
+
+
+    /* =========================================================
+       INFORMATION NOTICE
+    ========================================================= */
+
+    .information-notice {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-left: 4px solid #0038a8;
+        padding: 14px 16px;
+        color: #1e3a8a;
+        font-size: 13px;
+        line-height: 1.6;
+        margin-top: 20px;
+    }
+
+    .information-notice strong {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 13px;
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 767px) {
+
+        .registration-header {
+            padding: 20px;
+        }
+
+        .registration-header h1 {
+            font-size: 23px;
+        }
+
+        .form-card-body {
+            padding: 18px;
+        }
+
+        .applicant-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .step-label {
+            display: none;
+        }
+
+        .step-line {
+            margin: 0 8px;
+        }
+
+        .button-row {
+            flex-direction: column;
+        }
+
+        .button-row .btn {
+            width: 100%;
+        }
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<!-- =========================================================
+     PAGE HEADER
+========================================================= -->
+
+<div class="registration-header">
+
+    <h1>
+        Request for Reinstatement
+    </h1>
+
+    <p>
+        Submit a request to reinstate your voter registration.
+    </p>
+
+    <span class="application-badge">
+        Reinstatement Application
+    </span>
+
+</div>
+
+
+<!-- =========================================================
+     STEP INDICATOR
+========================================================= -->
+
+<div class="step-wrapper">
+
+    <div class="step {% if not applicant %}active{% else %}completed{% endif %}">
+
+        <div class="step-number">
+            1
+        </div>
+
+        <div class="step-label">
+            Find Registration
+        </div>
+
+    </div>
+
+
+    <div class="step-line {% if applicant %}completed{% endif %}"></div>
+
+
+    <div class="step {% if applicant %}active{% endif %}">
+
+        <div class="step-number">
+            2
+        </div>
+
+        <div class="step-label">
+            Reinstatement Request
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     ERROR
+========================================================= -->
+
+{% if error %}
+
+<div class="error-alert">
+
+    <strong>
+        Unable to process your request.
+    </strong>
+
+    <div>
+        {{ error }}
+    </div>
+
+</div>
+
+{% endif %}
+
+
+<!-- =========================================================
+     STEP 1: FIND APPLICANT
+========================================================= -->
+
+{% if not applicant %}
+
+<div class="form-card">
+
+    <div class="form-card-header">
+
+        <h2>
+            Find Your Registration
+        </h2>
+
+        <p>
+            Enter your registered information to find your
+            existing registration record.
+        </p>
+
+    </div>
+
+
+    <div class="form-card-body">
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="action"
+                value="find_applicant"
+            >
+
+
+            <div class="row g-3">
+
+                <!-- LAST NAME -->
+
+                <div class="col-md-4">
+
+                    <label
+                        for="lastname"
+                        class="form-label"
+                    >
+                        Last Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="lastname"
+                        name="lastname"
+                        class="form-control"
+                        value="{{ search_data.lastname|default:'' }}"
+                        autocomplete="family-name"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- FIRST NAME -->
+
+                <div class="col-md-4">
+
+                    <label
+                        for="firstname"
+                        class="form-label"
+                    >
+                        First Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="firstname"
+                        name="firstname"
+                        class="form-control"
+                        value="{{ search_data.firstname|default:'' }}"
+                        autocomplete="given-name"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- MIDDLE NAME -->
+
+                <div class="col-md-4">
+
+                    <label
+                        for="middlename"
+                        class="form-label"
+                    >
+                        Middle Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="middlename"
+                        name="middlename"
+                        class="form-control"
+                        value="{{ search_data.middlename|default:'' }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- BIRTHDATE -->
+
+                <div class="col-md-6">
+
+                    <label
+                        for="birthdate"
+                        class="form-label"
+                    >
+                        Birthdate
+                    </label>
+
+                    <input
+                        type="date"
+                        id="birthdate"
+                        name="birthdate"
+                        class="form-control"
+                        value="{{ search_data.birthdate|default:'' }}"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="information-notice">
+
+                <strong>
+                    Important
+                </strong>
+
+                Please enter your information exactly as it
+                appears in your existing voter registration
+                record.
+
+            </div>
+
+
+            <div class="button-row">
+
+                <button
+                    type="submit"
+                    class="btn btn-government"
+                >
+                    Find Registration
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+{% else %}
+
+
+<!-- =========================================================
+     STEP 2: APPLICANT INFORMATION
+========================================================= -->
+
+<div class="form-card">
+
+    <div class="form-card-header">
+
+        <h2>
+            Applicant Information
+        </h2>
+
+        <p>
+            Review your existing registration information
+            before submitting your reinstatement request.
+        </p>
+
+    </div>
+
+
+    <div class="form-card-body">
+
+        <div class="record-found">
+
+            <div class="record-icon">
+                ✓
+            </div>
+
+            <div>
+                Registration record found.
+            </div>
+
+        </div>
+
+
+        <div class="applicant-grid">
+
+            <!-- NAME -->
+
+            <div class="applicant-item">
+
+                <span class="applicant-label">
+                    Full Name
+                </span>
+
+                <span class="applicant-value">
+
+                    {{ applicant.lastname }},
+                    {{ applicant.firstname }}
+                    {{ applicant.middlename }}
+
+                </span>
+
+            </div>
+
+
+            <!-- BIRTHDATE -->
+
+            <div class="applicant-item">
+
+                <span class="applicant-label">
+                    Birthdate
+                </span>
+
+                <span class="applicant-value">
+
+                    {{ applicant.birthdate|date:"F d, Y" }}
+
+                </span>
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div class="applicant-item">
+
+                <span class="applicant-label">
+                    Registration Status
+                </span>
+
+                <span class="applicant-value">
+
+                    {% if applicant.is_active %}
+
+                        <span class="status-badge status-active">
+                            Active
+                        </span>
+
+                    {% else %}
+
+                        <span class="status-badge status-inactive">
+                            Inactive
+                        </span>
+
+                    {% endif %}
+
+                </span>
+
+            </div>
+
+
+            <!-- BARANGAY -->
+
+            {% if applicant.brgy %}
+
+            <div class="applicant-item">
+
+                <span class="applicant-label">
+                    Barangay
+                </span>
+
+                <span class="applicant-value">
+                    {{ applicant.brgy.name }}
+                </span>
+
+            </div>
+
+            {% endif %}
+
+
+            <!-- MUNICIPALITY -->
+
+            <div class="applicant-item">
+
+                <span class="applicant-label">
+                    Municipality
+                </span>
+
+                <span class="applicant-value">
+                    {{ applicant.municipality }}
+                </span>
+
+            </div>
+
+
+            <!-- PROVINCE -->
+
+            <div class="applicant-item">
+
+                <span class="applicant-label">
+                    Province
+                </span>
+
+                <span class="applicant-value">
+                    {{ applicant.province }}
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     REINSTATEMENT REASON
+========================================================= -->
+
+<div class="form-card">
+
+    <div class="form-card-header">
+
+        <h2>
+            Reason for Reinstatement
+        </h2>
+
+        <p>
+            Provide the reason why you are requesting
+            reinstatement of your voter registration.
+        </p>
+
+    </div>
+
+
+    <div class="form-card-body">
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="action"
+                value="submit_reinstatement"
+            >
+
+            <input
+                type="hidden"
+                name="applicant_id"
+                value="{{ applicant.id }}"
+            >
+
+
+            <label
+                for="reason"
+                class="form-label"
+            >
+                Explanation
+            </label>
+
+            <textarea
+                id="reason"
+                name="reason"
+                class="form-control"
+                rows="6"
+                placeholder="Please explain why you are requesting reinstatement."
+                required
+            >{{ form_data.reason|default:'' }}</textarea>
+
+            <div class="form-text mt-2">
+                Provide a clear and accurate explanation for your
+                reinstatement request.
+            </div>
+
+
+            <div class="information-notice">
+
+                <strong>
+                    Before submitting
+                </strong>
+
+                Please review your applicant information and
+                make sure that the reason provided is complete
+                and accurate.
+
+            </div>
+
+
+            <div class="button-row">
+
+                <button
+                    type="submit"
+                    class="btn btn-submit"
+                >
+                    Submit Reinstatement Request
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+{% endblock %}

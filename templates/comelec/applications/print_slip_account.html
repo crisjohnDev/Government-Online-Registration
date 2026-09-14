@@ -1,0 +1,1058 @@
+
+{% extends "admin.html" %}
+
+{% load static %}
+
+{% block title %}
+Print Slip Account
+{% endblock %}
+
+{% block page_title %}
+Print Slip Account
+{% endblock %}
+
+{% block page_subtitle %}
+Verified voter registration account
+{% endblock %}
+
+{% block extra_css %}
+
+<style>
+
+    .slip-wrapper {
+        max-width: 950px;
+        margin: 0 auto;
+    }
+
+    .slip-card {
+        background: #ffffff;
+        border: 1px solid #dee2e6;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .slip-header {
+        border-bottom: 2px solid #212529;
+        padding-bottom: 20px;
+    }
+
+    .government-title {
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .office-title {
+        font-size: 22px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .office-subtitle {
+        font-size: 13px;
+        color: #6c757d;
+    }
+
+    .verified-box {
+        border: 1px solid #198754;
+        background: #f1fdf6;
+        color: #146c43;
+    }
+
+    .section-title {
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #495057;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+    }
+
+    .info-label {
+        font-size: 11px;
+        color: #6c757d;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+
+    .info-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #212529;
+    }
+
+    .verification-item {
+        border: 1px solid #dee2e6;
+        padding: 12px;
+        background: #f8f9fa;
+    }
+
+    .signature-box {
+        height: 150px;
+        border: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+    }
+
+    .signature-box img {
+        max-width: 90%;
+        max-height: 120px;
+        object-fit: contain;
+    }
+
+    .fingerprint-box {
+        height: 120px;
+        border: 1px solid #dee2e6;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .slip-footer {
+        border-top: 1px solid #dee2e6;
+        margin-top: 25px;
+        padding-top: 15px;
+        font-size: 11px;
+        color: #6c757d;
+    }
+
+    .print-actions {
+        max-width: 950px;
+        margin: 20px auto;
+    }
+
+    @media print {
+
+        body {
+            background: #ffffff !important;
+        }
+
+        .sidebar,
+        .admin-sidebar,
+        .navbar,
+        .topbar,
+        .page-header,
+        .print-actions,
+        .no-print {
+            display: none !important;
+        }
+
+        .main-content,
+        .content,
+        .container-fluid {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        .slip-wrapper {
+            max-width: 100% !important;
+            margin: 0 !important;
+        }
+
+        .slip-card {
+            border: 0 !important;
+            box-shadow: none !important;
+        }
+
+        .slip-header {
+            padding-top: 0;
+        }
+
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container-fluid px-0">
+
+    <!-- =====================================================
+         PRINT ACTIONS
+    ====================================================== -->
+
+    <div class="print-actions d-flex justify-content-between align-items-center no-print">
+
+        <a
+            href="{% url 'admin-applicant-biometric' applicant.id %}"
+            class="btn btn-outline-secondary"
+        >
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Biometrics
+        </a>
+
+        <button
+            type="button"
+            class="btn btn-primary"
+            onclick="window.print()"
+        >
+            <i class="bi bi-printer me-1"></i>
+            Print Slip
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         SLIP
+    ====================================================== -->
+
+    <div class="slip-wrapper">
+
+        <div class="slip-card">
+
+            <div class="p-4">
+
+
+                <!-- =================================================
+                     HEADER
+                ================================================== -->
+
+                <div class="slip-header">
+
+                    <div class="row align-items-center">
+
+                        <div class="col-md-8">
+
+                            <div class="government-title">
+                                Republic of the Philippines
+                            </div>
+
+                            <div class="office-title">
+                                Commission on Elections
+                            </div>
+
+                            <div class="office-subtitle">
+                                Municipality of Pio Duran, Albay
+                            </div>
+
+                            <div class="office-subtitle mt-1">
+                                Voter Registration System
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+
+                            <div class="fw-bold">
+                                REGISTRATION SLIP
+                            </div>
+
+                            <div class="small text-muted">
+                                Verified Account
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     VERIFIED STATUS
+                ================================================== -->
+
+                <div class="verified-box rounded p-3 mt-4">
+
+                    <div class="d-flex align-items-center">
+
+                        <div class="me-3">
+
+                            <i
+                                class="bi bi-patch-check-fill"
+                                style="font-size: 32px;"
+                            ></i>
+
+                        </div>
+
+                        <div>
+
+                            <div class="fw-bold">
+                                REGISTRATION VERIFIED
+                            </div>
+
+                            <div class="small">
+                                The applicant has completed the required
+                                biometric and electronic signature verification.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     APPLICANT INFORMATION
+                ================================================== -->
+
+                <div class="mt-4">
+
+                    <div class="section-title">
+                        Applicant Information
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-5">
+
+                            <div class="info-label">
+                                Last Name
+                            </div>
+
+                            <div class="info-value">
+                                {{ applicant.lastname }}
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="info-label">
+                                First Name
+                            </div>
+
+                            <div class="info-value">
+                                {{ applicant.firstname }}
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <div class="info-label">
+                                Middle Name
+                            </div>
+
+                            <div class="info-value">
+                                {{ applicant.middlename }}
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <div class="info-label">
+                                Date of Birth
+                            </div>
+
+                            <div class="info-value">
+                                {{ applicant.birthdate|date:"F d, Y" }}
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-2">
+
+                            <div class="info-label">
+                                Age
+                            </div>
+
+                            <div class="info-value">
+                                {{ applicant.age }}
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-2">
+
+                            <div class="info-label">
+                                Sex
+                            </div>
+
+                            <div class="info-value">
+                                {{ applicant.sex }}
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-5">
+
+                            <div class="info-label">
+                                Birthplace
+                            </div>
+
+                            <div class="info-value">
+                                {{ applicant.birthplace }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     ADDRESS
+                ================================================== -->
+
+                <div class="mt-4">
+
+                    <div class="section-title">
+                        Registration Address
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-5">
+
+                            <div class="info-label">
+                                Barangay
+                            </div>
+
+                            <div class="info-value">
+
+                                {% if applicant.brgy %}
+                                    {{ applicant.brgy.name }}
+                                {% else %}
+                                    —
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <div class="info-label">
+                                Municipality
+                            </div>
+
+                            <div class="info-value">
+                                {{ applicant.municipality }}
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="info-label">
+                                Province
+                            </div>
+
+                            <div class="info-value">
+                                {{ applicant.province }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     CONTACT INFORMATION
+                ================================================== -->
+
+                <div class="mt-4">
+
+                    <div class="section-title">
+                        Contact Information
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+
+                            <div class="info-label">
+                                Mobile Number
+                            </div>
+
+                            <div class="info-value">
+                                {{ applicant.phone }}
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="info-label">
+                                Email Address
+                            </div>
+
+                            <div class="info-value">
+                                {{ applicant.email }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     REGISTRATION DETAILS
+                ================================================== -->
+
+                <div class="mt-4">
+
+                    <div class="section-title">
+                        Registration Details
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-4">
+
+                            <div class="info-label">
+                                Application Type
+                            </div>
+
+                            <div class="info-value">
+
+                                {% if applicant.application_type == "NEW" %}
+                                    New Registration
+                                {% elif applicant.application_type == "UPDATE" %}
+                                    Update Information
+                                {% elif applicant.application_type == "TRANSFER" %}
+                                    Transfer
+                                {% elif applicant.application_type == "REACTIVATION" %}
+                                    Reactivation
+                                {% elif applicant.application_type == "REINSTATEMENT" %}
+                                    Reinstatement
+                                {% else %}
+                                    {{ applicant.application_type }}
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="info-label">
+                                Registration Date
+                            </div>
+
+                            <div class="info-value">
+                                {{ applicant.date_joined|date:"F d, Y" }}
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="info-label">
+                                Account Status
+                            </div>
+
+                            <div class="info-value text-success">
+                                VERIFIED
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     FAMILY INFORMATION
+                ================================================== -->
+
+                <div class="mt-4">
+
+                    <div class="section-title">
+                        Family Information
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+
+                            <div class="info-label">
+                                Father's Name
+                            </div>
+
+                            <div class="info-value">
+                                {{ applicant.father }}
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="info-label">
+                                Mother's Name
+                            </div>
+
+                            <div class="info-value">
+                                {{ applicant.mother }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     BIOMETRIC VERIFICATION
+                ================================================== -->
+
+                <div class="mt-4">
+
+                    <div class="section-title">
+                        Biometric Verification
+                    </div>
+
+                    <div class="row g-3">
+
+                        <!-- LEFT FINGER -->
+
+                        <div class="col-md-4">
+
+                            <div class="verification-item h-100">
+
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+
+                                    <span class="fw-semibold">
+                                        Left Finger
+                                    </span>
+
+                                    {% if biometric.left_finger_template %}
+
+                                        <span class="badge bg-success">
+                                            Captured
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="badge bg-danger">
+                                            Not Captured
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                                <div class="fingerprint-box">
+
+                                    {% if biometric.left_finger %}
+
+                                        <img
+                                            src="{{ biometric.left_finger.url }}"
+                                            alt="Left Finger"
+                                            style="max-width: 80px; max-height: 90px;"
+                                        >
+
+                                    {% else %}
+
+                                        <div class="text-muted">
+
+                                            <i
+                                                class="bi bi-fingerprint"
+                                                style="font-size: 42px;"
+                                            ></i>
+
+                                            <div class="small mt-2">
+                                                Fingerprint captured
+                                            </div>
+
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- RIGHT FINGER -->
+
+                        <div class="col-md-4">
+
+                            <div class="verification-item h-100">
+
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+
+                                    <span class="fw-semibold">
+                                        Right Finger
+                                    </span>
+
+                                    {% if biometric.right_finger_template %}
+
+                                        <span class="badge bg-success">
+                                            Captured
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="badge bg-danger">
+                                            Not Captured
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                                <div class="fingerprint-box">
+
+                                    {% if biometric.right_finger %}
+
+                                        <img
+                                            src="{{ biometric.right_finger.url }}"
+                                            alt="Right Finger"
+                                            style="max-width: 80px; max-height: 90px;"
+                                        >
+
+                                    {% else %}
+
+                                        <div class="text-muted">
+
+                                            <i
+                                                class="bi bi-fingerprint"
+                                                style="font-size: 42px;"
+                                            ></i>
+
+                                            <div class="small mt-2">
+                                                Fingerprint captured
+                                            </div>
+
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- SIGNATURE -->
+
+                        <div class="col-md-4">
+
+                            <div class="verification-item h-100">
+
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+
+                                    <span class="fw-semibold">
+                                        Electronic Signature
+                                    </span>
+
+                                    {% if biometric.signature_completed %}
+
+                                        <span class="badge bg-success">
+                                            Captured
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="badge bg-danger">
+                                            Not Captured
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                                <div class="signature-box">
+
+                                    {% if biometric.signature %}
+
+                                        <img
+                                            src="{{ biometric.signature.url }}"
+                                            alt="Electronic Signature"
+                                        >
+
+                                    {% else %}
+
+                                        <div class="text-muted">
+
+                                            <i
+                                                class="bi bi-pen"
+                                                style="font-size: 36px;"
+                                            ></i>
+
+                                            <div class="small mt-2">
+                                                Signature captured
+                                            </div>
+
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     VERIFICATION SUMMARY
+                ================================================== -->
+
+                <div class="mt-4">
+
+                    <div class="section-title">
+                        Verification Summary
+                    </div>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-4">
+
+                            <div class="verification-item">
+
+                                <div class="d-flex justify-content-between">
+
+                                    <span>
+                                        Fingerprint Biometrics
+                                    </span>
+
+                                    {% if biometric.biometrics_completed %}
+
+                                        <span class="text-success fw-bold">
+                                            Complete
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="text-danger fw-bold">
+                                            Incomplete
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="verification-item">
+
+                                <div class="d-flex justify-content-between">
+
+                                    <span>
+                                        Electronic Signature
+                                    </span>
+
+                                    {% if biometric.signature_completed %}
+
+                                        <span class="text-success fw-bold">
+                                            Complete
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="text-danger fw-bold">
+                                            Incomplete
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-4">
+
+                            <div class="verification-item">
+
+                                <div class="d-flex justify-content-between">
+
+                                    <span>
+                                        Overall Verification
+                                    </span>
+
+                                    {% if biometric.completed %}
+
+                                        <span class="text-success fw-bold">
+                                            VERIFIED
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="text-danger fw-bold">
+                                            NOT VERIFIED
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     CERTIFICATION
+                ================================================== -->
+
+                <div class="mt-4 p-3 border bg-light">
+
+                    <div class="small">
+
+                        <strong>Certification:</strong>
+
+                        This document confirms that the applicant identified
+                        above has completed the required registration
+                        verification process, including the required
+                        fingerprint biometrics and electronic signature.
+
+                    </div>
+
+                    <div class="small mt-2 text-muted">
+
+                        This registration slip is generated from the official
+                        voter registration system of the Municipality of
+                        Pio Duran, Albay.
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     SIGNATURE AREA
+                ================================================== -->
+
+                <div class="row mt-5">
+
+                    <div class="col-md-6">
+
+                        <div
+                            style="
+                                border-top: 1px solid #212529;
+                                width: 80%;
+                                padding-top: 6px;
+                            "
+                        >
+
+                            <div class="fw-semibold">
+                                Applicant
+                            </div>
+
+                            <div class="small text-muted">
+                                Signature on file
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <div
+                            style="
+                                border-top: 1px solid #212529;
+                                width: 80%;
+                                padding-top: 6px;
+                            "
+                        >
+
+                            <div class="fw-semibold">
+                                Authorized Officer
+                            </div>
+
+                            <div class="small text-muted">
+                                Commission on Elections
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     FOOTER
+                ================================================== -->
+
+                <div class="slip-footer">
+
+                    <div class="row">
+
+                        <div class="col-md-8">
+
+                            Generated from the Pio Duran Voter Registration
+                            System.
+
+                        </div>
+
+                        <div class="col-md-4 text-md-end">
+
+                            Verification Status:
+                            <strong>VERIFIED</strong>
+
+                        </div>
+
+                    </div>
+
+                    {% if biometric.captured_at %}
+
+                        <div class="mt-1">
+
+                            Verification completed:
+                            {{ biometric.captured_at|date:"F d, Y h:i A" }}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+
+    window.addEventListener("beforeprint", function () {
+        document.title = "Registration Slip - {{ applicant.lastname }}, {{ applicant.firstname }}";
+    });
+
+</script>
+
+{% endblock %}

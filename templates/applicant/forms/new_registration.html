@@ -1,0 +1,2205 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+New Registration
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+/* =========================================================
+   REGISTRATION PAGE
+========================================================= */
+
+.registration-container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   FORM HEADER
+========================================================= */
+
+.registration-header {
+    background: white;
+    border: 1px solid #dbe3ef;
+    border-left: 4px solid #0038a8;
+    padding: 24px 28px;
+    margin-bottom: 25px;
+}
+
+.registration-header h1 {
+    margin: 0 0 7px;
+    color: #172554;
+    font-size: 27px;
+    font-weight: 700;
+}
+
+.registration-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   APPLICATION BADGE
+========================================================= */
+
+.application-badge {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 7px 13px;
+    background: #eaf2ff;
+    border: 1px solid #cbdcf8;
+    color: #0038a8;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   FORM SECTION
+========================================================= */
+
+.form-section {
+    background: white;
+    border: 1px solid #dbe3ef;
+    margin-bottom: 22px;
+}
+
+.form-section-header {
+    display: flex;
+    align-items: center;
+    min-height: 60px;
+    padding: 15px 22px;
+    background: #f8fafc;
+    border-bottom: 1px solid #dbe3ef;
+}
+
+.form-section-marker {
+    width: 4px;
+    height: 25px;
+    background: #0038a8;
+    margin-right: 12px;
+}
+
+.form-section-header h2 {
+    margin: 0;
+    color: #172554;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.form-section-body {
+    padding: 25px;
+}
+
+
+/* =========================================================
+   FORM FIELDS
+========================================================= */
+
+.form-label {
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 7px;
+}
+
+.required {
+    color: #ce1126;
+}
+
+.form-control,
+.form-select {
+    min-height: 43px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    color: #1e293b;
+    font-size: 14px;
+    box-shadow: none;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #0038a8;
+    box-shadow: 0 0 0 3px rgba(0, 56, 168, 0.10);
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+}
+
+.form-control.is-invalid:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.10);
+}
+
+.form-text {
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.phone-network-note {
+    margin-top: 5px;
+    color: #475569;
+    font-size: 12px;
+}
+
+.phone-network-note strong {
+    color: #0038a8;
+}
+
+.phone-error {
+    display: none;
+    margin-top: 6px;
+    color: #b42318;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.registration-error {
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    border-left: 4px solid #ce1126;
+    color: #881337;
+    padding: 14px 17px;
+    margin-bottom: 22px;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   FORM ACTIONS
+========================================================= */
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    border: 1px solid #dbe3ef;
+    padding: 20px 25px;
+    margin-bottom: 30px;
+}
+
+.form-actions-note {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.btn-government {
+    background: #0038a8;
+    border: 1px solid #0038a8;
+    color: white;
+    min-height: 43px;
+    padding: 9px 22px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.btn-government:hover {
+    background: #002b7f;
+    border-color: #002b7f;
+    color: white;
+}
+
+
+/* =========================================================
+   REVIEW SCREEN
+========================================================= */
+
+.review-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.review-header {
+    background: white;
+    border: 1px solid #dbe3ef;
+    border-left: 4px solid #0038a8;
+    padding: 24px 28px;
+    margin-bottom: 22px;
+}
+
+.review-header h1 {
+    margin: 0 0 7px;
+    color: #172554;
+    font-size: 27px;
+    font-weight: 700;
+}
+
+.review-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   REVIEW SECTIONS
+========================================================= */
+
+.review-section {
+    background: white;
+    border: 1px solid #dbe3ef;
+    margin-bottom: 20px;
+}
+
+.review-section-header {
+    padding: 14px 20px;
+    background: #f8fafc;
+    border-bottom: 1px solid #dbe3ef;
+    color: #172554;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.review-section-body {
+    padding: 5px 20px;
+}
+
+.review-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 13px 0;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.review-row:last-child {
+    border-bottom: none;
+}
+
+.review-label {
+    width: 35%;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.review-value {
+    width: 65%;
+    color: #1e293b;
+    font-size: 14px;
+    font-weight: 500;
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   REVIEW NOTICE
+========================================================= */
+
+.review-notice {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-left: 4px solid #0038a8;
+    padding: 15px 18px;
+    margin-bottom: 20px;
+    color: #1e3a8a;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   REVIEW ACTIONS
+========================================================= */
+
+.review-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    border: 1px solid #dbe3ef;
+    padding: 20px 25px;
+    margin-bottom: 30px;
+}
+
+.btn-back {
+    min-height: 43px;
+    padding: 9px 20px;
+    background: white;
+    border: 1px solid #94a3b8;
+    color: #334155;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.btn-back:hover {
+    background: #f8fafc;
+    border-color: #64748b;
+}
+
+.btn-submit {
+    min-height: 43px;
+    padding: 9px 22px;
+    background: #0038a8;
+    border: 1px solid #0038a8;
+    color: white;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.btn-submit:hover {
+    background: #002b7f;
+    border-color: #002b7f;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 767px) {
+
+    .registration-header,
+    .review-header {
+        padding: 20px;
+    }
+
+    .registration-header h1,
+    .review-header h1 {
+        font-size: 23px;
+    }
+
+    .form-section-body {
+        padding: 20px;
+    }
+
+    .form-actions,
+    .review-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .form-actions-note {
+        text-align: center;
+    }
+
+    .form-actions button,
+    .review-actions button {
+        width: 100%;
+    }
+
+    .review-row {
+        display: block;
+    }
+
+    .review-label,
+    .review-value {
+        width: 100%;
+    }
+
+    .review-label {
+        margin-bottom: 4px;
+    }
+
+}
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<!-- =========================================================
+     FORM SCREEN
+========================================================= -->
+
+<div
+    id="formScreen"
+    class="registration-container"
+>
+
+
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+
+    <div class="registration-header">
+
+        <h1>
+            New Registration
+        </h1>
+
+        <p>
+            Please provide the applicant's information
+            accurately and completely.
+        </p>
+
+        <span class="application-badge">
+            New Voter Registration
+        </span>
+
+    </div>
+
+
+    <!-- =====================================================
+         ERROR
+    ====================================================== -->
+
+    {% if error %}
+
+        <div class="registration-error">
+
+            <strong>
+                Application Error
+            </strong>
+
+            <div class="mt-1">
+                {{ error }}
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- =====================================================
+         FORM
+    ====================================================== -->
+
+    <form
+        method="POST"
+        id="registrationForm"
+    >
+
+        {% csrf_token %}
+
+
+        <input
+            type="hidden"
+            name="application_type"
+            value="NEW"
+        >
+
+
+        <!-- =================================================
+             PERSONAL INFORMATION
+        ================================================== -->
+
+        <div class="form-section">
+
+            <div class="form-section-header">
+
+                <div class="form-section-marker"></div>
+
+                <h2>
+                    Personal Information
+                </h2>
+
+            </div>
+
+
+            <div class="form-section-body">
+
+                <div class="row g-4">
+
+
+                    <!-- LAST NAME -->
+
+                    <div class="col-md-4">
+
+                        <label
+                            for="lastname"
+                            class="form-label"
+                        >
+                            Last Name
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="lastname"
+                            id="lastname"
+                            class="form-control"
+                            value="{{ form_data.lastname|default:'' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- FIRST NAME -->
+
+                    <div class="col-md-4">
+
+                        <label
+                            for="firstname"
+                            class="form-label"
+                        >
+                            First Name
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="firstname"
+                            id="firstname"
+                            class="form-control"
+                            value="{{ form_data.firstname|default:'' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- MIDDLE NAME -->
+
+                    <div class="col-md-4">
+
+                        <label
+                            for="middlename"
+                            class="form-label"
+                        >
+                            Middle Name
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="middlename"
+                            id="middlename"
+                            class="form-control"
+                            value="{{ form_data.middlename|default:'' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- AGE -->
+
+                    <div class="col-md-4">
+
+                        <label
+                            for="age"
+                            class="form-label"
+                        >
+                            Age
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="number"
+                            name="age"
+                            id="age"
+                            class="form-control"
+                            min="1"
+                            max="150"
+                            value="{{ form_data.age|default:'' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- SEX -->
+
+                    <div class="col-md-4">
+
+                        <label
+                            for="sex"
+                            class="form-label"
+                        >
+                            Sex
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="sex"
+                            id="sex"
+                            class="form-select"
+                            required
+                        >
+
+                            <option value="">
+                                Select Sex
+                            </option>
+
+                            <option
+                                value="Male"
+                                {% if form_data.sex == "Male" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Male
+                            </option>
+
+                            <option
+                                value="Female"
+                                {% if form_data.sex == "Female" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Female
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- BIRTHDATE -->
+
+                    <div class="col-md-4">
+
+                        <label
+                            for="birthdate"
+                            class="form-label"
+                        >
+                            Birthdate
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="date"
+                            name="birthdate"
+                            id="birthdate"
+                            class="form-control"
+                            value="{{ form_data.birthdate|default:'' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- BIRTHPLACE -->
+
+                    <div class="col-12">
+
+                        <label
+                            for="birthplace"
+                            class="form-label"
+                        >
+                            Birthplace
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="birthplace"
+                            id="birthplace"
+                            class="form-control"
+                            value="{{ form_data.birthplace|default:'' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             ADDRESS
+        ================================================== -->
+
+        <div class="form-section">
+
+            <div class="form-section-header">
+
+                <div class="form-section-marker"></div>
+
+                <h2>
+                    Address
+                </h2>
+
+            </div>
+
+
+            <div class="form-section-body">
+
+                <div class="row g-4">
+
+
+                    <!-- BARANGAY -->
+
+                    <div class="col-md-4">
+
+                        <label
+                            for="brgy"
+                            class="form-label"
+                        >
+                            Barangay
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="brgy"
+                            id="brgy"
+                            class="form-select"
+                            required
+                        >
+
+                            <option value="">
+                                Select Barangay
+                            </option>
+
+                            {% for barangay in barangays %}
+
+                                <option
+                                    value="{{ barangay.id }}"
+                                    {% if form_data.brgy == barangay.id|stringformat:"s" %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ barangay.name }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- MUNICIPALITY -->
+
+                    <div class="col-md-4">
+
+                        <label
+                            for="municipality"
+                            class="form-label"
+                        >
+                            Municipality
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="municipality"
+                            id="municipality"
+                            class="form-control"
+                            value="{{ form_data.municipality|default:'Pio Duran' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- PROVINCE -->
+
+                    <div class="col-md-4">
+
+                        <label
+                            for="province"
+                            class="form-label"
+                        >
+                            Province
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="province"
+                            id="province"
+                            class="form-control"
+                            value="{{ form_data.province|default:'Albay' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             CONTACT INFORMATION
+        ================================================== -->
+
+        <div class="form-section">
+
+            <div class="form-section-header">
+
+                <div class="form-section-marker"></div>
+
+                <h2>
+                    Contact Information
+                </h2>
+
+            </div>
+
+
+            <div class="form-section-body">
+
+                <div class="row g-4">
+
+
+                    <!-- PHONE -->
+
+                    <div class="col-md-6">
+
+                        <label
+                            for="phone"
+                            class="form-label"
+                        >
+                            Phone Number
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="phone"
+                            id="phone"
+                            class="form-control"
+                            maxlength="11"
+                            minlength="11"
+                            inputmode="numeric"
+                            pattern="09[0-9]{9}"
+                            value="{{ form_data.phone|default:'' }}"
+                            placeholder="09XXXXXXXXX"
+                            required
+                        >
+
+                        <div class="form-text">
+                            Enter an 11-digit Philippine mobile number.
+                        </div>
+
+                        <div class="phone-network-note">
+                            This service currently accepts
+                            <strong>Globe, TM, and DITO</strong>
+                            mobile numbers only.
+                        </div>
+
+                        <div
+                            id="phoneError"
+                            class="phone-error"
+                        ></div>
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+
+                    <div class="col-md-6">
+
+                        <label
+                            for="email"
+                            class="form-label"
+                        >
+                            Email Address
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            class="form-control"
+                            value="{{ form_data.email|default:'' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             OTHER INFORMATION
+        ================================================== -->
+
+        <div class="form-section">
+
+            <div class="form-section-header">
+
+                <div class="form-section-marker"></div>
+
+                <h2>
+                    Other Information
+                </h2>
+
+            </div>
+
+
+            <div class="form-section-body">
+
+                <div class="row g-4">
+
+
+                    <!-- PWD -->
+
+                    <div class="col-md-6">
+
+                        <label
+                            for="pwd_status"
+                            class="form-label"
+                        >
+                            PWD Status
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="pwd_status"
+                            id="pwd_status"
+                            class="form-select"
+                            required
+                        >
+
+                            <option
+                                value="NO"
+                                {% if form_data.pwd_status == "NO" or not form_data.pwd_status %}
+                                    selected
+                                {% endif %}
+                            >
+                                Not PWD
+                            </option>
+
+                            <option
+                                value="VISUAL"
+                                {% if form_data.pwd_status == "VISUAL" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Visual Disability
+                            </option>
+
+                            <option
+                                value="HEARING"
+                                {% if form_data.pwd_status == "HEARING" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Hearing Disability
+                            </option>
+
+                            <option
+                                value="PHYSICAL"
+                                {% if form_data.pwd_status == "PHYSICAL" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Physical Disability
+                            </option>
+
+                            <option
+                                value="INTELLECTUAL"
+                                {% if form_data.pwd_status == "INTELLECTUAL" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Intellectual Disability
+                            </option>
+
+                            <option
+                                value="PSYCHOSOCIAL"
+                                {% if form_data.pwd_status == "PSYCHOSOCIAL" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Psychosocial Disability
+                            </option>
+
+                            <option
+                                value="MULTIPLE"
+                                {% if form_data.pwd_status == "MULTIPLE" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Multiple Disabilities
+                            </option>
+
+                            <option
+                                value="OTHER"
+                                {% if form_data.pwd_status == "OTHER" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- CITIZENSHIP -->
+
+                    <div class="col-md-6">
+
+                        <label
+                            for="citizenship_status"
+                            class="form-label"
+                        >
+                            Citizenship
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="citizenship_status"
+                            id="citizenship_status"
+                            class="form-select"
+                            required
+                        >
+
+                            <option
+                                value="BY_BIRTH"
+                                {% if form_data.citizenship_status == "BY_BIRTH" or not form_data.citizenship_status %}
+                                    selected
+                                {% endif %}
+                            >
+                                By Birth
+                            </option>
+
+                            <option
+                                value="NATURALIZED"
+                                {% if form_data.citizenship_status == "NATURALIZED" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Naturalized
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- FATHER -->
+
+                    <div class="col-md-6">
+
+                        <label
+                            for="father"
+                            class="form-label"
+                        >
+                            Father's Name
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="father"
+                            id="father"
+                            class="form-control"
+                            value="{{ form_data.father|default:'' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- MOTHER -->
+
+                    <div class="col-md-6">
+
+                        <label
+                            for="mother"
+                            class="form-label"
+                        >
+                            Mother's Name
+                            <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            name="mother"
+                            id="mother"
+                            class="form-control"
+                            value="{{ form_data.mother|default:'' }}"
+                            required
+                        >
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             FORM ACTIONS
+        ================================================== -->
+
+        <div class="form-actions">
+
+            <div class="form-actions-note">
+
+                <span class="required">*</span>
+                Required fields
+
+            </div>
+
+
+            <button
+                type="button"
+                class="btn-government"
+                onclick="showReview()"
+            >
+                Review Application
+            </button>
+
+        </div>
+
+
+    </form>
+
+</div>
+
+
+<!-- =========================================================
+     REVIEW SCREEN
+========================================================= -->
+
+<div
+    id="reviewScreen"
+    class="review-container"
+    style="display: none;"
+>
+
+
+    <!-- =====================================================
+         REVIEW HEADER
+    ====================================================== -->
+
+    <div class="review-header">
+
+        <h1>
+            Review Application
+        </h1>
+
+        <p>
+            Please carefully review all information before
+            submitting your registration.
+        </p>
+
+    </div>
+
+
+    <!-- =====================================================
+         NOTICE
+    ====================================================== -->
+
+    <div class="review-notice">
+
+        <strong>
+            Please verify your information.
+        </strong>
+
+        Make sure that all personal, address, contact,
+        and other information is correct before submitting
+        the application.
+
+    </div>
+
+
+    <!-- =====================================================
+         APPLICATION INFORMATION
+    ====================================================== -->
+
+    <div class="review-section">
+
+        <div class="review-section-header">
+            Application Information
+        </div>
+
+        <div class="review-section-body">
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    Application Type
+                </div>
+
+                <div class="review-value">
+                    New Registration
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         PERSONAL INFORMATION
+    ====================================================== -->
+
+    <div class="review-section">
+
+        <div class="review-section-header">
+            Personal Information
+        </div>
+
+        <div class="review-section-body">
+
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    Last Name
+                </div>
+
+                <div
+                    class="review-value"
+                    id="review_lastname"
+                >
+                </div>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    First Name
+                </div>
+
+                <div
+                    class="review-value"
+                    id="review_firstname"
+                >
+                </div>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    Middle Name
+                </div>
+
+                <div
+                    class="review-value"
+                    id="review_middlename"
+                >
+                </div>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    Age
+                </div>
+
+                <div
+                    class="review-value"
+                    id="review_age"
+                >
+                </div>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    Sex
+                </div>
+
+                <div
+                    class="review-value"
+                    id="review_sex"
+                >
+                </div>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    Birthdate
+                </div>
+
+                <div
+                    class="review-value"
+                    id="review_birthdate"
+                >
+                </div>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    Birthplace
+                </div>
+
+                <div
+                    class="review-value"
+                    id="review_birthplace"
+                >
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         ADDRESS
+    ====================================================== -->
+
+    <div class="review-section">
+
+        <div class="review-section-header">
+            Address
+        </div>
+
+        <div class="review-section-body">
+
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    Barangay
+                </div>
+
+                <div
+                    class="review-value"
+                    id="review_brgy"
+                >
+                </div>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    Municipality
+                </div>
+
+                <div
+                    class="review-value"
+                    id="review_municipality"
+                >
+                </div>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    Province
+                </div>
+
+                <div
+                    class="review-value"
+                    id="review_province"
+                >
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CONTACT
+    ====================================================== -->
+
+    <div class="review-section">
+
+        <div class="review-section-header">
+            Contact Information
+        </div>
+
+        <div class="review-section-body">
+
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    Phone Number
+                </div>
+
+                <div
+                    class="review-value"
+                    id="review_phone"
+                >
+                </div>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    Email Address
+                </div>
+
+                <div
+                    class="review-value"
+                    id="review_email"
+                >
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         OTHER INFORMATION
+    ====================================================== -->
+
+    <div class="review-section">
+
+        <div class="review-section-header">
+            Other Information
+        </div>
+
+        <div class="review-section-body">
+
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    PWD Status
+                </div>
+
+                <div
+                    class="review-value"
+                    id="review_pwd_status"
+                >
+                </div>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    Citizenship
+                </div>
+
+                <div
+                    class="review-value"
+                    id="review_citizenship_status"
+                >
+                </div>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    Father's Name
+                </div>
+
+                <div
+                    class="review-value"
+                    id="review_father"
+                >
+                </div>
+
+            </div>
+
+
+            <div class="review-row">
+
+                <div class="review-label">
+                    Mother's Name
+                </div>
+
+                <div
+                    class="review-value"
+                    id="review_mother"
+                >
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         REVIEW ACTIONS
+    ====================================================== -->
+
+    <div class="review-actions">
+
+        <button
+            type="button"
+            class="btn-back"
+            onclick="backToForm()"
+        >
+            Back to Edit
+        </button>
+
+
+        <button
+            type="button"
+            class="btn-submit"
+            onclick="submitApplication()"
+        >
+            Submit Registration
+        </button>
+
+    </div>
+
+
+</div>
+
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+/* =========================================================
+   ALLOWED MOBILE PREFIXES
+
+   ACCEPTED:
+   - Globe
+   - TM
+   - DITO
+========================================================= */
+
+const allowedMobilePrefixes = [
+
+    /* -----------------------------------------------------
+       GLOBE
+    ----------------------------------------------------- */
+
+    "0817",
+    "0904",
+    "0905",
+    "0906",
+    "0915",
+    "0916",
+    "0917",
+    "0926",
+    "0927",
+    "0935",
+    "0936",
+    "0937",
+    "0945",
+    "0953",
+    "0954",
+    "0955",
+    "0956",
+    "0965",
+    "0966",
+    "0967",
+    "0975",
+    "0976",
+    "0977",
+    "0978",
+    "0979",
+    "0994",
+    "0995",
+    "0996",
+    "0997",
+
+    /* -----------------------------------------------------
+       TM
+    ----------------------------------------------------- */
+
+    "0907",
+    "0908",
+    "0909",
+    "0910",
+    "0912",
+    "0930",
+    "0938",
+    "0939",
+    "0946",
+    "0947",
+    "0948",
+    "0949",
+    "0950",
+    "0951",
+    "0961",
+    "0962",
+    "0963",
+    "0964",
+    "0970",
+    "0971",
+    "0981",
+    "0989",
+    "0990",
+    "0991",
+    "0992",
+    "0993",
+
+    /* -----------------------------------------------------
+       DITO
+    ----------------------------------------------------- */
+
+    "0895",
+    "0896",
+    "0897",
+    "0898"
+];
+
+
+/* =========================================================
+   GET FIELD VALUE
+========================================================= */
+
+function getValue(id) {
+
+    return document.getElementById(id).value;
+
+}
+
+
+/* =========================================================
+   GET SELECTED TEXT
+========================================================= */
+
+function getSelectedText(id) {
+
+    const select =
+        document.getElementById(id);
+
+    if (
+        select.selectedIndex < 0
+    ) {
+
+        return "";
+
+    }
+
+    return select.options[
+        select.selectedIndex
+    ].text;
+
+}
+
+
+/* =========================================================
+   SET REVIEW VALUE
+========================================================= */
+
+function setReview(id, value) {
+
+    document.getElementById(id).textContent =
+        value || "-";
+
+}
+
+
+/* =========================================================
+   VALIDATE MOBILE NUMBER
+========================================================= */
+
+function validatePhoneNumber() {
+
+    const phoneInput =
+        document.getElementById("phone");
+
+    const phoneError =
+        document.getElementById("phoneError");
+
+    let phone =
+        phoneInput.value.trim();
+
+
+    /*
+     * Keep numbers only.
+     */
+
+    phone =
+        phone.replace(/\D/g, "");
+
+
+    phoneInput.value = phone;
+
+
+    /*
+     * Empty number.
+     */
+
+    if (!phone) {
+
+        phoneInput.classList.remove(
+            "is-invalid"
+        );
+
+        phoneError.style.display =
+            "none";
+
+        phoneError.textContent =
+            "";
+
+        return false;
+
+    }
+
+
+    /*
+     * Must be exactly 11 digits
+     * and start with 09.
+     */
+
+    if (
+        !/^09[0-9]{9}$/.test(phone)
+    ) {
+
+        phoneInput.classList.add(
+            "is-invalid"
+        );
+
+        phoneError.textContent =
+            "Please enter a valid 11-digit Philippine mobile number.";
+
+        phoneError.style.display =
+            "block";
+
+        return false;
+
+    }
+
+
+    /*
+     * Get first four digits.
+     */
+
+    const prefix =
+        phone.substring(0, 4);
+
+
+    /*
+     * Check accepted network prefixes.
+     */
+
+    if (
+        !allowedMobilePrefixes.includes(
+            prefix
+        )
+    ) {
+
+        phoneInput.classList.add(
+            "is-invalid"
+        );
+
+        phoneError.textContent =
+            "Only Globe, TM, and DITO mobile numbers are accepted.";
+
+        phoneError.style.display =
+            "block";
+
+        return false;
+
+    }
+
+
+    /*
+     * Valid number.
+     */
+
+    phoneInput.classList.remove(
+        "is-invalid"
+    );
+
+    phoneError.style.display =
+        "none";
+
+    phoneError.textContent =
+        "";
+
+    return true;
+
+}
+
+
+/* =========================================================
+   PHONE INPUT
+========================================================= */
+
+document
+    .getElementById("phone")
+    .addEventListener(
+        "input",
+        function () {
+
+            /*
+             * Allow numbers only.
+             */
+
+            this.value =
+                this.value.replace(
+                    /\D/g,
+                    ""
+                );
+
+
+            /*
+             * Limit to 11 digits.
+             */
+
+            if (
+                this.value.length > 11
+            ) {
+
+                this.value =
+                    this.value.substring(
+                        0,
+                        11
+                    );
+
+            }
+
+
+            validatePhoneNumber();
+
+        }
+    );
+
+
+/* =========================================================
+   SHOW REVIEW
+========================================================= */
+
+function showReview() {
+
+    const form =
+        document.getElementById(
+            "registrationForm"
+        );
+
+
+    /*
+     * Validate all required fields.
+     */
+
+    if (
+        !form.checkValidity()
+    ) {
+
+        form.reportValidity();
+
+        return;
+
+    }
+
+
+    /*
+     * Validate mobile number
+     * and accepted network.
+     */
+
+    if (
+        !validatePhoneNumber()
+    ) {
+
+        document
+            .getElementById("phone")
+            .focus();
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       PERSONAL INFORMATION
+    ====================================================== */
+
+    setReview(
+        "review_lastname",
+        getValue("lastname")
+    );
+
+
+    setReview(
+        "review_firstname",
+        getValue("firstname")
+    );
+
+
+    setReview(
+        "review_middlename",
+        getValue("middlename")
+    );
+
+
+    setReview(
+        "review_age",
+        getValue("age")
+    );
+
+
+    setReview(
+        "review_sex",
+        getSelectedText("sex")
+    );
+
+
+    setReview(
+        "review_birthdate",
+        getValue("birthdate")
+    );
+
+
+    setReview(
+        "review_birthplace",
+        getValue("birthplace")
+    );
+
+
+    /* =====================================================
+       ADDRESS
+    ====================================================== */
+
+    setReview(
+        "review_brgy",
+        getSelectedText("brgy")
+    );
+
+
+    setReview(
+        "review_municipality",
+        getValue("municipality")
+    );
+
+
+    setReview(
+        "review_province",
+        getValue("province")
+    );
+
+
+    /* =====================================================
+       CONTACT
+    ====================================================== */
+
+    setReview(
+        "review_phone",
+        getValue("phone")
+    );
+
+
+    setReview(
+        "review_email",
+        getValue("email")
+    );
+
+
+    /* =====================================================
+       OTHER INFORMATION
+    ====================================================== */
+
+    setReview(
+        "review_pwd_status",
+        getSelectedText(
+            "pwd_status"
+        )
+    );
+
+
+    setReview(
+        "review_citizenship_status",
+        getSelectedText(
+            "citizenship_status"
+        )
+    );
+
+
+    setReview(
+        "review_father",
+        getValue("father")
+    );
+
+
+    setReview(
+        "review_mother",
+        getValue("mother")
+    );
+
+
+    /* =====================================================
+       HIDE FORM
+    ====================================================== */
+
+    document.getElementById(
+        "formScreen"
+    ).style.display = "none";
+
+
+    /* =====================================================
+       SHOW REVIEW
+    ====================================================== */
+
+    document.getElementById(
+        "reviewScreen"
+    ).style.display = "block";
+
+
+    /* =====================================================
+       SCROLL TO TOP
+    ====================================================== */
+
+    window.scrollTo(
+        0,
+        0
+    );
+
+}
+
+
+/* =========================================================
+   BACK TO FORM
+========================================================= */
+
+function backToForm() {
+
+    document.getElementById(
+        "reviewScreen"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "formScreen"
+    ).style.display = "block";
+
+
+    window.scrollTo(
+        0,
+        0
+    );
+
+}
+
+
+/* =========================================================
+   FINAL SUBMISSION
+========================================================= */
+
+function submitApplication() {
+
+    const form =
+        document.getElementById(
+            "registrationForm"
+        );
+
+
+    /*
+     * Validate form again before
+     * final submission.
+     */
+
+    if (
+        !form.checkValidity()
+    ) {
+
+        document.getElementById(
+            "reviewScreen"
+        ).style.display = "none";
+
+        document.getElementById(
+            "formScreen"
+        ).style.display = "block";
+
+        form.reportValidity();
+
+        return;
+
+    }
+
+
+    /*
+     * Validate phone again.
+     */
+
+    if (
+        !validatePhoneNumber()
+    ) {
+
+        document.getElementById(
+            "reviewScreen"
+        ).style.display = "none";
+
+        document.getElementById(
+            "formScreen"
+        ).style.display = "block";
+
+        document
+            .getElementById("phone")
+            .focus();
+
+        return;
+
+    }
+
+
+    /*
+     * Make sure the application type
+     * is always NEW.
+     */
+
+    const applicationType =
+        form.querySelector(
+            'input[name="application_type"]'
+        );
+
+
+    applicationType.value =
+        "NEW";
+
+
+    /*
+     * Submit the Django form.
+     */
+
+    form.submit();
+
+}
+
+</script>
+
+{% endblock %}

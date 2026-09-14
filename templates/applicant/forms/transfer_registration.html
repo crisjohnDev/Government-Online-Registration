@@ -1,0 +1,1250 @@
+
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}
+    Transfer Registration
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    /* =========================================================
+       PAGE HEADER
+    ========================================================= */
+
+    .registration-header {
+        background: #ffffff;
+        border: 1px solid #dbe3ef;
+        border-left: 5px solid #0038a8;
+        padding: 24px 28px;
+        margin-bottom: 24px;
+    }
+
+    .registration-header h1 {
+        margin: 0;
+        color: #002b7f;
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .registration-header p {
+        margin: 7px 0 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .application-badge {
+        display: inline-block;
+        margin-top: 14px;
+        padding: 6px 12px;
+        background: #eaf2ff;
+        border: 1px solid #c9dcff;
+        color: #0038a8;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+
+    /* =========================================================
+       STEP INDICATOR
+    ========================================================= */
+
+    .step-wrapper {
+        display: flex;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .step {
+        display: flex;
+        align-items: center;
+        flex: 1;
+    }
+
+    .step:last-child {
+        flex: 0 0 auto;
+    }
+
+    .step-number {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .step.active .step-number {
+        background: #0038a8;
+        color: #ffffff;
+    }
+
+    .step.completed .step-number {
+        background: #198754;
+        color: #ffffff;
+    }
+
+    .step-label {
+        margin-left: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #64748b;
+    }
+
+    .step.active .step-label {
+        color: #0038a8;
+    }
+
+    .step-line {
+        height: 2px;
+        background: #dbe3ef;
+        flex: 1;
+        margin: 0 14px;
+    }
+
+    .step-line.completed {
+        background: #198754;
+    }
+
+
+    /* =========================================================
+       ERROR ALERT
+    ========================================================= */
+
+    .error-alert {
+        background: #fff1f2;
+        border: 1px solid #fecdd3;
+        border-left: 5px solid #ce1126;
+        color: #9f1239;
+        padding: 14px 18px;
+        margin-bottom: 24px;
+        font-size: 14px;
+    }
+
+
+    /* =========================================================
+       FORM CARD
+    ========================================================= */
+
+    .form-card {
+        background: #ffffff;
+        border: 1px solid #dbe3ef;
+        margin-bottom: 24px;
+    }
+
+    .form-card-header {
+        padding: 18px 22px;
+        border-bottom: 1px solid #dbe3ef;
+        background: #f8fafc;
+    }
+
+    .form-card-header h2,
+    .form-card-header h3 {
+        margin: 0;
+        color: #1e3a8a;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .form-card-header p {
+        margin: 5px 0 0;
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .form-card-body {
+        padding: 24px;
+    }
+
+
+    /* =========================================================
+       FORM CONTROLS
+    ========================================================= */
+
+    .form-label {
+        color: #334155;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 7px;
+    }
+
+    .form-control,
+    .form-select {
+        min-height: 44px;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+        color: #1e293b;
+        font-size: 14px;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #0038a8;
+        box-shadow: 0 0 0 3px rgba(0, 56, 168, .10);
+    }
+
+    textarea.form-control {
+        min-height: 140px;
+        resize: vertical;
+    }
+
+    .form-text {
+        color: #64748b;
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+       RECORD FOUND
+    ========================================================= */
+
+    .record-found {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-left: 5px solid #198754;
+        padding: 14px 16px;
+        margin-bottom: 20px;
+        color: #166534;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .record-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #198754;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+
+    /* =========================================================
+       APPLICANT INFORMATION
+    ========================================================= */
+
+    .applicant-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1px;
+        background: #dbe3ef;
+        border: 1px solid #dbe3ef;
+    }
+
+    .applicant-item {
+        background: #ffffff;
+        padding: 15px 17px;
+    }
+
+    .applicant-label {
+        display: block;
+        margin-bottom: 5px;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+    .applicant-value {
+        color: #1e293b;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+
+    /* =========================================================
+       ADDRESS COMPARISON
+    ========================================================= */
+
+    .address-card {
+        height: 100%;
+        border: 1px solid #dbe3ef;
+        background: #ffffff;
+    }
+
+    .address-card-header {
+        padding: 14px 16px;
+        background: #f8fafc;
+        border-bottom: 1px solid #dbe3ef;
+    }
+
+    .address-card-header h3 {
+        margin: 0;
+        color: #1e3a8a;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .address-card-body {
+        padding: 18px;
+    }
+
+    .address-item {
+        margin-bottom: 15px;
+    }
+
+    .address-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .address-label {
+        display: block;
+        margin-bottom: 4px;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+    }
+
+    .address-value {
+        color: #1e293b;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .current-address {
+        border-top: 4px solid #64748b;
+    }
+
+    .new-address {
+        border-top: 4px solid #0038a8;
+    }
+
+
+    /* =========================================================
+       INFORMATION NOTICE
+    ========================================================= */
+
+    .information-notice {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-left: 4px solid #0038a8;
+        padding: 14px 16px;
+        color: #1e3a8a;
+        font-size: 13px;
+        line-height: 1.6;
+        margin-top: 20px;
+    }
+
+    .information-notice strong {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 13px;
+    }
+
+
+    /* =========================================================
+       BUTTONS
+    ========================================================= */
+
+    .button-row {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 22px;
+    }
+
+    .btn-government {
+        background: #0038a8;
+        border: 1px solid #0038a8;
+        color: #ffffff;
+        min-height: 44px;
+        padding: 10px 22px;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .btn-government:hover {
+        background: #002b7f;
+        border-color: #002b7f;
+        color: #ffffff;
+    }
+
+    .btn-submit {
+        background: #0038a8;
+        border: 1px solid #0038a8;
+        color: #ffffff;
+        min-height: 44px;
+        padding: 10px 22px;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .btn-submit:hover {
+        background: #002b7f;
+        border-color: #002b7f;
+        color: #ffffff;
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 767px) {
+
+        .registration-header {
+            padding: 20px;
+        }
+
+        .registration-header h1 {
+            font-size: 23px;
+        }
+
+        .form-card-body {
+            padding: 18px;
+        }
+
+        .applicant-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .step-label {
+            display: none;
+        }
+
+        .step-line {
+            margin: 0 8px;
+        }
+
+        .button-row {
+            flex-direction: column;
+        }
+
+        .button-row .btn {
+            width: 100%;
+        }
+
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<!-- =========================================================
+     PAGE HEADER
+========================================================= -->
+
+<div class="registration-header">
+
+    <h1>
+        Request for Transfer
+    </h1>
+
+    <p>
+        Request the transfer of your voter registration
+        to a new address.
+    </p>
+
+    <span class="application-badge">
+        Transfer Application
+    </span>
+
+</div>
+
+
+<!-- =========================================================
+     STEP INDICATOR
+========================================================= -->
+
+<div class="step-wrapper">
+
+    <div class="step {% if not applicant %}active{% else %}completed{% endif %}">
+
+        <div class="step-number">
+            1
+        </div>
+
+        <div class="step-label">
+            Find Registration
+        </div>
+
+    </div>
+
+
+    <div class="step-line {% if applicant %}completed{% endif %}"></div>
+
+
+    <div class="step {% if applicant %}active{% endif %}">
+
+        <div class="step-number">
+            2
+        </div>
+
+        <div class="step-label">
+            Transfer Information
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     ERROR
+========================================================= -->
+
+{% if error %}
+
+<div class="error-alert">
+
+    <strong>
+        Unable to process your request.
+    </strong>
+
+    <div>
+        {{ error }}
+    </div>
+
+</div>
+
+{% endif %}
+
+
+<!-- =========================================================
+     STEP 1: FIND APPLICANT
+========================================================= -->
+
+{% if not applicant %}
+
+<div class="form-card">
+
+    <div class="form-card-header">
+
+        <h2>
+            Find Your Registration
+        </h2>
+
+        <p>
+            Enter your registered information to find your
+            existing registration record.
+        </p>
+
+    </div>
+
+
+    <div class="form-card-body">
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="action"
+                value="find_applicant"
+            >
+
+
+            <div class="row g-3">
+
+                <!-- LAST NAME -->
+
+                <div class="col-md-4">
+
+                    <label
+                        for="lastname"
+                        class="form-label"
+                    >
+                        Last Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="lastname"
+                        name="lastname"
+                        class="form-control"
+                        value="{{ search_data.lastname|default:'' }}"
+                        autocomplete="family-name"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- FIRST NAME -->
+
+                <div class="col-md-4">
+
+                    <label
+                        for="firstname"
+                        class="form-label"
+                    >
+                        First Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="firstname"
+                        name="firstname"
+                        class="form-control"
+                        value="{{ search_data.firstname|default:'' }}"
+                        autocomplete="given-name"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- MIDDLE NAME -->
+
+                <div class="col-md-4">
+
+                    <label
+                        for="middlename"
+                        class="form-label"
+                    >
+                        Middle Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="middlename"
+                        name="middlename"
+                        class="form-control"
+                        value="{{ search_data.middlename|default:'' }}"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- BIRTHDATE -->
+
+                <div class="col-md-6">
+
+                    <label
+                        for="birthdate"
+                        class="form-label"
+                    >
+                        Birthdate
+                    </label>
+
+                    <input
+                        type="date"
+                        id="birthdate"
+                        name="birthdate"
+                        class="form-control"
+                        value="{{ search_data.birthdate|default:'' }}"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="information-notice">
+
+                <strong>
+                    Important
+                </strong>
+
+                Please enter your information exactly as it
+                appears in your existing voter registration
+                record.
+
+            </div>
+
+
+            <div class="button-row">
+
+                <button
+                    type="submit"
+                    class="btn btn-government"
+                >
+                    Find Registration
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+{% else %}
+
+
+<!-- =========================================================
+     STEP 2: APPLICANT INFORMATION
+========================================================= -->
+
+<div class="form-card">
+
+    <div class="form-card-header">
+
+        <h2>
+            Applicant Information
+        </h2>
+
+        <p>
+            Review your existing registration information
+            before requesting a transfer.
+        </p>
+
+    </div>
+
+
+    <div class="form-card-body">
+
+        <div class="record-found">
+
+            <div class="record-icon">
+                ✓
+            </div>
+
+            <div>
+                Registration record found.
+            </div>
+
+        </div>
+
+
+        <div class="applicant-grid">
+
+            <!-- NAME -->
+
+            <div class="applicant-item">
+
+                <span class="applicant-label">
+                    Full Name
+                </span>
+
+                <span class="applicant-value">
+
+                    {{ applicant.lastname }},
+                    {{ applicant.firstname }}
+                    {{ applicant.middlename }}
+
+                </span>
+
+            </div>
+
+
+            <!-- BIRTHDATE -->
+
+            <div class="applicant-item">
+
+                <span class="applicant-label">
+                    Birthdate
+                </span>
+
+                <span class="applicant-value">
+
+                    {{ applicant.birthdate|date:"F d, Y" }}
+
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     CURRENT AND NEW ADDRESS
+========================================================= -->
+
+<div class="form-card">
+
+    <div class="form-card-header">
+
+        <h2>
+            Registration Address
+        </h2>
+
+        <p>
+            Review your current registration address and
+            provide your new registration address.
+        </p>
+
+    </div>
+
+
+    <div class="form-card-body">
+
+        <div class="row g-4">
+
+            <!-- =================================================
+                 CURRENT ADDRESS
+            ================================================= -->
+
+            <div class="col-lg-6">
+
+                <div class="address-card current-address">
+
+                    <div class="address-card-header">
+
+                        <h3>
+                            Current Registration Address
+                        </h3>
+
+                    </div>
+
+
+                    <div class="address-card-body">
+
+                        <div class="address-item">
+
+                            <span class="address-label">
+                                Barangay
+                            </span>
+
+                            <span class="address-value">
+
+                                {% if applicant.brgy %}
+
+                                    {{ applicant.brgy.name }}
+
+                                {% else %}
+
+                                    No barangay recorded
+
+                                {% endif %}
+
+                            </span>
+
+                        </div>
+
+
+                        <div class="address-item">
+
+                            <span class="address-label">
+                                Municipality
+                            </span>
+
+                            <span class="address-value">
+                                {{ applicant.municipality }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="address-item">
+
+                            <span class="address-label">
+                                Province
+                            </span>
+
+                            <span class="address-value">
+                                {{ applicant.province }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 NEW ADDRESS
+            ================================================= -->
+
+            <div class="col-lg-6">
+
+                <div class="address-card new-address">
+
+                    <div class="address-card-header">
+
+                        <h3>
+                            New Registration Address
+                        </h3>
+
+                    </div>
+
+
+                    <div class="address-card-body">
+
+                        <form method="POST">
+
+                            {% csrf_token %}
+
+                            <input
+                                type="hidden"
+                                name="action"
+                                value="submit_transfer"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="applicant_id"
+                                value="{{ applicant.id }}"
+                            >
+
+
+                            <!-- NEW BARANGAY -->
+
+                            <div class="mb-3">
+
+                                <label
+                                    for="new_brgy"
+                                    class="form-label"
+                                >
+                                    New Barangay
+                                </label>
+
+                                <select
+                                    id="new_brgy"
+                                    name="new_brgy"
+                                    class="form-select"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select New Barangay
+                                    </option>
+
+
+                                    {% for barangay in barangays %}
+
+                                        <option
+                                            value="{{ barangay.id }}"
+
+                                            {% if form_data.new_brgy == barangay.id|stringformat:"s" %}
+                                                selected
+                                            {% endif %}
+                                        >
+
+                                            {{ barangay.name }}
+
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- NEW MUNICIPALITY -->
+
+                            <div class="mb-3">
+
+                                <label
+                                    for="new_municipality"
+                                    class="form-label"
+                                >
+                                    New Municipality
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="new_municipality"
+                                    name="new_municipality"
+                                    class="form-control"
+
+                                    {% if form_data.new_municipality %}
+
+                                        value="{{ form_data.new_municipality }}"
+
+                                    {% else %}
+
+                                        value="{{ applicant.municipality }}"
+
+                                    {% endif %}
+
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- NEW PROVINCE -->
+
+                            <div class="mb-3">
+
+                                <label
+                                    for="new_province"
+                                    class="form-label"
+                                >
+                                    New Province
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="new_province"
+                                    name="new_province"
+                                    class="form-control"
+
+                                    {% if form_data.new_province %}
+
+                                        value="{{ form_data.new_province }}"
+
+                                    {% else %}
+
+                                        value="{{ applicant.province }}"
+
+                                    {% endif %}
+
+                                    required
+                                >
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     TRANSFER REQUEST
+========================================================= -->
+
+<div class="form-card">
+
+    <div class="form-card-header">
+
+        <h2>
+            Reason for Transfer
+        </h2>
+
+        <p>
+            Explain why you are requesting a transfer of your
+            voter registration.
+        </p>
+
+    </div>
+
+
+    <div class="form-card-body">
+
+        <!--
+            The actual form is intentionally continued here
+            so all fields are submitted together.
+        -->
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="action"
+                value="submit_transfer"
+            >
+
+            <input
+                type="hidden"
+                name="applicant_id"
+                value="{{ applicant.id }}"
+            >
+
+
+            <!-- NEW BARANGAY -->
+
+            <div class="mb-3">
+
+                <label
+                    for="new_brgy_final"
+                    class="form-label"
+                >
+                    New Barangay
+                </label>
+
+                <select
+                    id="new_brgy_final"
+                    name="new_brgy"
+                    class="form-select"
+                    required
+                >
+
+                    <option value="">
+                        Select New Barangay
+                    </option>
+
+
+                    {% for barangay in barangays %}
+
+                        <option
+                            value="{{ barangay.id }}"
+
+                            {% if form_data.new_brgy == barangay.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+
+                            {{ barangay.name }}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- NEW MUNICIPALITY -->
+
+            <div class="mb-3">
+
+                <label
+                    for="new_municipality_final"
+                    class="form-label"
+                >
+                    New Municipality
+                </label>
+
+                <input
+                    type="text"
+                    id="new_municipality_final"
+                    name="new_municipality"
+                    class="form-control"
+
+                    {% if form_data.new_municipality %}
+
+                        value="{{ form_data.new_municipality }}"
+
+                    {% else %}
+
+                        value="{{ applicant.municipality }}"
+
+                    {% endif %}
+
+                    required
+                >
+
+            </div>
+
+
+            <!-- NEW PROVINCE -->
+
+            <div class="mb-3">
+
+                <label
+                    for="new_province_final"
+                    class="form-label"
+                >
+                    New Province
+                </label>
+
+                <input
+                    type="text"
+                    id="new_province_final"
+                    name="new_province"
+                    class="form-control"
+
+                    {% if form_data.new_province %}
+
+                        value="{{ form_data.new_province }}"
+
+                    {% else %}
+
+                        value="{{ applicant.province }}"
+
+                    {% endif %}
+
+                    required
+                >
+
+            </div>
+
+
+            <!-- REASON -->
+
+            <div class="mb-3">
+
+                <label
+                    for="reason"
+                    class="form-label"
+                >
+                    Reason for Transfer
+                </label>
+
+                <textarea
+                    id="reason"
+                    name="reason"
+                    class="form-control"
+                    rows="5"
+                    placeholder="Please explain why you are requesting a transfer."
+                    required
+                >{{ form_data.reason|default:'' }}</textarea>
+
+                <div class="form-text mt-2">
+                    Provide a clear and accurate explanation for
+                    your transfer request.
+                </div>
+
+            </div>
+
+
+            <div class="information-notice">
+
+                <strong>
+                    Before submitting
+                </strong>
+
+                Please verify your new barangay, municipality,
+                province, and reason for transfer before
+                submitting your request.
+
+            </div>
+
+
+            <!-- SUBMIT -->
+
+            <div class="button-row">
+
+                <button
+                    type="submit"
+                    class="btn btn-submit"
+                >
+                    Submit Transfer Request
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+{% endblock %}
