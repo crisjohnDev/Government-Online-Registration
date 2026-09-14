@@ -20,6 +20,8 @@ from Applicants.models import (
 from django.utils import timezone
 from django.db import transaction
 
+from django.contrib.auth.decorators import login_required
+
 logger = logging.getLogger(__name__)
 
 
@@ -105,7 +107,7 @@ def admin_login(request):
         "comelec/auth/login.html"
     )
 
-
+@login_required
 def admin_dashboard(request):
 
     # =========================================================
@@ -399,6 +401,7 @@ def admin_logout(request):
     return redirect("admin-login")
 
 
+@login_required
 def add_brgy(request):
 
     if request.method == "POST":
@@ -419,11 +422,12 @@ def add_brgy(request):
 
     return render(request, "comelec/brgy_form.html")
 
-
+@login_required
 def brgy_list(request):
     barangays = Barangay.objects.all()
     return render(request, 'comelec/brgy_list.html', {"barangays":barangays})
 
+@login_required
 def delete_brgy(request, pk):
 
     barangay = Barangay.objects.get(pk=pk)
@@ -436,6 +440,7 @@ def delete_brgy(request, pk):
         "barangay": barangay
     })
 
+@login_required
 def admin_applications(request):
 
     if not request.user.is_authenticated:
@@ -797,7 +802,7 @@ def admin_applications(request):
 # =========================================================
 # NEW REGISTRATION DETAIL
 # =========================================================
-
+@login_required
 def admin_application_new_detail(request, application_id):
 
     access = admin_superuser_required(request)
@@ -822,7 +827,7 @@ def admin_application_new_detail(request, application_id):
 # =========================================================
 # UPDATE / CORRECTION DETAIL
 # =========================================================
-
+@login_required
 def admin_application_update_detail(request, application_id):
 
     access = admin_superuser_required(request)
@@ -850,7 +855,7 @@ def admin_application_update_detail(request, application_id):
 # =========================================================
 # TRANSFER DETAIL
 # =========================================================
-
+@login_required
 def admin_application_transfer_detail(request, application_id):
 
     access = admin_superuser_required(request)
@@ -879,7 +884,7 @@ def admin_application_transfer_detail(request, application_id):
 # =========================================================
 # REACTIVATION DETAIL
 # =========================================================
-
+@login_required
 def admin_application_reactivation_detail(request, application_id):
 
     access = admin_superuser_required(request)
@@ -906,7 +911,7 @@ def admin_application_reactivation_detail(request, application_id):
 # =========================================================
 # REINSTATEMENT DETAIL
 # =========================================================
-
+@login_required
 def admin_application_reinstatement_detail(request, application_id):
 
     access = admin_superuser_required(request)
@@ -928,7 +933,7 @@ def admin_application_reinstatement_detail(request, application_id):
             "application": application,
         }
     )
-
+@login_required
 def approve_applicant_for_biometrics(applicant, notification_title, notification_message):
 
     applicant.status = "APPROVED"
@@ -948,6 +953,7 @@ def approve_applicant_for_biometrics(applicant, notification_title, notification
         message=notification_message
     )
 
+@login_required
 def send_iprog_sms(number, message):
 
     api_token = getattr(
@@ -1129,7 +1135,7 @@ def send_iprog_sms(number, message):
 OFFICE_DAILY_CAPACITY = 50
 DISAPPROVED_STATUS = 7
 
-
+@login_required
 def assign_office_appointment(applicant):
 
     today = timezone.localdate()
@@ -1203,6 +1209,7 @@ def assign_office_appointment(applicant):
 
         appointment_date += timedelta(days=1)
 
+@login_required
 def get_applicant_full_name(applicant):
 
     return (
@@ -1212,6 +1219,7 @@ def get_applicant_full_name(applicant):
     ).strip()
 
 
+@login_required
 def send_approval_sms(
     applicant,
     application_name
@@ -1269,6 +1277,7 @@ def send_approval_sms(
     )
 
 
+@login_required
 def admin_application_action(
     request,
     application_type,
@@ -2104,6 +2113,8 @@ def admin_application_action(
         "admin-applications"
     )
 
+
+@login_required
 def admin_applicant_biometric(request, applicant_id):
 
     access = admin_superuser_required(request)
@@ -2148,7 +2159,7 @@ def admin_applicant_biometric(request, applicant_id):
         }
     )
 
-
+@login_required
 def print_slip_account(request, applicant_id):
 
     access = admin_superuser_required(request)
@@ -2191,6 +2202,7 @@ def print_slip_account(request, applicant_id):
         }
     )
 
+@login_required
 def admin_applicants(request):
 
     access = admin_superuser_required(request)
@@ -2278,6 +2290,7 @@ def admin_applicants(request):
         }
     )
 
+@login_required
 def admin_applicant_detail(request, applicant_id):
 
     access = admin_superuser_required(request)
@@ -2305,6 +2318,7 @@ def admin_applicant_detail(request, applicant_id):
     )
 
 
+@login_required
 def admin_suspend_applicant(request, applicant_id):
 
     access = admin_superuser_required(request)
@@ -2331,6 +2345,8 @@ def admin_suspend_applicant(request, applicant_id):
         "admin-applicants"
     )
 
+
+@login_required
 def admin_reports(request):
 
     access = admin_superuser_required(request)
@@ -2804,6 +2820,8 @@ def admin_reports(request):
         }
     )
 
+
+@login_required
 def admin_reports_export(request):
 
     access = admin_superuser_required(request)
