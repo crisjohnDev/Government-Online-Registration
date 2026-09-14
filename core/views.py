@@ -1127,6 +1127,7 @@ def send_iprog_sms(number, message):
         return False
 
 OFFICE_DAILY_CAPACITY = 50
+DISAPPROVED_STATUS = 7
 
 
 def assign_office_appointment(applicant):
@@ -1162,7 +1163,7 @@ def assign_office_appointment(applicant):
         # =====================================================
 
         scheduled_count = Applicant.objects.filter(
-            office_appointment_date=appointment_date
+            office_visit_date=appointment_date
         ).count()
 
         # =====================================================
@@ -1171,28 +1172,28 @@ def assign_office_appointment(applicant):
 
         if scheduled_count < OFFICE_DAILY_CAPACITY:
 
-            appointment_number = (
+            appointment_slot = (
                 scheduled_count + 1
             )
 
-            applicant.office_appointment_date = (
+            applicant.office_visit_date = (
                 appointment_date
             )
 
-            applicant.office_appointment_number = (
-                appointment_number
+            applicant.office_visit_slot = (
+                appointment_slot
             )
 
             applicant.save(
                 update_fields=[
-                    "office_appointment_date",
-                    "office_appointment_number",
+                    "office_visit_date",
+                    "office_visit_slot",
                 ]
             )
 
             return (
                 appointment_date,
-                appointment_number
+                appointment_slot
             )
 
         # =====================================================
@@ -1201,7 +1202,6 @@ def assign_office_appointment(applicant):
         # =====================================================
 
         appointment_date += timedelta(days=1)
-
 
 def get_applicant_full_name(applicant):
 
@@ -1222,23 +1222,40 @@ def send_approval_sms(
     )
 
     appointment_date = (
-        applicant.office_appointment_date
+        applicant.office_visit_date
     )
 
-    appointment_number = (
-        applicant.office_appointment_number
+    appointment_slot = (
+        applicant.office_visit_slot
     )
 
-    formatted_date = appointment_date.strftime(
-        "%B %d, %Y"
-    )
+    if appointment_date:
+
+        formatted_date = appointment_date.strftime(
+            "%B %d, %Y"
+        )
+
+    else:
+
+        formatted_date = "To be announced"
+
+    if appointment_slot:
+
+        appointment_number = (
+            f"{appointment_slot} / "
+            f"{OFFICE_DAILY_CAPACITY}"
+        )
+
+    else:
+
+        appointment_number = "To be announced"
 
     message = (
         "Voter Registration Services: "
         f"{applicant_name}, your {application_name} "
         "application has been APPROVED. "
         f"Your office appointment is {formatted_date}. "
-        f"Appointment No. {appointment_number} of 50. "
+        f"Appointment No. {appointment_number}. "
         "Please visit the Pio Duran Registration Office "
         "to complete your fingerprint biometrics and "
         "electronic signature. "

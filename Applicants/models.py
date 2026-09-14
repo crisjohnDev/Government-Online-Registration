@@ -49,6 +49,8 @@ class Applicant(models.Model):
     firstname = models.CharField(max_length=255)
     middlename = models.CharField(max_length=255)
 
+    civil_status = models.CharField(max_length=20, null=True, blank=True)
+
     age = models.IntegerField()
     sex = models.CharField(max_length=20)
     birthdate = models.DateField()
