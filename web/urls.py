@@ -21,4 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('comelec/', include('core.urls')),
     path('', include('Applicants.urls')),
+    path('api/', include('api.urls')),
+    
 ]

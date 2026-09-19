@@ -101,4 +101,10 @@ urlpatterns = [
         views.admin_reports_export,
         name="admin-reports-export"
     ),
+
+    path(
+        "applications/<int:id>/delete/",
+        views.delete_application,
+        name="delete-application"
+    ),
 ]

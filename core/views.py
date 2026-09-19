@@ -1,6 +1,6 @@
 import logging
 import requests
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from Applicants.models import Barangay
@@ -479,13 +479,11 @@ def admin_applications(request):
         ""
     ).strip()
 
-
     # =========================================================
     # APPLICATION LIST
     # =========================================================
 
     applications = []
-
 
     # =========================================================
     # NEW REGISTRATIONS
@@ -493,12 +491,13 @@ def admin_applications(request):
 
     if not application_type or application_type == "NEW":
 
-        applicants = Applicant.objects.all().select_related(
-            "brgy"
+        applicants = (
+            Applicant.objects
+            .all()
+            .select_related("brgy")
         )
 
         if search:
-
             applicants = applicants.filter(
                 Q(lastname__icontains=search) |
                 Q(firstname__icontains=search) |
@@ -508,24 +507,32 @@ def admin_applications(request):
             )
 
         if status:
-
             applicants = applicants.filter(
                 status=status
             )
 
         if date_from:
-
             applicants = applicants.filter(
                 date_joined__gte=date_from
             )
 
         if date_to:
-
             applicants = applicants.filter(
                 date_joined__lte=date_to
             )
 
         for applicant in applicants:
+
+            # =================================================
+            # Convert DateField to timezone-aware datetime
+            # =================================================
+
+            application_date = timezone.make_aware(
+                datetime.combine(
+                    applicant.date_joined,
+                    datetime.min.time()
+                )
+            )
 
             applications.append({
                 "id": applicant.id,
@@ -535,10 +542,9 @@ def admin_applications(request):
                 "type_display": "New Registration",
                 "status": applicant.status,
                 "status_display": applicant.get_status_display(),
-                "date": applicant.date_joined,
+                "date": application_date,
                 "url_name": "admin-application-new-detail",
             })
-
 
     # =========================================================
     # UPDATE / CORRECTION
@@ -546,13 +552,16 @@ def admin_applications(request):
 
     if not application_type or application_type == "UPDATE":
 
-        update_requests = ApplicantUpdateRequest.objects.all().select_related(
-            "applicant",
-            "brgy"
+        update_requests = (
+            ApplicantUpdateRequest.objects
+            .all()
+            .select_related(
+                "applicant",
+                "brgy"
+            )
         )
 
         if search:
-
             update_requests = update_requests.filter(
                 Q(applicant__lastname__icontains=search) |
                 Q(applicant__firstname__icontains=search) |
@@ -561,19 +570,16 @@ def admin_applications(request):
             )
 
         if status:
-
             update_requests = update_requests.filter(
                 status=status
             )
 
         if date_from:
-
             update_requests = update_requests.filter(
                 requested_at__date__gte=date_from
             )
 
         if date_to:
-
             update_requests = update_requests.filter(
                 requested_at__date__lte=date_to
             )
@@ -592,21 +598,23 @@ def admin_applications(request):
                 "url_name": "admin-application-update-detail",
             })
 
-
     # =========================================================
     # TRANSFER
     # =========================================================
 
     if not application_type or application_type == "TRANSFER":
 
-        transfer_requests = ApplicantTransferRequest.objects.all().select_related(
-            "applicant",
-            "current_brgy",
-            "new_brgy"
+        transfer_requests = (
+            ApplicantTransferRequest.objects
+            .all()
+            .select_related(
+                "applicant",
+                "current_brgy",
+                "new_brgy"
+            )
         )
 
         if search:
-
             transfer_requests = transfer_requests.filter(
                 Q(applicant__lastname__icontains=search) |
                 Q(applicant__firstname__icontains=search) |
@@ -615,19 +623,16 @@ def admin_applications(request):
             )
 
         if status:
-
             transfer_requests = transfer_requests.filter(
                 status=status
             )
 
         if date_from:
-
             transfer_requests = transfer_requests.filter(
                 requested_at__date__gte=date_from
             )
 
         if date_to:
-
             transfer_requests = transfer_requests.filter(
                 requested_at__date__lte=date_to
             )
@@ -646,19 +651,21 @@ def admin_applications(request):
                 "url_name": "admin-application-transfer-detail",
             })
 
-
     # =========================================================
     # REACTIVATION
     # =========================================================
 
     if not application_type or application_type == "REACTIVATION":
 
-        reactivation_requests = ApplicantReactivationRequest.objects.all().select_related(
-            "applicant"
+        reactivation_requests = (
+            ApplicantReactivationRequest.objects
+            .all()
+            .select_related(
+                "applicant"
+            )
         )
 
         if search:
-
             reactivation_requests = reactivation_requests.filter(
                 Q(applicant__lastname__icontains=search) |
                 Q(applicant__firstname__icontains=search) |
@@ -667,19 +674,16 @@ def admin_applications(request):
             )
 
         if status:
-
             reactivation_requests = reactivation_requests.filter(
                 status=status
             )
 
         if date_from:
-
             reactivation_requests = reactivation_requests.filter(
                 requested_at__date__gte=date_from
             )
 
         if date_to:
-
             reactivation_requests = reactivation_requests.filter(
                 requested_at__date__lte=date_to
             )
@@ -698,19 +702,21 @@ def admin_applications(request):
                 "url_name": "admin-application-reactivation-detail",
             })
 
-
     # =========================================================
     # REINSTATEMENT
     # =========================================================
 
     if not application_type or application_type == "REINSTATEMENT":
 
-        reinstatement_requests = ApplicantReinstatementRequest.objects.all().select_related(
-            "applicant"
+        reinstatement_requests = (
+            ApplicantReinstatementRequest.objects
+            .all()
+            .select_related(
+                "applicant"
+            )
         )
 
         if search:
-
             reinstatement_requests = reinstatement_requests.filter(
                 Q(applicant__lastname__icontains=search) |
                 Q(applicant__firstname__icontains=search) |
@@ -719,19 +725,16 @@ def admin_applications(request):
             )
 
         if status:
-
             reinstatement_requests = reinstatement_requests.filter(
                 status=status
             )
 
         if date_from:
-
             reinstatement_requests = reinstatement_requests.filter(
                 requested_at__date__gte=date_from
             )
 
         if date_to:
-
             reinstatement_requests = reinstatement_requests.filter(
                 requested_at__date__lte=date_to
             )
@@ -750,7 +753,6 @@ def admin_applications(request):
                 "url_name": "admin-application-reinstatement-detail",
             })
 
-
     # =========================================================
     # SORT
     # =========================================================
@@ -759,7 +761,6 @@ def admin_applications(request):
         key=lambda item: item["date"],
         reverse=True
     )
-
 
     # =========================================================
     # PAGINATION
@@ -777,7 +778,6 @@ def admin_applications(request):
     page_obj = paginator.get_page(
         page_number
     )
-
 
     # =========================================================
     # CONTEXT
@@ -845,7 +845,7 @@ def admin_application_update_detail(request, application_id):
 
     return render(
         request,
-        "admin/applications/update_detail.html",
+        "comelec/applications/update_detail.html",
         {
             "application": application,
         }
@@ -953,7 +953,6 @@ def approve_applicant_for_biometrics(applicant, notification_title, notification
         message=notification_message
     )
 
-@login_required
 def send_iprog_sms(number, message):
 
     api_token = getattr(
@@ -1135,7 +1134,6 @@ def send_iprog_sms(number, message):
 OFFICE_DAILY_CAPACITY = 50
 DISAPPROVED_STATUS = 7
 
-@login_required
 def assign_office_appointment(applicant):
 
     today = timezone.localdate()
@@ -1209,7 +1207,7 @@ def assign_office_appointment(applicant):
 
         appointment_date += timedelta(days=1)
 
-@login_required
+
 def get_applicant_full_name(applicant):
 
     return (
@@ -1219,7 +1217,6 @@ def get_applicant_full_name(applicant):
     ).strip()
 
 
-@login_required
 def send_approval_sms(
     applicant,
     application_name
@@ -2114,7 +2111,6 @@ def admin_application_action(
     )
 
 
-@login_required
 def admin_applicant_biometric(request, applicant_id):
 
     access = admin_superuser_required(request)
@@ -2976,3 +2972,15 @@ def admin_reports_export(request):
         ])
 
     return response
+
+
+@login_required()
+def delete_application(request, id):
+
+    application = get_object_or_404(Applicant, id=id)
+
+    if request.method == "POST":
+        application.delete()
+        return redirect("admin-applications")
+
+    return redirect("admin-applications")
