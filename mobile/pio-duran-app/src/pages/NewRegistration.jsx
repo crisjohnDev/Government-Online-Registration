@@ -39,10 +39,10 @@ function NewRegistration() {
     // =========================================================
 
     const BARANGAY_API =
-        "http://127.0.0.1:8000/api/barangays/";
+        "https://pio-duran-online-registration.onrender.com/api/barangays/";
 
     const REGISTRATION_API =
-        "http://127.0.0.1:8000/api/new-registration/";
+        "https://pio-duran-online-registration.onrender.com/api/new-registration/";
 
     // =========================================================
     // LOAD BARANGAYS
