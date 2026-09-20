@@ -34,7 +34,7 @@ IPROG_SMS_API_TOKEN = os.environ.get(
 SECRET_KEY = 'django-insecure-7cfw9c5#!==edzcx5-)md-9*-mrp1n3wful@%v+%4ncodmdmns'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
