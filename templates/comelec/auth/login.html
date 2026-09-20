@@ -3,445 +3,560 @@
 <html lang="en">
 
 <head>
-<meta charset="UTF-8">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+    <meta charset="UTF-8">
 
-<title>Administrator Login</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<!-- Bootstrap 5 -->
-<link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
->
+    <title>Administrator Login</title>
 
-<style>
+    <!-- Bootstrap 5 -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
 
-    :root {
-        --gov-blue: #0038a8;
-        --gov-dark-blue: #002b7f;
-        --gov-gold: #fcd116;
-        --light-bg: #f4f6f9;
-        --border-color: #d9dee7;
-        --text-dark: #1f2937;
-        --text-muted: #6b7280;
-    }
+    <style>
 
-    * {
-        box-sizing: border-box;
-    }
+        :root {
+            --gov-blue: #0038a8;
+            --gov-dark-blue: #002b7f;
+            --gov-gold: #fcd116;
+            --light-bg: #f4f6f9;
+            --border-color: #d9dee7;
+            --text-dark: #1f2937;
+            --text-muted: #6b7280;
+        }
 
-    body {
-        margin: 0;
-        min-height: 100vh;
-        background: var(--light-bg);
 
-        font-family:
-            -apple-system,
-            BlinkMacSystemFont,
-            "Segoe UI",
-            Roboto,
-            Arial,
-            sans-serif;
+        * {
+            box-sizing: border-box;
+        }
 
-        display: flex;
-        flex-direction: column;
-    }
 
+        body {
+            margin: 0;
+            min-height: 100vh;
 
-    /* =====================================================
-       HEADER
-    ===================================================== */
+            background: var(--light-bg);
 
-    .government-header {
-        background: var(--gov-blue);
-        color: #ffffff;
-        border-bottom: 5px solid var(--gov-gold);
-    }
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
 
-    .header-inner {
-        max-width: 1200px;
-        margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+        }
 
-        padding: 18px 24px;
 
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
+        /* =====================================================
+           HEADER
+        ===================================================== */
 
-    .government-seal {
-        width: 58px;
-        height: 58px;
+        .government-header {
+            background: var(--gov-blue);
+            color: #ffffff;
 
-        background: #ffffff;
-        color: var(--gov-blue);
+            border-bottom: 5px solid var(--gov-gold);
+        }
 
-        border: 3px solid var(--gov-gold);
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        font-size: 13px;
-        font-weight: 800;
-
-        text-align: center;
-
-        flex-shrink: 0;
-    }
-
-    .header-title {
-        margin: 0;
-
-        font-size: 21px;
-        font-weight: 700;
-    }
-
-    .header-subtitle {
-        margin: 3px 0 0;
-
-        font-size: 13px;
-        opacity: 0.9;
-    }
-
-
-    /* =====================================================
-       MAIN
-    ===================================================== */
-
-    .login-wrapper {
-        flex: 1;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        padding: 50px 20px;
-    }
-
-    .login-container {
-        width: 100%;
-        max-width: 450px;
-    }
-
-
-    /* =====================================================
-       LOGIN CARD
-    ===================================================== */
-
-    .login-card {
-        background: #ffffff;
-
-        border: 1px solid var(--border-color);
-
-        box-shadow:
-            0 8px 25px rgba(0, 0, 0, 0.08);
-    }
-
-    .login-card-header {
-        background: var(--gov-dark-blue);
-        color: #ffffff;
-
-        padding: 25px 30px;
-
-        border-bottom: 4px solid var(--gov-gold);
-    }
-
-    .login-card-header h1 {
-        margin: 0;
-
-        font-size: 24px;
-        font-weight: 700;
-
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .login-card-header p {
-        margin: 7px 0 0;
-
-        font-size: 14px;
-        opacity: 0.9;
-    }
-
-
-    /* =====================================================
-       HEADER ICON
-    ===================================================== */
-
-    .header-login-icon {
-        width: 28px;
-        height: 28px;
-
-        flex-shrink: 0;
-    }
-
-    .header-login-icon svg {
-        width: 100%;
-        height: 100%;
-
-        stroke: currentColor;
-    }
-
-
-    /* =====================================================
-       LOGIN BODY
-    ===================================================== */
-
-    .login-card-body {
-        padding: 30px;
-    }
-
-
-    /* =====================================================
-       ERROR
-    ===================================================== */
-
-    .error-box {
-        background: #fff1f2;
-
-        border: 1px solid #fecdd3;
-        border-left: 5px solid #ce1126;
-
-        color: #9f1239;
-
-        padding: 13px 15px;
-
-        margin-bottom: 22px;
-
-        font-size: 14px;
-    }
-
-
-    /* =====================================================
-       FORM
-    ===================================================== */
-
-    .form-label {
-        color: var(--text-dark);
-
-        font-weight: 600;
-        font-size: 14px;
-
-        margin-bottom: 7px;
-    }
-
-
-    /* =====================================================
-       INPUT WITH ICON
-    ===================================================== */
-
-    .input-group-custom {
-        position: relative;
-    }
-
-    .input-icon {
-        position: absolute;
-
-        left: 13px;
-        top: 50%;
-
-        transform: translateY(-50%);
-
-        width: 20px;
-        height: 20px;
-
-        color: #64748b;
-
-        pointer-events: none;
-
-        z-index: 2;
-    }
-
-    .input-icon svg {
-        width: 100%;
-        height: 100%;
-
-        stroke: currentColor;
-    }
-
-    .form-control {
-        min-height: 48px;
-
-        border: 1px solid #cbd5e1;
-        border-radius: 0;
-
-        padding: 10px 13px 10px 45px;
-
-        font-size: 15px;
-    }
-
-    .form-control:focus {
-        border-color: var(--gov-blue);
-
-        box-shadow:
-            0 0 0 0.2rem rgba(0, 56, 168, 0.12);
-    }
-
-
-    /* =====================================================
-       SHOW PASSWORD CHECKBOX
-    ===================================================== */
-
-    .password-option {
-        margin-top: 10px;
-    }
-
-    .password-checkbox {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-
-        color: var(--text-muted);
-
-        font-size: 13px;
-
-        cursor: pointer;
-
-        user-select: none;
-    }
-
-    .password-checkbox input {
-        width: 16px;
-        height: 16px;
-
-        margin: 0;
-
-        accent-color: var(--gov-blue);
-
-        cursor: pointer;
-    }
-
-
-    /* =====================================================
-       LOGIN BUTTON
-    ===================================================== */
-
-    .login-button {
-        width: 100%;
-
-        min-height: 48px;
-
-        background: var(--gov-blue);
-
-        border: 1px solid var(--gov-blue);
-
-        color: #ffffff;
-
-        font-size: 15px;
-        font-weight: 700;
-
-        transition:
-            background 0.2s ease,
-            border-color 0.2s ease;
-    }
-
-    .login-button:hover {
-        background: var(--gov-dark-blue);
-
-        border-color: var(--gov-dark-blue);
-
-        color: #ffffff;
-    }
-
-
-    /* =====================================================
-       BACK LINK
-    ===================================================== */
-
-    .back-link {
-        display: block;
-
-        margin-top: 20px;
-
-        text-align: center;
-
-        color: var(--gov-blue);
-
-        font-size: 14px;
-        font-weight: 600;
-
-        text-decoration: none;
-    }
-
-    .back-link:hover {
-        text-decoration: underline;
-    }
-
-
-    /* =====================================================
-       FOOTER
-    ===================================================== */
-
-    .government-footer {
-        background: #ffffff;
-
-        border-top: 1px solid var(--border-color);
-
-        padding: 18px 20px;
-
-        text-align: center;
-
-        color: var(--text-muted);
-
-        font-size: 12px;
-    }
-
-
-    /* =====================================================
-       RESPONSIVE
-    ===================================================== */
-
-    @media (max-width: 576px) {
 
         .header-inner {
-            padding: 15px;
+            max-width: 1200px;
+
+            margin: 0 auto;
+
+            padding: 18px 24px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 15px;
         }
+
 
         .government-seal {
-            width: 48px;
-            height: 48px;
+            width: 58px;
+            height: 58px;
 
-            font-size: 11px;
+            background: #ffffff;
+            color: var(--gov-blue);
+
+            border: 3px solid var(--gov-gold);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 13px;
+            font-weight: 800;
+
+            text-align: center;
+
+            flex-shrink: 0;
         }
+
 
         .header-title {
-            font-size: 17px;
+            margin: 0;
+
+            font-size: 21px;
+            font-weight: 700;
         }
+
 
         .header-subtitle {
-            font-size: 11px;
+            margin: 3px 0 0;
+
+            font-size: 13px;
+
+            opacity: 0.9;
         }
+
+
+        /* =====================================================
+           MAIN
+        ===================================================== */
 
         .login-wrapper {
-            padding: 30px 15px;
+            flex: 1;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 50px 20px;
         }
+
+
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+
+        /* =====================================================
+           LOGIN CARD
+        ===================================================== */
+
+        .login-card {
+            background: #ffffff;
+
+            border: 1px solid var(--border-color);
+
+            box-shadow:
+                0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
 
         .login-card-header {
-            padding: 22px;
+            background: var(--gov-dark-blue);
+
+            color: #ffffff;
+
+            padding: 25px 30px;
+
+            border-bottom: 4px solid var(--gov-gold);
         }
 
-        .login-card-body {
-            padding: 22px;
-        }
 
         .login-card-header h1 {
-            font-size: 21px;
+            margin: 0;
+
+            font-size: 24px;
+            font-weight: 700;
+
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
         }
 
-    }
 
-</style>
+        .login-card-header p {
+            margin: 7px 0 0;
 
+            font-size: 14px;
+
+            opacity: 0.9;
+        }
+
+
+        /* =====================================================
+           HEADER ICON
+        ===================================================== */
+
+        .header-login-icon {
+            width: 28px;
+            height: 28px;
+
+            flex-shrink: 0;
+        }
+
+
+        .header-login-icon svg {
+            width: 100%;
+            height: 100%;
+
+            stroke: currentColor;
+        }
+
+
+        /* =====================================================
+           LOGIN BODY
+        ===================================================== */
+
+        .login-card-body {
+            padding: 30px;
+        }
+
+
+        /* =====================================================
+           ERROR
+        ===================================================== */
+
+        .error-box {
+            background: #fff1f2;
+
+            border: 1px solid #fecdd3;
+
+            border-left: 5px solid #ce1126;
+
+            color: #9f1239;
+
+            padding: 13px 15px;
+
+            margin-bottom: 22px;
+
+            font-size: 14px;
+        }
+
+
+        /* =====================================================
+           FORM
+        ===================================================== */
+
+        .form-label {
+            color: var(--text-dark);
+
+            font-weight: 600;
+
+            font-size: 14px;
+
+            margin-bottom: 7px;
+        }
+
+
+        /* =====================================================
+           INPUT WITH ICON
+        ===================================================== */
+
+        .input-group-custom {
+            position: relative;
+        }
+
+
+        .input-icon {
+            position: absolute;
+
+            left: 13px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            width: 20px;
+            height: 20px;
+
+            color: #64748b;
+
+            pointer-events: none;
+
+            z-index: 2;
+        }
+
+
+        .input-icon svg {
+            width: 100%;
+            height: 100%;
+
+            stroke: currentColor;
+        }
+
+
+        .form-control {
+            min-height: 48px;
+
+            border: 1px solid #cbd5e1;
+
+            border-radius: 0;
+
+            padding: 10px 13px 10px 45px;
+
+            font-size: 15px;
+        }
+
+
+        .form-control:focus {
+            border-color: var(--gov-blue);
+
+            box-shadow:
+                0 0 0 0.2rem rgba(0, 56, 168, 0.12);
+        }
+
+
+        /* =====================================================
+           SHOW PASSWORD CHECKBOX
+        ===================================================== */
+
+        .password-option {
+            margin-top: 10px;
+        }
+
+
+        .password-checkbox {
+            display: flex;
+            align-items: center;
+
+            gap: 8px;
+
+            color: var(--text-muted);
+
+            font-size: 13px;
+
+            cursor: pointer;
+
+            user-select: none;
+        }
+
+
+        .password-checkbox input {
+            width: 16px;
+            height: 16px;
+
+            margin: 0;
+
+            accent-color: var(--gov-blue);
+
+            cursor: pointer;
+        }
+
+
+        /* =====================================================
+           LOGIN BUTTON
+        ===================================================== */
+
+        .login-button {
+            width: 100%;
+
+            min-height: 48px;
+
+            background: var(--gov-blue);
+
+            border: 1px solid var(--gov-blue);
+
+            color: #ffffff;
+
+            font-size: 15px;
+            font-weight: 700;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease,
+                opacity 0.2s ease;
+
+            cursor: pointer;
+        }
+
+
+        .login-button:hover {
+            background: var(--gov-dark-blue);
+
+            border-color: var(--gov-dark-blue);
+
+            color: #ffffff;
+        }
+
+
+        .login-button:focus {
+            outline: none;
+
+            box-shadow:
+                0 0 0 0.2rem rgba(0, 56, 168, 0.18);
+        }
+
+
+        .login-button:disabled {
+            background: var(--gov-dark-blue);
+
+            border-color: var(--gov-dark-blue);
+
+            color: #ffffff;
+
+            opacity: 0.9;
+
+            cursor: not-allowed;
+        }
+
+
+        /* =====================================================
+           BUTTON CONTENT
+        ===================================================== */
+
+        .button-content,
+        .button-loading {
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        /* =====================================================
+           LOADING SPINNER
+        ===================================================== */
+
+        .loading-spinner {
+            width: 18px;
+            height: 18px;
+
+            margin-right: 9px;
+
+            border: 2px solid rgba(255, 255, 255, 0.35);
+
+            border-top-color: #ffffff;
+
+            border-radius: 50%;
+
+            animation:
+                loginSpinner 0.7s linear infinite;
+        }
+
+
+        @keyframes loginSpinner {
+
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+
+        }
+
+
+        /* =====================================================
+           BACK LINK
+        ===================================================== */
+
+        .back-link {
+            display: block;
+
+            margin-top: 20px;
+
+            text-align: center;
+
+            color: var(--gov-blue);
+
+            font-size: 14px;
+            font-weight: 600;
+
+            text-decoration: none;
+        }
+
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        .government-footer {
+            background: #ffffff;
+
+            border-top: 1px solid var(--border-color);
+
+            padding: 18px 20px;
+
+            text-align: center;
+
+            color: var(--text-muted);
+
+            font-size: 12px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 576px) {
+
+            .header-inner {
+                padding: 15px;
+            }
+
+
+            .government-seal {
+                width: 48px;
+                height: 48px;
+
+                font-size: 11px;
+            }
+
+
+            .header-title {
+                font-size: 17px;
+            }
+
+
+            .header-subtitle {
+                font-size: 11px;
+            }
+
+
+            .login-wrapper {
+                padding: 30px 15px;
+            }
+
+
+            .login-card-header {
+                padding: 22px;
+            }
+
+
+            .login-card-body {
+                padding: 22px;
+            }
+
+
+            .login-card-header h1 {
+                font-size: 21px;
+            }
+
+        }
+
+    </style>
 
 </head>
 
+
 <body>
+
 
 <!-- =====================================================
      GOVERNMENT HEADER
@@ -463,6 +578,7 @@
                 Voter Registration Services
             </h2>
 
+
             <p class="header-subtitle">
                 Online Registration and Applicant Services
             </p>
@@ -473,6 +589,7 @@
     </div>
 
 </header>
+
 
 
 <!-- =====================================================
@@ -528,6 +645,7 @@
 
                     </span>
 
+
                     Administrator Login
 
                 </h1>
@@ -538,6 +656,7 @@
                 </p>
 
             </div>
+
 
 
             <!-- =================================================
@@ -556,9 +675,14 @@
                 {% endif %}
 
 
-                <form method="POST">
+
+                <form
+                    method="POST"
+                    id="loginForm"
+                >
 
                     {% csrf_token %}
+
 
 
                     <!-- =================================================
@@ -618,6 +742,7 @@
                         </div>
 
                     </div>
+
 
 
                     <!-- =================================================
@@ -689,6 +814,7 @@
                         </div>
 
 
+
                         <!-- =================================================
                              SHOW PASSWORD CHECKBOX
                         ================================================== -->
@@ -705,6 +831,7 @@
                                     id="showPassword"
                                 >
 
+
                                 <span>
                                     Show password
                                 </span>
@@ -716,6 +843,7 @@
                     </div>
 
 
+
                     <!-- =================================================
                          LOGIN BUTTON
                     ================================================== -->
@@ -723,12 +851,38 @@
                     <button
                         type="submit"
                         class="login-button"
+                        id="loginButton"
                     >
-                        Login
+
+                        <!-- Normal button -->
+
+                        <span
+                            class="button-content"
+                            id="buttonContent"
+                        >
+                            Login
+                        </span>
+
+
+                        <!-- Loading button -->
+
+                        <span
+                            class="button-loading"
+                            id="buttonLoading"
+                            style="display: none;"
+                        >
+
+                            <span class="loading-spinner"></span>
+
+                            Signing in...
+
+                        </span>
+
                     </button>
 
 
                 </form>
+
 
 
                 <!-- =================================================
@@ -753,6 +907,7 @@
 </main>
 
 
+
 <!-- =====================================================
      FOOTER
 ===================================================== -->
@@ -768,6 +923,7 @@
 </footer>
 
 
+
 <!-- =====================================================
      BOOTSTRAP
 ===================================================== -->
@@ -777,14 +933,19 @@
 ></script>
 
 
+
 <!-- =====================================================
      SHOW / HIDE PASSWORD
 ===================================================== -->
 
 <script>
 
-    const showPassword = document.getElementById("showPassword");
-    const passwordInput = document.getElementById("password");
+    const showPassword =
+        document.getElementById("showPassword");
+
+    const passwordInput =
+        document.getElementById("password");
+
 
     showPassword.addEventListener("change", function () {
 
@@ -801,6 +962,55 @@
     });
 
 </script>
+
+
+
+<!-- =====================================================
+     LOGIN LOADING EFFECT
+===================================================== -->
+
+<script>
+
+    const loginForm =
+        document.getElementById("loginForm");
+
+    const loginButton =
+        document.getElementById("loginButton");
+
+    const buttonContent =
+        document.getElementById("buttonContent");
+
+    const buttonLoading =
+        document.getElementById("buttonLoading");
+
+
+    loginForm.addEventListener("submit", function () {
+
+        /*
+         * Disable the button immediately
+         * to prevent multiple submissions.
+         */
+
+        loginButton.disabled = true;
+
+
+        /*
+         * Hide normal button text.
+         */
+
+        buttonContent.style.display = "none";
+
+
+        /*
+         * Show loading spinner and text.
+         */
+
+        buttonLoading.style.display = "flex";
+
+    });
+
+</script>
+
 
 </body>
 
