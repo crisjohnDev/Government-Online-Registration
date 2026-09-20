@@ -107,4 +107,10 @@ urlpatterns = [
         views.delete_application,
         name="delete-application"
     ),
+
+    path(
+        "barangays/<int:pk>/applicants/",
+        views.barangay_applicants,
+        name="barangay_applicants"
+    ),
 ]

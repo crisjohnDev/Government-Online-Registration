@@ -687,7 +687,7 @@ New Registration
 
                     <!-- BIRTHPLACE -->
 
-                    <div class="col-12">
+                    <div class="col-md-4">
 
                         <label
                             for="birthplace"
@@ -705,6 +705,47 @@ New Registration
                             value="{{ form_data.birthplace|default:'' }}"
                             required
                         >
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <label
+                            for="civil_status"
+                            class="form-label"
+                        >
+                            Civil Status
+                            <span class="required">*</span>
+                        </label>
+
+                        <select
+                            name="civil_status"
+                            id="civil_status"
+                            class="form-select"
+                            required
+                        >
+
+                            <option value="">
+                                Select Civil Status
+                            </option>
+
+                            <option value="Single" {% if form_data.civil_status == "Single" %} selected {% endif %}>
+                                Single
+                            </option>
+
+                            <option value="Married" {% if form_data.civil_status == "Married" %} selected {% endif %}>
+                                Married
+                            </option>
+
+                            <option value="Widowed" {% if form_data.civil_status == "Widowed" %} selected {% endif %}>
+                                Widowed
+                            </option>
+
+                            <option value="Separated" {% if form_data.civil_status == "Separated" %} selected {% endif %}>
+                                Separated
+                            </option>
+
+                        </select>
 
                     </div>
 

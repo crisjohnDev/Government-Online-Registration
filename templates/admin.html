@@ -10,9 +10,27 @@
     <title>
         {% block title %}Pio Duran Registration System{% endblock %}
     </title>
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/PIODURAN.png' %}">
-    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'images/PIODURAN.png' %}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/PIODURAN.png' %}">
+
+    <link
+        rel="icon"
+        type="image/png"
+        sizes="32x32"
+        href="{% static 'images/PIODURAN.png' %}"
+    >
+
+    <link
+        rel="icon"
+        type="image/png"
+        sizes="192x192"
+        href="{% static 'images/PIODURAN.png' %}"
+    >
+
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="{% static 'images/PIODURAN.png' %}"
+    >
+
     <!-- Bootstrap 5.3 -->
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -130,13 +148,19 @@
             width: 44px;
             height: 44px;
             background: #ffffff;
-            color: var(--admin-blue);
             display: flex;
             align-items: center;
             justify-content: center;
             flex: 0 0 44px;
-            font-size: 22px;
-            font-weight: 700;
+            overflow: hidden;
+            border-radius: 50%;
+        }
+
+        .admin-brand-logo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
         }
 
         .admin-brand-text {
@@ -319,11 +343,19 @@
             width: 36px;
             height: 36px;
             background: #ffffff;
-            color: var(--admin-blue);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            flex: 0 0 36px;
+            overflow: hidden;
+            border-radius: 50%;
+        }
+
+        .admin-mobile-brand-logo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
         }
 
         .admin-mobile-brand-text {
@@ -682,20 +714,24 @@
 
 <body>
 
-
     <!-- =========================================================
          DESKTOP SIDEBAR
     ========================================================== -->
 
     <aside class="admin-sidebar">
 
-
         <!-- BRAND -->
 
         <div class="admin-brand">
 
             <div class="admin-brand-mark">
-                <i class="bi bi-building"></i>
+
+                <img
+                    src="{% static 'images/PIODURAN.png' %}"
+                    alt="Pio Duran Logo"
+                    class="admin-brand-logo"
+                >
+
             </div>
 
             <div class="admin-brand-text">
@@ -742,13 +778,11 @@
 
         <nav class="admin-navigation">
 
-
             <!-- OVERVIEW -->
 
             <div class="admin-nav-section">
                 Overview
             </div>
-
 
             <a
                 href="{% url 'dashboard' %}"
@@ -771,7 +805,6 @@
             <div class="admin-nav-section">
                 Application Management
             </div>
-
 
             <a
                 href="{% url 'admin-applicants' %}"
@@ -815,7 +848,6 @@
                 Master Data
             </div>
 
-
             <a
                 href="{% url 'brgy_list' %}"
                 class="admin-nav-link {% if request.resolver_match.url_name == 'brgy_list' or request.resolver_match.url_name == 'add-brgy' or request.resolver_match.url_name == 'delete-brgy' %}active{% endif %}"
@@ -837,7 +869,6 @@
             <div class="admin-nav-section">
                 Reports
             </div>
-
 
             <a
                 href="{% url 'admin-reports' %}"
@@ -861,7 +892,6 @@
                 Account
             </div>
 
-
             <a
                 href="{% url 'admin-logout' %}"
                 class="admin-nav-link admin-logout-link"
@@ -877,7 +907,6 @@
                 </span>
 
             </a>
-
 
         </nav>
 
@@ -908,7 +937,13 @@
         <div class="admin-mobile-brand">
 
             <div class="admin-mobile-brand-mark">
-                <i class="bi bi-building"></i>
+
+                <img
+                    src="{% static 'images/PIODURAN.png' %}"
+                    alt="Pio Duran Logo"
+                    class="admin-mobile-brand-logo"
+                >
+
             </div>
 
             <div class="admin-mobile-brand-text">
@@ -951,7 +986,6 @@
         aria-labelledby="adminMobileSidebarLabel"
     >
 
-
         <div class="offcanvas-header">
 
             <div>
@@ -969,7 +1003,6 @@
 
             </div>
 
-
             <button
                 type="button"
                 class="btn-close"
@@ -984,13 +1017,11 @@
 
             <nav class="admin-navigation">
 
-
                 <!-- OVERVIEW -->
 
                 <div class="admin-nav-section">
                     Overview
                 </div>
-
 
                 <a
                     href="{% url 'dashboard' %}"
@@ -1013,7 +1044,6 @@
                 <div class="admin-nav-section">
                     Application Management
                 </div>
-
 
                 <a
                     href="{% url 'admin-applicants' %}"
@@ -1057,7 +1087,6 @@
                     Master Data
                 </div>
 
-
                 <a
                     href="{% url 'brgy_list' %}"
                     class="admin-nav-link {% if request.resolver_match.url_name == 'brgy_list' or request.resolver_match.url_name == 'add-brgy' or request.resolver_match.url_name == 'delete-brgy' %}active{% endif %}"
@@ -1079,7 +1108,6 @@
                 <div class="admin-nav-section">
                     Reports
                 </div>
-
 
                 <a
                     href="{% url 'admin-reports' %}"
@@ -1103,7 +1131,6 @@
                     Account
                 </div>
 
-
                 <a
                     href="{% url 'admin-logout' %}"
                     class="admin-nav-link admin-logout-link"
@@ -1120,7 +1147,6 @@
 
                 </a>
 
-
             </nav>
 
         </div>
@@ -1133,7 +1159,6 @@
     ========================================================== -->
 
     <main class="admin-main">
-
 
         <!-- PAGE HEADER -->
 

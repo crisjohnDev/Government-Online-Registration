@@ -424,8 +424,52 @@ def add_brgy(request):
 
 @login_required
 def brgy_list(request):
-    barangays = Barangay.objects.all()
-    return render(request, 'comelec/brgy_list.html', {"barangays":barangays})
+
+    barangays = Barangay.objects.all().order_by("name")
+
+    for barangay in barangays:
+        barangay.verified_applicant_count = Applicant.objects.filter(
+            brgy=barangay,
+            status="APPROVED",
+            verification_status="VERIFIED",
+            is_active=True
+        ).count()
+
+    return render(
+        request,
+        "comelec/brgy_list.html",
+        {
+            "barangays": barangays
+        }
+    )
+
+@login_required
+def barangay_applicants(request, pk):
+
+    barangay = get_object_or_404(
+        Barangay,
+        pk=pk
+    )
+
+    applicants = Applicant.objects.filter(
+        brgy=barangay,
+        status="APPROVED",
+        verification_status="VERIFIED",
+        is_active=True
+    ).order_by(
+        "lastname",
+        "firstname",
+        "middlename"
+    )
+
+    return render(
+        request,
+        "comelec/barangay_applicants.html",
+        {
+            "barangay": barangay,
+            "applicants": applicants
+        }
+    )
 
 @login_required
 def delete_brgy(request, pk):

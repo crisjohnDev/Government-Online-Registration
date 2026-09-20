@@ -55,6 +55,7 @@ class Applicant(models.Model):
     sex = models.CharField(max_length=20)
     birthdate = models.DateField()
     birthplace = models.CharField(max_length=255)
+    civil_status = models.CharField(max_length=20, null=True, blank=True)
 
 
     # Address
