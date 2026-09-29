@@ -2676,10 +2676,12 @@ def admin_reports(request):
 
     date_from = request.GET.get("date_from", "").strip()
     date_to = request.GET.get("date_to", "").strip()
+
     application_type = request.GET.get(
         "application_type",
         ""
     ).strip()
+
     barangay_id = request.GET.get(
         "barangay",
         ""
@@ -2717,6 +2719,7 @@ def admin_reports(request):
     # =========================================================
 
     if date_from:
+
         applicants = applicants.filter(
             date_joined__gte=date_from
         )
@@ -2738,6 +2741,7 @@ def admin_reports(request):
         )
 
     if date_to:
+
         applicants = applicants.filter(
             date_joined__lte=date_to
         )
@@ -2795,30 +2799,35 @@ def admin_reports(request):
     if application_type:
 
         if application_type == "NEW":
+
             update_requests = update_requests.none()
             transfer_requests = transfer_requests.none()
             reactivation_requests = reactivation_requests.none()
             reinstatement_requests = reinstatement_requests.none()
 
         elif application_type == "UPDATE":
+
             applicants = applicants.none()
             transfer_requests = transfer_requests.none()
             reactivation_requests = reactivation_requests.none()
             reinstatement_requests = reinstatement_requests.none()
 
         elif application_type == "TRANSFER":
+
             applicants = applicants.none()
             update_requests = update_requests.none()
             reactivation_requests = reactivation_requests.none()
             reinstatement_requests = reinstatement_requests.none()
 
         elif application_type == "REACTIVATION":
+
             applicants = applicants.none()
             update_requests = update_requests.none()
             transfer_requests = transfer_requests.none()
             reinstatement_requests = reinstatement_requests.none()
 
         elif application_type == "REINSTATEMENT":
+
             applicants = applicants.none()
             update_requests = update_requests.none()
             transfer_requests = transfer_requests.none()
@@ -2829,17 +2838,21 @@ def admin_reports(request):
     # =========================================================
 
     new_total = applicants.count()
+
     update_total = update_requests.count()
+
     transfer_total = transfer_requests.count()
+
     reactivation_total = reactivation_requests.count()
+
     reinstatement_total = reinstatement_requests.count()
 
     total_applications = (
-        new_total +
-        update_total +
-        transfer_total +
-        reactivation_total +
-        reinstatement_total
+        new_total
+        + update_total
+        + transfer_total
+        + reactivation_total
+        + reinstatement_total
     )
 
     # =========================================================
@@ -2887,7 +2900,6 @@ def admin_reports(request):
         verification_status="VERIFIED",
         is_active=True,
         biometric__biometrics_completed=True,
-        biometric__signature_completed=True,
         biometric__completed=True,
     ).count()
 
@@ -3026,11 +3038,11 @@ def admin_reports(request):
         ).count()
 
         total = (
-            new_count +
-            update_count +
-            transfer_count +
-            reactivation_count +
-            reinstatement_count
+            new_count
+            + update_count
+            + transfer_count
+            + reactivation_count
+            + reinstatement_count
         )
 
         verified = applicants.filter(
@@ -3039,7 +3051,6 @@ def admin_reports(request):
             verification_status="VERIFIED",
             is_active=True,
             biometric__biometrics_completed=True,
-            biometric__signature_completed=True,
             biometric__completed=True,
         ).count()
 
@@ -3094,6 +3105,10 @@ def admin_reports(request):
         approved_total,
         disapproved_total,
     ]
+
+    # =========================================================
+    # RENDER
+    # =========================================================
 
     return render(
         request,
