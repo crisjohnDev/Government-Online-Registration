@@ -294,12 +294,13 @@ def admin_dashboard(request):
         verification_status="BIOMETRICS_PENDING"
     ).count()
 
+    # Fully verified applicants
+    # Signature requirement REMOVED
     fully_verified = Applicant.objects.filter(
         status="APPROVED",
         verification_status="VERIFIED",
         is_active=True,
         biometric__biometrics_completed=True,
-        biometric__signature_completed=True,
         biometric__completed=True,
     ).count()
 
