@@ -1,5 +1,6 @@
 import logging
 import requests
+from pathlib import Path
 from datetime import timedelta, datetime
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
@@ -17,9 +18,13 @@ from Applicants.models import (
     ApplicantReactivationRequest,
     ApplicantReinstatementRequest,
 )
+from core.fingerprint.scanner import capture_fingerprint
 from django.utils import timezone
 from django.db import transaction
-
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.core.files import File
 from django.contrib.auth.decorators import login_required
 
 logger = logging.getLogger(__name__)
@@ -2154,7 +2159,6 @@ def admin_application_action(
         "admin-applications"
     )
 
-
 def admin_applicant_biometric(request, applicant_id):
 
     access = admin_superuser_required(request)
@@ -2171,13 +2175,8 @@ def admin_applicant_biometric(request, applicant_id):
         applicant=applicant
     )
 
-    # =========================================================
-    # CHECK FULL VERIFICATION
-    # =========================================================
-
     if (
         biometric.biometrics_completed
-        and biometric.signature_completed
         and biometric.completed
         and applicant.verification_status == "VERIFIED"
     ):
@@ -2185,10 +2184,6 @@ def admin_applicant_biometric(request, applicant_id):
             "print-slip-account",
             applicant_id=applicant.id
         )
-
-    # =========================================================
-    # BIOMETRICS STILL PENDING
-    # =========================================================
 
     return render(
         request,
@@ -2198,6 +2193,288 @@ def admin_applicant_biometric(request, applicant_id):
             "biometric": biometric,
         }
     )
+
+
+@require_POST
+def admin_capture_fingerprint(request, applicant_id):
+
+    access = admin_superuser_required(request)
+
+    if access:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Unauthorized."
+            },
+            status=403
+        )
+
+    applicant = get_object_or_404(
+        Applicant,
+        id=applicant_id
+    )
+
+    biometric, created = ApplicantBiometric.objects.get_or_create(
+        applicant=applicant
+    )
+
+    finger = request.POST.get("finger")
+
+    if finger not in ["left", "right"]:
+
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Invalid fingerprint side."
+            },
+            status=400
+        )
+
+    try:
+
+        print()
+        print("========================================")
+        print("FINGERPRINT CAPTURE")
+        print("========================================")
+        print(
+            f"Applicant ID : {applicant.id}"
+        )
+        print(
+            f"Finger       : {finger}"
+        )
+
+        # =====================================================
+        # CAPTURE
+        # =====================================================
+
+        png_path = capture_fingerprint()
+
+        if not png_path:
+
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": "No fingerprint image was created."
+                },
+                status=500
+            )
+
+        png_path = Path(png_path)
+
+        print(
+            f"Scanner PNG  : {png_path}"
+        )
+
+        if not png_path.exists():
+
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": (
+                        "Fingerprint PNG does not exist: "
+                        f"{png_path}"
+                    )
+                },
+                status=500
+            )
+
+        # =====================================================
+        # SAVE LEFT
+        # =====================================================
+
+        if finger == "left":
+
+            if biometric.left_finger:
+
+                biometric.left_finger.delete(
+                    save=False
+                )
+
+            filename = (
+                f"applicant_{applicant.id}_left_finger.png"
+            )
+
+            with open(
+                png_path,
+                "rb"
+            ) as image_file:
+
+                biometric.left_finger.save(
+                    filename,
+                    File(image_file),
+                    save=False
+                )
+
+            print(
+                f"LEFT FILE    : {biometric.left_finger.name}"
+            )
+
+            print(
+                f"LEFT URL     : {biometric.left_finger.url}"
+            )
+
+            print(
+                f"LEFT PATH    : {biometric.left_finger.path}"
+            )
+
+        # =====================================================
+        # SAVE RIGHT
+        # =====================================================
+
+        else:
+
+            if biometric.right_finger:
+
+                biometric.right_finger.delete(
+                    save=False
+                )
+
+            filename = (
+                f"applicant_{applicant.id}_right_finger.png"
+            )
+
+            with open(
+                png_path,
+                "rb"
+            ) as image_file:
+
+                biometric.right_finger.save(
+                    filename,
+                    File(image_file),
+                    save=False
+                )
+
+            print(
+                f"RIGHT FILE   : {biometric.right_finger.name}"
+            )
+
+            print(
+                f"RIGHT URL    : {biometric.right_finger.url}"
+            )
+
+            print(
+                f"RIGHT PATH   : {biometric.right_finger.path}"
+            )
+
+        # =====================================================
+        # CHECK BOTH
+        # =====================================================
+
+        biometric.biometrics_completed = bool(
+            biometric.left_finger
+            and biometric.right_finger
+        )
+
+        biometric.captured_at = timezone.now()
+
+        if biometric.biometrics_completed:
+
+            biometric.completed = True
+
+            applicant.verification_status = "VERIFIED"
+
+            applicant.save(
+                update_fields=[
+                    "verification_status"
+                ]
+            )
+
+        else:
+
+            biometric.completed = False
+
+        biometric.save()
+
+        # =====================================================
+        # VERIFY PHYSICAL FILE
+        # =====================================================
+
+        if finger == "left":
+
+            saved_path = Path(
+                biometric.left_finger.path
+            )
+
+            image_url = (
+                biometric.left_finger.url
+            )
+
+        else:
+
+            saved_path = Path(
+                biometric.right_finger.path
+            )
+
+            image_url = (
+                biometric.right_finger.url
+            )
+
+        print()
+        print("========================================")
+        print("SAVED FINGERPRINT")
+        print("========================================")
+        print(
+            f"Physical Path : {saved_path}"
+        )
+        print(
+            f"File Exists   : {saved_path.exists()}"
+        )
+        print(
+            f"File Size     : {saved_path.stat().st_size if saved_path.exists() else 0}"
+        )
+        print(
+            f"Browser URL   : {image_url}"
+        )
+        print("========================================")
+        print()
+
+        # =====================================================
+        # DELETE TEMPORARY SCANNER PNG
+        # =====================================================
+
+        try:
+
+            png_path.unlink()
+
+        except Exception:
+
+            pass
+
+        # =====================================================
+        # RESPONSE
+        # =====================================================
+
+        return JsonResponse(
+            {
+                "success": True,
+                "message": (
+                    f"{finger.capitalize()} fingerprint "
+                    "captured successfully."
+                ),
+                "finger": finger,
+                "image_url": image_url,
+                "biometrics_completed": (
+                    biometric.biometrics_completed
+                ),
+                "completed": (
+                    biometric.completed
+                ),
+            }
+        )
+
+    except Exception as e:
+
+        import traceback
+
+        traceback.print_exc()
+
+        return JsonResponse(
+            {
+                "success": False,
+                "message": str(e)
+            },
+            status=500
+        )
 
 @login_required
 def print_slip_account(request, applicant_id):
@@ -2225,7 +2502,6 @@ def print_slip_account(request, applicant_id):
     if (
         applicant.verification_status != "VERIFIED"
         or not biometric.biometrics_completed
-        or not biometric.signature_completed
         or not biometric.completed
     ):
         return redirect(
@@ -2259,7 +2535,6 @@ def admin_applicants(request):
         verification_status="VERIFIED",
         is_active=True,
         biometric__biometrics_completed=True,
-        biometric__signature_completed=True,
         biometric__completed=True,
     ).select_related(
         "brgy",
@@ -3028,3 +3303,155 @@ def delete_application(request, id):
         return redirect("admin-applications")
 
     return redirect("admin-applications")
+
+@csrf_exempt
+@require_POST
+def save_fingerprint(request, applicant_id):
+
+    # =========================================================
+    # GET APPLICANT
+    # =========================================================
+
+    applicant = get_object_or_404(
+        Applicant,
+        id=applicant_id
+    )
+
+    # =========================================================
+    # GET FINGER SIDE
+    # =========================================================
+
+    finger = request.POST.get("finger")
+
+    if finger not in ("left", "right"):
+
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Finger must be 'left' or 'right'."
+            },
+            status=400
+        )
+
+    # =========================================================
+    # GET IMAGE
+    # =========================================================
+
+    fingerprint_file = request.FILES.get(
+        "fingerprint"
+    )
+
+    if not fingerprint_file:
+
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "No fingerprint image was uploaded."
+            },
+            status=400
+        )
+
+    # =========================================================
+    # GET / CREATE BIOMETRIC RECORD
+    # =========================================================
+
+    biometric, created = ApplicantBiometric.objects.get_or_create(
+        applicant=applicant
+    )
+
+    # =========================================================
+    # SAVE LEFT FINGER
+    # =========================================================
+
+    if finger == "left":
+
+        biometric.left_finger.save(
+            fingerprint_file.name,
+            fingerprint_file,
+            save=False
+        )
+
+        biometric.left_finger_template = None
+
+    # =========================================================
+    # SAVE RIGHT FINGER
+    # =========================================================
+
+    elif finger == "right":
+
+        biometric.right_finger.save(
+            fingerprint_file.name,
+            fingerprint_file,
+            save=False
+        )
+
+        biometric.right_finger_template = None
+
+    # =========================================================
+    # UPDATE COMPLETION
+    # =========================================================
+
+    has_left = bool(
+        biometric.left_finger
+    )
+
+    has_right = bool(
+        biometric.right_finger
+    )
+
+    biometric.biometrics_completed = (
+        has_left and has_right
+    )
+
+    biometric.completed = (
+        has_left and has_right
+    )
+
+    # =========================================================
+    # VERIFICATION STATUS
+    # =========================================================
+
+    if biometric.completed:
+
+        applicant.verification_status = "VERIFIED"
+
+        biometric.captured_at = timezone.now()
+
+        applicant.save(
+            update_fields=[
+                "verification_status"
+            ]
+        )
+
+    # =========================================================
+    # SAVE BIOMETRIC
+    # =========================================================
+
+    biometric.save()
+
+    # =========================================================
+    # RESPONSE
+    # =========================================================
+
+    return JsonResponse(
+        {
+            "success": True,
+            "applicant_id": applicant.id,
+            "finger": finger,
+            "left_captured": bool(
+                biometric.left_finger
+            ),
+            "right_captured": bool(
+                biometric.right_finger
+            ),
+            "biometrics_completed": (
+                biometric.biometrics_completed
+            ),
+            "completed": (
+                biometric.completed
+            ),
+            "verification_status": (
+                applicant.verification_status
+            )
+        }
+    )

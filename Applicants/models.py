@@ -423,24 +423,10 @@ class ApplicantBiometric(models.Model):
     )
 
     # =========================================================
-    # E-SIGNATURE
-    # =========================================================
-
-    signature = models.ImageField(
-        upload_to="signatures/",
-        null=True,
-        blank=True
-    )
-
-    # =========================================================
     # CAPTURE STATUS
     # =========================================================
 
     biometrics_completed = models.BooleanField(
-        default=False
-    )
-
-    signature_completed = models.BooleanField(
         default=False
     )
 
@@ -459,6 +445,7 @@ class ApplicantBiometric(models.Model):
 
     def __str__(self):
         return f"Biometrics - {self.applicant}"
+
 
 class ApplicantNotification(models.Model):
 

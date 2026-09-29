@@ -113,4 +113,14 @@ urlpatterns = [
         views.barangay_applicants,
         name="barangay_applicants"
     ),
+    path(
+        "api/applicants/<int:applicant_id>/fingerprint/",
+        views.save_fingerprint,
+        name="save-fingerprint",
+    ),
+    path(
+        "admin/applications/<int:applicant_id>/biometric/capture/",
+        views.admin_capture_fingerprint,
+        name="admin-capture-fingerprint"
+    ),
 ]

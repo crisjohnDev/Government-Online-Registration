@@ -367,11 +367,12 @@ class ApplicantReinstatementRequestAdmin(admin.ModelAdmin):
 
 @admin.register(ApplicantBiometric)
 class ApplicantBiometricAdmin(admin.ModelAdmin):
+
     list_display = (
-        "id",
         "applicant",
+        "left_finger_status",
+        "right_finger_status",
         "biometrics_completed",
-        "signature_completed",
         "completed",
         "captured_at",
         "updated_at",
@@ -379,7 +380,6 @@ class ApplicantBiometricAdmin(admin.ModelAdmin):
 
     list_filter = (
         "biometrics_completed",
-        "signature_completed",
         "completed",
         "captured_at",
         "updated_at",
@@ -389,26 +389,11 @@ class ApplicantBiometricAdmin(admin.ModelAdmin):
         "applicant__lastname",
         "applicant__firstname",
         "applicant__middlename",
-        "applicant__email",
-        "applicant__phone",
     )
-
-    ordering = (
-        "-updated_at",
-        "-id",
-    )
-
-    date_hierarchy = "captured_at"
-
-    list_per_page = 25
 
     readonly_fields = (
         "captured_at",
         "updated_at",
-    )
-
-    autocomplete_fields = (
-        "applicant",
     )
 
     fieldsets = (
@@ -421,7 +406,7 @@ class ApplicantBiometricAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Left Finger",
+            "Left Fingerprint",
             {
                 "fields": (
                     "left_finger",
@@ -430,7 +415,7 @@ class ApplicantBiometricAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Right Finger",
+            "Right Fingerprint",
             {
                 "fields": (
                     "right_finger",
@@ -439,19 +424,10 @@ class ApplicantBiometricAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "E-Signature",
-            {
-                "fields": (
-                    "signature",
-                )
-            },
-        ),
-        (
             "Capture Status",
             {
                 "fields": (
                     "biometrics_completed",
-                    "signature_completed",
                     "completed",
                     "captured_at",
                     "updated_at",
@@ -459,6 +435,21 @@ class ApplicantBiometricAdmin(admin.ModelAdmin):
             },
         ),
     )
+
+    def left_finger_status(self, obj):
+        if obj.left_finger_template:
+            return "Captured"
+        return "Not Captured"
+
+    left_finger_status.short_description = "Left Finger"
+
+    def right_finger_status(self, obj):
+        if obj.right_finger_template:
+            return "Captured"
+        return "Not Captured"
+
+    right_finger_status.short_description = "Right Finger"
+
 
 
 # =========================================================
