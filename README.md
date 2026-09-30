@@ -15,3 +15,5 @@ System Requirements
 <img width="1895" height="912" alt="Screenshot 2026-09-14 122009" src="https://github.com/user-attachments/assets/0ad4675c-f633-4159-8b59-73b720cb9c37" />
 
 <img width="1275" height="833" alt="Screenshot 2026-09-14 122136" src="https://github.com/user-attachments/assets/ce005677-6a0e-4aab-bba6-011e9667ba06" />
+
+

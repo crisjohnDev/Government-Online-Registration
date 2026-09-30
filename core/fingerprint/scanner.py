@@ -12,32 +12,48 @@ from PIL import Image, ImageEnhance, ImageFilter
 # CONFIGURATION
 # ============================================================
 
-# Preferred port.
-# The scanner will try this first.
 PREFERRED_PORT = "COM7"
 
+# ESP8266 <-> PC
 BAUDRATE = 115200
 
+# ESP8266 command
+SCAN_COMMAND = b"SCAN\n"
+
+# ESP8266 response
+READY_RESPONSE = b"READY"
+
+# Image transmission marker
 MAGIC = b"RAWF"
 
 
 # ============================================================
-# AS608 FINGERPRINT IMAGE
+# AS608 IMAGE
 # ============================================================
-
-# 256 pixels wide
-# 288 pixels high
-#
-# 4-bit grayscale = 2 pixels per byte
-#
-# 256 * 288 / 2 = 36864 bytes
 
 WIDTH = 256
 HEIGHT = 288
 
+# 4-bit grayscale
+# 2 pixels per byte
+#
+# 256 * 288 / 2 = 36864
 EXPECTED_IMAGE_BYTES = (
     WIDTH * HEIGHT
 ) // 2
+
+
+# ============================================================
+# SERIAL TIMEOUTS
+# ============================================================
+
+PORT_OPEN_DELAY = 2.0
+
+DEVICE_DETECTION_TIMEOUT = 4.0
+
+PACKET_HEADER_TIMEOUT = 10.0
+
+PACKET_DATA_TIMEOUT = 10.0
 
 
 # ============================================================
@@ -58,7 +74,7 @@ CAPTURE_DIR.mkdir(
 
 
 # ============================================================
-# SERIAL PORT DISCOVERY
+# LIST SERIAL PORTS
 # ============================================================
 
 def list_serial_ports():
@@ -70,14 +86,21 @@ def list_serial_ports():
     if not ports:
 
         print()
-        print("No serial ports detected.")
+        print(
+            "No serial ports detected."
+        )
         print()
 
         return []
 
     print()
-    print("Available serial ports:")
-    print("----------------------------------------")
+    print(
+        "Available serial ports:"
+    )
+
+    print(
+        "----------------------------------------"
+    )
 
     for port in ports:
 
@@ -101,88 +124,176 @@ def list_serial_ports():
                 f"Hardware ID : {port.hwid}"
             )
 
-        print("----------------------------------------")
+        print(
+            "----------------------------------------"
+        )
 
     return ports
 
 
 # ============================================================
-# OPEN SERIAL PORT
+# OPEN SERIAL
 # ============================================================
 
 def open_serial(port):
 
     print()
-    print("Opening serial port...")
-    print(f"PORT     : {port}")
-    print(f"BAUDRATE : {BAUDRATE}")
+    print(
+        "Opening serial port..."
+    )
+
+    print(
+        f"PORT     : {port}"
+    )
+
+    print(
+        f"BAUDRATE : {BAUDRATE}"
+    )
 
     ser = serial.Serial(
         port=port,
         baudrate=BAUDRATE,
-        timeout=0.2
+        timeout=0.1,
+        write_timeout=2
     )
 
-    time.sleep(0.5)
+    time.sleep(
+        PORT_OPEN_DELAY
+    )
 
-    print("Serial connected.")
+    ser.reset_input_buffer()
+    ser.reset_output_buffer()
+
+    print(
+        "Serial connected."
+    )
 
     return ser
 
 
 # ============================================================
-# FIND RAWF WITHOUT BLOCKING FOREVER
+# READ UNTIL READY
 # ============================================================
 
-def wait_for_magic(
+def wait_for_ready(
     ser,
-    timeout=3
+    timeout=DEVICE_DETECTION_TIMEOUT
 ):
 
-    buffer = bytearray()
-
     start_time = time.time()
+
+    buffer = bytearray()
 
     while (
         time.time() - start_time
         < timeout
     ):
 
-        byte = ser.read(1)
+        chunk = ser.read(
+            ser.in_waiting or 1
+        )
 
-        if not byte:
+        if not chunk:
+
+            time.sleep(0.005)
 
             continue
 
-        buffer.extend(byte)
+        buffer.extend(
+            chunk
+        )
 
-        if len(buffer) > len(MAGIC):
-
-            buffer = buffer[
-                -len(MAGIC):
-            ]
-
-        if bytes(buffer) == MAGIC:
+        if READY_RESPONSE in buffer:
 
             return True
+
+        # Keep buffer small.
+        if len(buffer) > 128:
+
+            buffer = buffer[-64:]
 
     return False
 
 
 # ============================================================
-# DETECT ESP32 PORT
+# SEND SCAN COMMAND
+# ============================================================
+
+def send_scan_command(
+    ser
+):
+
+    print()
+    print(
+        "Sending SCAN command..."
+    )
+
+    try:
+
+        ser.reset_input_buffer()
+
+        ser.write(
+            SCAN_COMMAND
+        )
+
+        ser.flush()
+
+    except Exception as e:
+
+        print(
+            f"Failed to send SCAN: {e}"
+        )
+
+        return False
+
+
+    print(
+        "Waiting for READY..."
+    )
+
+
+    if wait_for_ready(
+        ser
+    ):
+
+        print(
+            "ESP8266 READY"
+        )
+
+        return True
+
+
+    print(
+        "No READY response."
+    )
+
+    return False
+
+
+# ============================================================
+# DETECT ESP8266
 # ============================================================
 
 def detect_esp32_port():
 
     print()
-    print("========================================")
-    print("SCANNING FOR ESP32")
-    print("========================================")
+    print(
+        "========================================"
+    )
+
+    print(
+        "SCANNING FOR ESP8266"
+    )
+
+    print(
+        "========================================"
+    )
+
 
     ports = list(
         serial.tools.list_ports.comports()
     )
+
 
     if not ports:
 
@@ -195,16 +306,21 @@ def detect_esp32_port():
 
 
     # ========================================================
-    # PUT PREFERRED PORT FIRST
+    # PREFERRED PORT FIRST
     # ========================================================
 
     ordered_ports = []
 
     preferred = None
 
+
     for port in ports:
 
-        if port.device.upper() == PREFERRED_PORT.upper():
+        if (
+            port.device.upper()
+            ==
+            PREFERRED_PORT.upper()
+        ):
 
             preferred = port
 
@@ -224,11 +340,15 @@ def detect_esp32_port():
 
             if (
                 port.device
-                == preferred.device
+                ==
+                preferred.device
             ):
+
                 continue
 
-        ordered_ports.append(port)
+        ordered_ports.append(
+            port
+        )
 
 
     # ========================================================
@@ -240,7 +360,10 @@ def detect_esp32_port():
         port = port_info.device
 
         print()
-        print("----------------------------------------")
+        print(
+            "----------------------------------------"
+        )
+
         print(
             f"Testing port: {port}"
         )
@@ -250,42 +373,33 @@ def detect_esp32_port():
             f"{port_info.description}"
         )
 
+
         ser = None
+
 
         try:
 
             ser = serial.Serial(
                 port=port,
                 baudrate=BAUDRATE,
-                timeout=0.2
+                timeout=0.1,
+                write_timeout=2
             )
 
-            time.sleep(0.5)
 
+            # ESP8266 may reset after opening COM.
+            time.sleep(
+                PORT_OPEN_DELAY
+            )
 
-            # ------------------------------------------------
-            # Clear old data
-            # ------------------------------------------------
 
             ser.reset_input_buffer()
+            ser.reset_output_buffer()
 
 
-            print(
-                "Waiting for RAWF..."
-            )
-
-
-            # ------------------------------------------------
-            # Wait for ESP32 signal
-            # ------------------------------------------------
-
-            detected = wait_for_magic(
-                ser,
-                timeout=3
-            )
-
-
-            if detected:
+            if send_scan_command(
+                ser
+            ):
 
                 print()
                 print(
@@ -293,7 +407,7 @@ def detect_esp32_port():
                 )
 
                 print(
-                    "ESP32 DETECTED"
+                    "ESP8266 DETECTED"
                 )
 
                 print(
@@ -308,7 +422,7 @@ def detect_esp32_port():
 
 
             print(
-                f"No RAWF detected on {port}."
+                f"No ESP8266 response on {port}."
             )
 
 
@@ -319,16 +433,17 @@ def detect_esp32_port():
             )
 
 
-        finally:
+        if ser is not None:
 
-            if ser is not None:
+            try:
 
                 if ser.is_open:
 
-                    # Do NOT close the port if
-                    # this is the detected ESP32.
+                    ser.close()
 
-                    pass
+            except Exception:
+
+                pass
 
 
     print()
@@ -337,7 +452,7 @@ def detect_esp32_port():
     )
 
     print(
-        "ESP32 NOT FOUND"
+        "ESP8266 NOT FOUND"
     )
 
     print(
@@ -348,54 +463,57 @@ def detect_esp32_port():
 
 
 # ============================================================
-# READ EXACT BYTES
-# ============================================================
-
-def read_exact(
-    ser,
-    size
-):
-
-    data = bytearray()
-
-    while len(data) < size:
-
-        chunk = ser.read(
-            size - len(data)
-        )
-
-        if not chunk:
-
-            continue
-
-        data.extend(chunk)
-
-    return bytes(data)
-
-
-# ============================================================
 # FIND RAWF
 # ============================================================
 
-def find_magic(ser):
+def find_magic(
+    ser,
+    timeout=None
+):
 
     print()
     print(
-        "Waiting for ESP32 RAWF signal..."
+        "Waiting for ESP8266 RAWF signal..."
     )
+
+    print(
+        "Place your finger on the AS608."
+    )
+
     print()
+
 
     buffer = bytearray()
 
+    start_time = time.time()
+
+
     while True:
 
+        if timeout is not None:
+
+            if (
+                time.time()
+                -
+                start_time
+                >= timeout
+            ):
+
+                return False
+
+
         byte = ser.read(1)
+
 
         if not byte:
 
             continue
 
-        buffer.extend(byte)
+
+        buffer.extend(
+            byte
+        )
+
 
         if len(buffer) > len(MAGIC):
 
@@ -403,8 +521,10 @@ def find_magic(ser):
                 -len(MAGIC):
             ]
 
+
         if bytes(buffer) == MAGIC:
 
+            print()
             print(
                 "RAWF DETECTED"
             )
@@ -413,22 +533,111 @@ def find_magic(ser):
 
 
 # ============================================================
+# READ EXACT BYTES WITH TIMEOUT
+# ============================================================
+
+def read_exact(
+    ser,
+    size,
+    timeout=PACKET_DATA_TIMEOUT
+):
+
+    data = bytearray()
+
+    start_time = time.time()
+
+
+    while len(data) < size:
+
+        elapsed = (
+            time.time()
+            -
+            start_time
+        )
+
+
+        if elapsed >= timeout:
+
+            raise TimeoutError(
+                f"Serial timeout. "
+                f"Expected {size} bytes, "
+                f"received {len(data)} bytes."
+            )
+
+
+        remaining = (
+            size
+            -
+            len(data)
+        )
+
+
+        chunk = ser.read(
+            remaining
+        )
+
+
+        if chunk:
+
+            data.extend(
+                chunk
+            )
+
+            # Reset timeout whenever
+            # actual data arrives.
+            start_time = time.time()
+
+        else:
+
+            time.sleep(
+                0.001
+            )
+
+
+    return bytes(data)
+
+
+# ============================================================
 # FIND AS608 PACKET HEADER
 # ============================================================
 
-def find_packet_header(ser):
+def find_packet_header(
+    ser,
+    timeout=PACKET_HEADER_TIMEOUT
+):
 
     buffer = bytearray()
 
+    start_time = time.time()
+
+
     while True:
 
+        if (
+            time.time()
+            -
+            start_time
+            >= timeout
+        ):
+
+            raise TimeoutError(
+                "Timeout waiting for "
+                "AS608 packet header."
+            )
+
+
         byte = ser.read(1)
+
 
         if not byte:
 
             continue
 
-        buffer.extend(byte)
+
+        buffer.extend(
+            byte
+        )
+
 
         if len(buffer) > 2:
 
@@ -444,10 +653,12 @@ def find_packet_header(ser):
 # READ AS608 PACKET
 # ============================================================
 
-def read_as608_packet(ser):
+def read_as608_packet(
+    ser
+):
 
     # --------------------------------------------------------
-    # Start code
+    # HEADER
     # --------------------------------------------------------
 
     start = find_packet_header(
@@ -456,7 +667,7 @@ def read_as608_packet(ser):
 
 
     # --------------------------------------------------------
-    # Address: 4 bytes
+    # ADDRESS
     # --------------------------------------------------------
 
     address = read_exact(
@@ -466,7 +677,7 @@ def read_as608_packet(ser):
 
 
     # --------------------------------------------------------
-    # Packet type
+    # PACKET TYPE
     # --------------------------------------------------------
 
     packet_type = read_exact(
@@ -476,13 +687,14 @@ def read_as608_packet(ser):
 
 
     # --------------------------------------------------------
-    # Length
+    # LENGTH
     # --------------------------------------------------------
 
     length_bytes = read_exact(
         ser,
         2
     )
+
 
     length = int.from_bytes(
         length_bytes,
@@ -491,7 +703,27 @@ def read_as608_packet(ser):
 
 
     # --------------------------------------------------------
-    # Payload + checksum
+    # VALIDATE LENGTH
+    # --------------------------------------------------------
+
+    if length < 2:
+
+        raise ValueError(
+            f"Invalid AS608 packet length: "
+            f"{length}"
+        )
+
+
+    if length > 256:
+
+        raise ValueError(
+            f"AS608 packet too large: "
+            f"{length}"
+        )
+
+
+    # --------------------------------------------------------
+    # PAYLOAD + CHECKSUM
     # --------------------------------------------------------
 
     payload_and_checksum = read_exact(
@@ -502,10 +734,14 @@ def read_as608_packet(ser):
 
     packet = (
         start
-        + address
-        + bytes([packet_type])
-        + length_bytes
-        + payload_and_checksum
+        +
+        address
+        +
+        bytes([packet_type])
+        +
+        length_bytes
+        +
+        payload_and_checksum
     )
 
 
@@ -533,7 +769,7 @@ def capture_fingerprint():
     try:
 
         # ====================================================
-        # AUTOMATICALLY DETECT ESP32
+        # DETECT ESP8266
         # ====================================================
 
         ser = detect_esp32_port()
@@ -551,15 +787,19 @@ def capture_fingerprint():
 
 
         # ====================================================
-        # RAWF
+        # WAIT FOR RAWF
         # ====================================================
 
-        print()
-        print(
-            "Waiting for ESP32 RAWF signal..."
-        )
+        if not find_magic(
+            ser
+        ):
 
-        find_magic(ser)
+            print()
+            print(
+                "RAWF timeout."
+            )
+
+            return None
 
 
         print()
@@ -567,24 +807,60 @@ def capture_fingerprint():
             "Waiting for AS608 image packets..."
         )
 
+        print()
+
 
         packet_number = 0
 
 
         # ====================================================
-        # RECEIVE AS608 PACKETS
+        # RECEIVE PACKETS
         # ====================================================
 
         while True:
 
-            (
-                packet,
-                packet_type,
-                length,
-                payload_and_checksum
-            ) = read_as608_packet(
-                ser
-            )
+            try:
+
+                (
+                    packet,
+                    packet_type,
+                    length,
+                    payload_and_checksum
+                ) = read_as608_packet(
+                    ser
+                )
+
+
+            except TimeoutError as e:
+
+                print()
+                print(
+                    "========================================"
+                )
+
+                print(
+                    "PACKET TIMEOUT"
+                )
+
+                print(
+                    "========================================"
+                )
+
+                print(
+                    str(e)
+                )
+
+                print(
+                    f"Last packet: "
+                    f"{packet_number}"
+                )
+
+                print(
+                    f"Image bytes received: "
+                    f"{len(image_bytes)}"
+                )
+
+                return None
 
 
             packet_number += 1
@@ -596,24 +872,16 @@ def capture_fingerprint():
 
 
             # ------------------------------------------------
-            # AS608 packet length
-            #
-            # length =
-            # payload + checksum
+            # Remove checksum.
             # ------------------------------------------------
-
-            if length < 2:
-
-                print(
-                    f"Packet {packet_number}: "
-                    f"invalid length={length}"
-                )
-
-                continue
-
 
             payload = (
                 payload_and_checksum[:-2]
+            )
+
+
+            image_length = len(
+                payload
             )
 
 
@@ -621,12 +889,12 @@ def capture_fingerprint():
                 f"Packet {packet_number}: "
                 f"type=0x{packet_type:02X}, "
                 f"length={length}, "
-                f"image={len(payload)}"
+                f"image={image_length}"
             )
 
 
             # ------------------------------------------------
-            # IMAGE DATA PACKET
+            # DATA PACKET
             # ------------------------------------------------
 
             if packet_type == 0x02:
@@ -637,7 +905,7 @@ def capture_fingerprint():
 
 
             # ------------------------------------------------
-            # END DATA PACKET
+            # END PACKET
             # ------------------------------------------------
 
             elif packet_type == 0x08:
@@ -645,7 +913,6 @@ def capture_fingerprint():
                 image_bytes.extend(
                     payload
                 )
-
 
                 print()
                 print(
@@ -657,20 +924,22 @@ def capture_fingerprint():
 
 
             # ------------------------------------------------
-            # OTHER PACKETS
+            # UNEXPECTED PACKET
             # ------------------------------------------------
 
             else:
 
+                print()
                 print(
-                    f"Warning: unexpected "
-                    f"packet type "
+                    f"Unexpected packet type: "
                     f"0x{packet_type:02X}"
                 )
 
+                return None
+
 
         # ====================================================
-        # VALIDATE IMAGE SIZE
+        # IMAGE SIZE
         # ====================================================
 
         print()
@@ -692,11 +961,9 @@ def capture_fingerprint():
             "========================================"
         )
 
-        print()
-
 
         # ====================================================
-        # SAVE PACKET STREAM
+        # TIMESTAMP
         # ====================================================
 
         timestamp = datetime.now().strftime(
@@ -704,9 +971,14 @@ def capture_fingerprint():
         )
 
 
+        # ====================================================
+        # SAVE RAW PACKETS
+        # ====================================================
+
         bin_path = (
             CAPTURE_DIR
-            / f"fingerprint_{timestamp}.bin"
+            /
+            f"fingerprint_{timestamp}.bin"
         )
 
 
@@ -720,6 +992,7 @@ def capture_fingerprint():
             )
 
 
+        print()
         print(
             "Packet stream saved:"
         )
@@ -730,12 +1003,13 @@ def capture_fingerprint():
 
 
         # ====================================================
-        # CHECK IMAGE SIZE
+        # VALIDATE IMAGE SIZE
         # ====================================================
 
         if (
             len(image_bytes)
-            != EXPECTED_IMAGE_BYTES
+            !=
+            EXPECTED_IMAGE_BYTES
         ):
 
             print()
@@ -752,7 +1026,7 @@ def capture_fingerprint():
 
 
         # ====================================================
-        # CREATE PNG
+        # PNG
         # ====================================================
 
         print()
@@ -778,7 +1052,7 @@ def capture_fingerprint():
         )
 
         print(
-            "ERROR"
+            "FINGERPRINT ERROR"
         )
 
         print(
@@ -802,7 +1076,8 @@ def capture_fingerprint():
 
         if (
             ser is not None
-            and ser.is_open
+            and
+            ser.is_open
         ):
 
             ser.close()
@@ -814,7 +1089,7 @@ def capture_fingerprint():
 
 
 # ============================================================
-# DECODE 4-BIT FINGERPRINT IMAGE
+# DECODE FINGERPRINT
 # ============================================================
 
 def decode_fingerprint_image(
@@ -823,7 +1098,8 @@ def decode_fingerprint_image(
 
     if (
         len(image_bytes)
-        != EXPECTED_IMAGE_BYTES
+        !=
+        EXPECTED_IMAGE_BYTES
     ):
 
         raise ValueError(
@@ -833,10 +1109,6 @@ def decode_fingerprint_image(
             f"{EXPECTED_IMAGE_BYTES}."
         )
 
-
-    # ========================================================
-    # TWO PIXELS PER BYTE
-    # ========================================================
 
     pixels = bytearray(
         WIDTH * HEIGHT
@@ -854,7 +1126,9 @@ def decode_fingerprint_image(
 
 
         low_nibble = (
-            value & 0x0F
+            value
+            &
+            0x0F
         )
 
 
@@ -893,18 +1167,10 @@ def enhance_fingerprint(
     image
 ):
 
-    # --------------------------------------------------------
-    # Grayscale
-    # --------------------------------------------------------
-
     image = image.convert(
         "L"
     )
 
-
-    # --------------------------------------------------------
-    # Increase contrast
-    # --------------------------------------------------------
 
     contrast = ImageEnhance.Contrast(
         image
@@ -914,10 +1180,6 @@ def enhance_fingerprint(
         2.0
     )
 
-
-    # --------------------------------------------------------
-    # Slight sharpening
-    # --------------------------------------------------------
 
     image = image.filter(
         ImageFilter.SHARPEN
@@ -942,10 +1204,6 @@ def decode_and_save_png(
     )
 
 
-    # ========================================================
-    # DECODE RAW AS608 IMAGE
-    # ========================================================
-
     image = decode_fingerprint_image(
         image_bytes
     )
@@ -953,43 +1211,27 @@ def decode_and_save_png(
 
     print(
         f"Decoded image size: "
-        f"{image.width} x "
-        f"{image.height}"
+        f"{image.width} x {image.height}"
     )
 
-
-    # ========================================================
-    # ENHANCE
-    # ========================================================
 
     image = enhance_fingerprint(
         image
     )
 
 
-    # ========================================================
-    # PNG PATH
-    # ========================================================
-
     png_path = (
         CAPTURE_DIR
-        / f"fingerprint_{timestamp}.png"
+        /
+        f"fingerprint_{timestamp}.png"
     )
 
-
-    # ========================================================
-    # SAVE
-    # ========================================================
 
     image.save(
         png_path,
         format="PNG"
     )
 
-
-    # ========================================================
-    # VERIFY
-    # ========================================================
 
     if not png_path.exists():
 
@@ -1034,8 +1276,7 @@ def decode_and_save_png(
 
     print(
         f"Image    : "
-        f"{image.width} x "
-        f"{image.height}"
+        f"{image.width} x {image.height}"
     )
 
     print(
@@ -1049,7 +1290,7 @@ def decode_and_save_png(
 
 
 # ============================================================
-# CAPTURE LEFT FINGER
+# LEFT FINGER
 # ============================================================
 
 def capture_left_finger():
@@ -1058,7 +1299,7 @@ def capture_left_finger():
 
 
 # ============================================================
-# CAPTURE RIGHT FINGER
+# RIGHT FINGER
 # ============================================================
 
 def capture_right_finger():
