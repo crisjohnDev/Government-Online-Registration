@@ -30,6 +30,13 @@ from django.contrib.auth.decorators import login_required
 logger = logging.getLogger(__name__)
 
 
+def keep_alive(request):
+    return JsonResponse({
+        "status": "ok",
+        "service": "Django API",
+        "timestamp": timezone.now().isoformat(),
+    })
+
 def admin_superuser_required(request):
 
     if not request.user.is_authenticated:
