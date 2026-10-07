@@ -124,4 +124,43 @@ urlpatterns = [
         views.admin_capture_fingerprint,
         name="admin-capture-fingerprint"
     ),
+    # =========================================================
+    # START SIGNATURE SESSION
+    # =========================================================
+
+    path(
+        "admin/applicants/<int:applicant_id>/signature/start/",
+        views.start_signature_session,
+        name="start-signature-session",
+    ),
+
+    # =========================================================
+    # ANDROID: WAITING SESSION
+    # =========================================================
+
+    path(
+        "api/signature/waiting/",
+        views.get_waiting_signature_session,
+        name="get-waiting-signature-session",
+    ),
+
+    # =========================================================
+    # ANDROID: COMPLETE SIGNATURE
+    # =========================================================
+
+    path(
+        "api/signature/complete/",
+        views.complete_signature_session,
+        name="complete-signature-session",
+    ),
+
+    # =========================================================
+    # COMELeC: SESSION STATUS
+    # =========================================================
+
+    path(
+        "admin/signature/session/<uuid:session_id>/status/",
+        views.signature_session_status,
+        name="signature-session-status",
+    ),
 ]

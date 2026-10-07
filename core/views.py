@@ -1,3 +1,9 @@
+import base64
+import binascii
+import json
+import re
+
+
 import logging
 import requests
 from pathlib import Path
@@ -17,15 +23,18 @@ from Applicants.models import (
     ApplicantTransferRequest,
     ApplicantReactivationRequest,
     ApplicantReinstatementRequest,
+    SignatureSession
 )
 from core.fingerprint.scanner import capture_fingerprint
 from django.utils import timezone
 from django.db import transaction
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from django.core.files import File
 from django.contrib.auth.decorators import login_required
+from django.core.files.base import ContentFile
+
 
 logger = logging.getLogger(__name__)
 
@@ -2202,6 +2211,411 @@ def admin_applicant_biometric(request, applicant_id):
         }
     )
 
+@login_required
+@require_POST
+def start_signature_session(request, applicant_id):
+
+    applicant = get_object_or_404(
+        Applicant,
+        id=applicant_id
+    )
+
+    # ---------------------------------------------------------
+    # Cancel previous waiting sessions for this applicant
+    # ---------------------------------------------------------
+
+    SignatureSession.objects.filter(
+        applicant=applicant,
+        status=SignatureSession.STATUS_WAITING
+    ).update(
+        status=SignatureSession.STATUS_CANCELLED,
+        cancelled_at=timezone.now()
+    )
+
+    # ---------------------------------------------------------
+    # Create new session
+    # ---------------------------------------------------------
+
+    session = SignatureSession.objects.create(
+        applicant=applicant,
+        officer=request.user,
+        status=SignatureSession.STATUS_WAITING
+    )
+
+    return JsonResponse({
+        "success": True,
+        "session_id": str(session.session_id),
+        "applicant_id": applicant.id,
+        "applicant_name": str(applicant),
+        "status": session.status,
+    })
+
+@require_GET
+def get_waiting_signature_session(request):
+
+    session = (
+        SignatureSession.objects
+        .filter(
+            status=SignatureSession.STATUS_WAITING
+        )
+        .select_related(
+            "applicant"
+        )
+        .order_by("-created_at")
+        .first()
+    )
+
+    if not session:
+
+        return JsonResponse({
+            "success": True,
+            "session": None
+        })
+
+    return JsonResponse({
+        "success": True,
+        "session": {
+            "session_id": str(
+                session.session_id
+            ),
+            "applicant_id": session.applicant.id,
+            "applicant_name": str(
+                session.applicant
+            ),
+            "status": session.status,
+        }
+    })
+
+@require_POST
+def complete_signature_session(request):
+
+    # ---------------------------------------------------------
+    # Parse JSON
+    # ---------------------------------------------------------
+
+    try:
+        body = json.loads(
+            request.body.decode("utf-8")
+        )
+
+    except (
+        json.JSONDecodeError,
+        UnicodeDecodeError
+    ):
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Invalid request data."
+            },
+            status=400
+        )
+
+    # ---------------------------------------------------------
+    # Get values
+    # ---------------------------------------------------------
+
+    session_id = body.get("session_id")
+    signature_data = body.get("signature")
+
+    if not session_id:
+
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Session ID is required."
+            },
+            status=400
+        )
+
+    if not signature_data:
+
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Signature is required."
+            },
+            status=400
+        )
+
+    # ---------------------------------------------------------
+    # Get session
+    # ---------------------------------------------------------
+
+    try:
+
+        session = (
+            SignatureSession.objects
+            .select_related("applicant")
+            .get(
+                session_id=session_id
+            )
+        )
+
+    except SignatureSession.DoesNotExist:
+
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Signature session not found."
+            },
+            status=404
+        )
+
+    # ---------------------------------------------------------
+    # Validate session
+    # ---------------------------------------------------------
+
+    if session.status != SignatureSession.STATUS_WAITING:
+
+        return JsonResponse(
+            {
+                "success": False,
+                "message": (
+                    "This signature session is "
+                    "no longer available."
+                )
+            },
+            status=400
+        )
+
+    # ---------------------------------------------------------
+    # Validate image format
+    # ---------------------------------------------------------
+
+    match = re.match(
+        r"^data:image/"
+        r"(?P<extension>png|jpeg|jpg);base64,"
+        r"(?P<data>.+)$",
+        signature_data
+    )
+
+    if not match:
+
+        return JsonResponse(
+            {
+                "success": False,
+                "message": (
+                    "Invalid signature image format."
+                )
+            },
+            status=400
+        )
+
+    extension = match.group(
+        "extension"
+    )
+
+    if extension == "jpeg":
+        extension = "jpg"
+
+    encoded_data = match.group(
+        "data"
+    )
+
+    # ---------------------------------------------------------
+    # Decode image
+    # ---------------------------------------------------------
+
+    try:
+
+        image_data = base64.b64decode(
+            encoded_data,
+            validate=True
+        )
+
+    except (
+        ValueError,
+        binascii.Error
+    ):
+
+        return JsonResponse(
+            {
+                "success": False,
+                "message": (
+                    "Invalid signature image."
+                )
+            },
+            status=400
+        )
+
+    # ---------------------------------------------------------
+    # Get or create biometric record
+    # ---------------------------------------------------------
+
+    biometric, created = (
+        ApplicantBiometric.objects
+        .get_or_create(
+            applicant=session.applicant
+        )
+    )
+
+    # ---------------------------------------------------------
+    # Delete previous signature
+    # ---------------------------------------------------------
+
+    if biometric.applicant_signature:
+
+        biometric.applicant_signature.delete(
+            save=False
+        )
+
+    # ---------------------------------------------------------
+    # Save signature
+    # ---------------------------------------------------------
+
+    filename = (
+        f"applicant_signature_"
+        f"{session.applicant.id}."
+        f"{extension}"
+    )
+
+    biometric.applicant_signature.save(
+        filename,
+        ContentFile(image_data),
+        save=False
+    )
+
+    biometric.captured_at = timezone.now()
+
+    biometric.save()
+
+    # ---------------------------------------------------------
+    # Complete session
+    # ---------------------------------------------------------
+
+    session.status = (
+        SignatureSession.STATUS_COMPLETED
+    )
+
+    session.completed_at = timezone.now()
+
+    session.save(
+        update_fields=[
+            "status",
+            "completed_at"
+        ]
+    )
+
+    # ---------------------------------------------------------
+    # Return result
+    # ---------------------------------------------------------
+
+    return JsonResponse({
+        "success": True,
+        "message": (
+            "Applicant signature saved successfully."
+        ),
+        "session_id": str(
+            session.session_id
+        ),
+        "applicant_id": (
+            session.applicant.id
+        ),
+        "signature_url": (
+            biometric
+            .applicant_signature
+            .url
+        ),
+    })
+
+@require_GET
+def signature_session_status(
+    request,
+    session_id
+):
+
+    try:
+
+        session = (
+            SignatureSession.objects
+            .select_related("applicant")
+            .get(
+                session_id=session_id
+            )
+        )
+
+    except SignatureSession.DoesNotExist:
+
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Session not found."
+            },
+            status=404
+        )
+
+    biometric = (
+        ApplicantBiometric.objects
+        .filter(
+            applicant=session.applicant
+        )
+        .first()
+    )
+
+    signature_url = None
+
+    if (
+        biometric and
+        biometric.applicant_signature
+    ):
+        signature_url = (
+            biometric
+            .applicant_signature
+            .url
+        )
+
+    return JsonResponse({
+        "success": True,
+        "session_id": str(
+            session.session_id
+        ),
+        "status": session.status,
+        "applicant_id": (
+            session.applicant.id
+        ),
+        "applicant_name": str(
+            session.applicant
+        ),
+        "signature_captured": (
+            bool(signature_url)
+        ),
+        "signature_url": signature_url,
+    })
+
+@login_required
+@require_GET
+def signature_pending_session(request):
+
+    terminal_id = request.GET.get("terminal_id")
+
+    session = SignatureSession.objects.filter(
+        status="WAITING",
+        terminal_id=terminal_id
+    ).select_related(
+        "applicant"
+    ).order_by(
+        "created_at"
+    ).first()
+
+    if not session:
+        return JsonResponse({
+            "success": True,
+            "session": None,
+        })
+
+    return JsonResponse({
+        "success": True,
+        "session": {
+            "session_id": str(
+                session.session_id
+            ),
+            "applicant_id": session.applicant.id,
+            "applicant_name": str(
+                session.applicant
+            ),
+            "status": session.status,
+        }
+    })
 
 @require_POST
 def admin_capture_fingerprint(request, applicant_id):

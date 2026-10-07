@@ -283,6 +283,11 @@ Capture and complete biometric verification for the applicant.
         color: #41464b;
     }
 
+    .bio-waiting {
+        background: #cff4fc;
+        color: #055160;
+    }
+
 
     /* =========================================================
        FINGERPRINT BODY
@@ -481,6 +486,202 @@ Capture and complete biometric verification for the applicant.
 
 
     /* =========================================================
+       SIGNATURE SECTION
+    ========================================================= */
+
+    .bio-signatures-section {
+        margin-top: 0;
+    }
+
+    .bio-signature-card {
+        height: 100%;
+        background: #ffffff;
+        border: 1px solid #e4e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .bio-signature-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding: 18px 20px;
+        border-bottom: 1px solid #e4e7eb;
+    }
+
+    .bio-signature-title {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 16px;
+        font-weight: 700;
+        color: #212529;
+    }
+
+    .bio-signature-title i {
+        font-size: 20px;
+    }
+
+    .bio-signature-body {
+        padding: 20px;
+    }
+
+
+    /* =========================================================
+       SIGNATURE PREVIEW
+    ========================================================= */
+
+    .bio-signature-preview {
+        width: 100%;
+        height: 220px;
+        border: 2px dashed #ced4da;
+        border-radius: 10px;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #adb5bd;
+        overflow: hidden;
+    }
+
+    .bio-signature-preview.captured {
+        border: 2px solid #badbcc;
+        background: #ffffff;
+    }
+
+    .bio-signature-image {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 15px;
+    }
+
+    .bio-signature-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .bio-signature-placeholder i {
+        font-size: 48px;
+        margin-bottom: 8px;
+    }
+
+    .bio-signature-placeholder span {
+        font-size: 13px;
+        color: #6c757d;
+    }
+
+
+    /* =========================================================
+       SIGNATURE WAITING
+    ========================================================= */
+
+    .bio-signature-waiting {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .bio-signature-waiting .spinner-border {
+        width: 42px;
+        height: 42px;
+        margin-bottom: 15px;
+    }
+
+    .bio-signature-waiting-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #212529;
+    }
+
+    .bio-signature-waiting-text {
+        margin-top: 5px;
+        color: #6c757d;
+        font-size: 13px;
+    }
+
+
+    /* =========================================================
+       SIGNATURE LINE
+    ========================================================= */
+
+    .bio-signature-line {
+        margin-top: 18px;
+        padding-top: 10px;
+        border-top: 1px solid #212529;
+        text-align: center;
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+
+    /* =========================================================
+       SIGNATURE BUTTON
+    ========================================================= */
+
+    .bio-signature-btn {
+        width: 100%;
+        min-height: 44px;
+        margin-top: 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .bio-signature-btn:disabled {
+        cursor: wait;
+        opacity: 0.75;
+    }
+
+
+    /* =========================================================
+       SIGNATURE MESSAGE
+    ========================================================= */
+
+    .bio-signature-message {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        margin-top: 12px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .bio-signature-message.show {
+        display: flex;
+    }
+
+    .bio-signature-message.info {
+        background: #f1f8ff;
+        border: 1px solid #cfe2ff;
+        color: #084298;
+    }
+
+    .bio-signature-message.success {
+        background: #eaf7ef;
+        border: 1px solid #badbcc;
+        color: #0f5132;
+    }
+
+    .bio-signature-message.error {
+        background: #f8d7da;
+        border: 1px solid #f1aeb5;
+        color: #842029;
+    }
+
+
+    /* =========================================================
        SPINNER
     ========================================================= */
 
@@ -517,6 +718,10 @@ Capture and complete biometric verification for the applicant.
             width: 100%;
         }
 
+        .bio-signature-preview {
+            height: 180px;
+        }
+
     }
 
 </style>
@@ -544,8 +749,8 @@ Capture and complete biometric verification for the applicant.
                 </h4>
 
                 <p class="text-muted mb-0 mt-1">
-                    Capture and complete biometric verification for
-                    the approved applicant.
+                    Capture and complete biometric verification
+                    for the approved applicant.
                 </p>
 
             </div>
@@ -579,8 +784,6 @@ Capture and complete biometric verification for the applicant.
         <div class="bio-card-body">
 
             <div class="row align-items-center">
-
-                <!-- APPLICANT -->
 
                 <div class="col-lg-6">
 
@@ -618,11 +821,12 @@ Capture and complete biometric verification for the applicant.
                 </div>
 
 
-                <!-- STATUS -->
-
                 <div class="col-lg-6 mt-4 mt-lg-0">
 
                     <div class="row g-3">
+
+
+                        <!-- APPLICATION STATUS -->
 
                         <div class="col-md-6">
 
@@ -633,7 +837,9 @@ Capture and complete biometric verification for the applicant.
 
                             {% if applicant.status == "APPROVED" %}
 
-                                <span class="bio-status-badge bio-status-approved">
+                                <span
+                                    class="bio-status-badge bio-status-approved"
+                                >
 
                                     <i class="bi bi-check-circle me-1"></i>
 
@@ -643,40 +849,42 @@ Capture and complete biometric verification for the applicant.
 
                             {% elif applicant.status == "REVIEW" %}
 
-                                <span class="bio-status-badge bio-status-review">
-
+                                <span
+                                    class="bio-status-badge bio-status-review"
+                                >
                                     Review
-
                                 </span>
 
                             {% elif applicant.status == "PENDING" %}
 
-                                <span class="bio-status-badge bio-status-pending">
-
+                                <span
+                                    class="bio-status-badge bio-status-pending"
+                                >
                                     Pending
-
                                 </span>
 
                             {% elif applicant.status == "DISAPPROVED" %}
 
-                                <span class="bio-status-badge bio-status-disapproved">
-
+                                <span
+                                    class="bio-status-badge bio-status-disapproved"
+                                >
                                     Disapproved
-
                                 </span>
 
                             {% else %}
 
-                                <span class="bio-status-badge bio-status-unverified">
-
+                                <span
+                                    class="bio-status-badge bio-status-unverified"
+                                >
                                     {{ applicant.status|default:"Unknown" }}
-
                                 </span>
 
                             {% endif %}
 
                         </div>
 
+
+                        <!-- VERIFICATION STATUS -->
 
                         <div class="col-md-6">
 
@@ -687,7 +895,9 @@ Capture and complete biometric verification for the applicant.
 
                             {% if applicant.verification_status == "VERIFIED" %}
 
-                                <span class="bio-status-badge bio-status-verified">
+                                <span
+                                    class="bio-status-badge bio-status-verified"
+                                >
 
                                     <i class="bi bi-shield-check me-1"></i>
 
@@ -697,7 +907,9 @@ Capture and complete biometric verification for the applicant.
 
                             {% elif applicant.verification_status == "BIOMETRICS_PENDING" %}
 
-                                <span class="bio-status-badge bio-status-biometric-pending">
+                                <span
+                                    class="bio-status-badge bio-status-biometric-pending"
+                                >
 
                                     <i class="bi bi-hourglass-split me-1"></i>
 
@@ -707,7 +919,9 @@ Capture and complete biometric verification for the applicant.
 
                             {% else %}
 
-                                <span class="bio-status-badge bio-status-unverified">
+                                <span
+                                    class="bio-status-badge bio-status-unverified"
+                                >
 
                                     <i class="bi bi-shield me-1"></i>
 
@@ -747,9 +961,7 @@ Capture and complete biometric verification for the applicant.
             <div>
 
                 <div class="bio-notice-title">
-
                     Verification Required
-
                 </div>
 
                 <p class="bio-notice-text">
@@ -781,9 +993,7 @@ Capture and complete biometric verification for the applicant.
             <div>
 
                 <div class="bio-notice-title">
-
                     Applicant Verified
-
                 </div>
 
                 <p class="bio-notice-text">
@@ -816,9 +1026,6 @@ Capture and complete biometric verification for the applicant.
 
             <div class="bio-capture-card">
 
-
-                <!-- HEADER -->
-
                 <div class="bio-capture-card-header">
 
                     <div class="bio-capture-title">
@@ -836,9 +1043,7 @@ Capture and complete biometric verification for the applicant.
                             id="leftFingerStatus"
                             class="bio-capture-status bio-captured"
                         >
-
                             Captured
-
                         </span>
 
                     {% else %}
@@ -847,9 +1052,7 @@ Capture and complete biometric verification for the applicant.
                             id="leftFingerStatus"
                             class="bio-capture-status bio-not-captured"
                         >
-
                             Not Captured
-
                         </span>
 
                     {% endif %}
@@ -857,12 +1060,7 @@ Capture and complete biometric verification for the applicant.
                 </div>
 
 
-                <!-- BODY -->
-
                 <div class="bio-capture-body">
-
-
-                    <!-- PREVIEW -->
 
                     <div
                         id="leftFingerprintPreview"
@@ -891,8 +1089,6 @@ Capture and complete biometric verification for the applicant.
                     </div>
 
 
-                    <!-- MESSAGE -->
-
                     <div
                         id="leftCaptureMessage"
                         class="bio-capture-message
@@ -920,8 +1116,6 @@ Capture and complete biometric verification for the applicant.
 
                     </div>
 
-
-                    <!-- BUTTON -->
 
                     <button
                         type="button"
@@ -958,9 +1152,6 @@ Capture and complete biometric verification for the applicant.
 
             <div class="bio-capture-card">
 
-
-                <!-- HEADER -->
-
                 <div class="bio-capture-card-header">
 
                     <div class="bio-capture-title">
@@ -978,9 +1169,7 @@ Capture and complete biometric verification for the applicant.
                             id="rightFingerStatus"
                             class="bio-capture-status bio-captured"
                         >
-
                             Captured
-
                         </span>
 
                     {% else %}
@@ -989,9 +1178,7 @@ Capture and complete biometric verification for the applicant.
                             id="rightFingerStatus"
                             class="bio-capture-status bio-not-captured"
                         >
-
                             Not Captured
-
                         </span>
 
                     {% endif %}
@@ -999,12 +1186,7 @@ Capture and complete biometric verification for the applicant.
                 </div>
 
 
-                <!-- BODY -->
-
                 <div class="bio-capture-body">
-
-
-                    <!-- PREVIEW -->
 
                     <div
                         id="rightFingerprintPreview"
@@ -1033,8 +1215,6 @@ Capture and complete biometric verification for the applicant.
                     </div>
 
 
-                    <!-- MESSAGE -->
-
                     <div
                         id="rightCaptureMessage"
                         class="bio-capture-message
@@ -1062,8 +1242,6 @@ Capture and complete biometric verification for the applicant.
 
                     </div>
 
-
-                    <!-- BUTTON -->
 
                     <button
                         type="button"
@@ -1100,9 +1278,6 @@ Capture and complete biometric verification for the applicant.
 
             <div class="bio-completion-card">
 
-
-                <!-- HEADER -->
-
                 <div class="bio-card-header">
 
                     <h5>
@@ -1111,8 +1286,6 @@ Capture and complete biometric verification for the applicant.
 
                 </div>
 
-
-                <!-- BODY -->
 
                 <div class="bio-card-body">
 
@@ -1127,10 +1300,11 @@ Capture and complete biometric verification for the applicant.
 
                                 <div class="d-flex align-items-center">
 
-
                                     {% if biometric.biometrics_completed %}
 
-                                        <div class="bio-completion-icon complete">
+                                        <div
+                                            class="bio-completion-icon complete"
+                                        >
 
                                             <i class="bi bi-check-circle-fill"></i>
 
@@ -1138,7 +1312,9 @@ Capture and complete biometric verification for the applicant.
 
                                     {% else %}
 
-                                        <div class="bio-completion-icon pending">
+                                        <div
+                                            class="bio-completion-icon pending"
+                                        >
 
                                             <i class="bi bi-circle"></i>
 
@@ -1150,12 +1326,12 @@ Capture and complete biometric verification for the applicant.
                                     <div class="ms-3">
 
                                         <div class="bio-completion-title">
-
                                             Fingerprints
-
                                         </div>
 
-                                        <span class="bio-completion-description">
+                                        <span
+                                            class="bio-completion-description"
+                                        >
 
                                             {% if biometric.biometrics_completed %}
 
@@ -1186,10 +1362,11 @@ Capture and complete biometric verification for the applicant.
 
                                 <div class="d-flex align-items-center">
 
-
                                     {% if biometric.completed %}
 
-                                        <div class="bio-completion-icon complete">
+                                        <div
+                                            class="bio-completion-icon complete"
+                                        >
 
                                             <i class="bi bi-shield-check"></i>
 
@@ -1197,7 +1374,9 @@ Capture and complete biometric verification for the applicant.
 
                                     {% else %}
 
-                                        <div class="bio-completion-icon warning">
+                                        <div
+                                            class="bio-completion-icon warning"
+                                        >
 
                                             <i class="bi bi-shield-exclamation"></i>
 
@@ -1209,12 +1388,12 @@ Capture and complete biometric verification for the applicant.
                                     <div class="ms-3">
 
                                         <div class="bio-completion-title">
-
                                             Overall Verification
-
                                         </div>
 
-                                        <span class="bio-completion-description">
+                                        <span
+                                            class="bio-completion-description"
+                                        >
 
                                             {% if biometric.completed %}
 
@@ -1243,16 +1422,16 @@ Capture and complete biometric verification for the applicant.
 
                     {% if biometric.completed %}
 
-                        <div class="bio-final-status bio-notice-success">
+                        <div
+                            class="bio-final-status bio-notice-success"
+                        >
 
                             <i class="bi bi-shield-check"></i>
 
                             <div>
 
                                 <div class="bio-final-title">
-
                                     Applicant Verified
-
                                 </div>
 
                                 <div class="bio-final-description">
@@ -1269,16 +1448,16 @@ Capture and complete biometric verification for the applicant.
 
                     {% else %}
 
-                        <div class="bio-final-status bio-notice-warning">
+                        <div
+                            class="bio-final-status bio-notice-warning"
+                        >
 
                             <i class="bi bi-shield-exclamation"></i>
 
                             <div>
 
                                 <div class="bio-final-title">
-
                                     Applicant Not Yet Verified
-
                                 </div>
 
                                 <div class="bio-final-description">
@@ -1301,6 +1480,173 @@ Capture and complete biometric verification for the applicant.
 
         </div>
 
+
+        <!-- =================================================
+             APPLICANT SIGNATURE
+        ================================================== -->
+
+        <div class="col-12 bio-signatures-section">
+
+            <div class="bio-completion-card">
+
+
+                <!-- HEADER -->
+
+                <div class="bio-card-header">
+
+                    <h5>
+                        Applicant Signature
+                    </h5>
+
+                </div>
+
+
+                <!-- BODY -->
+
+                <div class="bio-card-body">
+
+                    <div class="row justify-content-center">
+
+                        <div class="col-lg-6">
+
+                            <div class="bio-signature-card">
+
+
+                                <!-- SIGNATURE HEADER -->
+
+                                <div
+                                    class="bio-signature-card-header"
+                                >
+
+                                    <div class="bio-signature-title">
+
+                                        <i class="bi bi-pen"></i>
+
+                                        Applicant Signature
+
+                                    </div>
+
+
+                                    {% if biometric.applicant_signature %}
+
+                                        <span
+                                            id="applicantSignatureStatus"
+                                            class="bio-capture-status bio-captured"
+                                        >
+                                            Captured
+                                        </span>
+
+                                    {% else %}
+
+                                        <span
+                                            id="applicantSignatureStatus"
+                                            class="bio-capture-status bio-not-captured"
+                                        >
+                                            Not Captured
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <!-- SIGNATURE BODY -->
+
+                                <div class="bio-signature-body">
+
+
+                                    <!-- PREVIEW -->
+
+                                    <div
+                                        id="applicantSignaturePreview"
+                                        class="bio-signature-preview
+                                        {% if biometric.applicant_signature %}
+                                            captured
+                                        {% endif %}"
+                                    >
+
+                                        {% if biometric.applicant_signature %}
+
+                                            <img
+                                                src="{{ biometric.applicant_signature.url }}"
+                                                alt="Applicant signature"
+                                                class="bio-signature-image"
+                                            >
+
+                                        {% else %}
+
+                                            <div
+                                                class="bio-signature-placeholder"
+                                            >
+
+                                                <i class="bi bi-pen"></i>
+
+                                                <span>
+                                                    Signature not yet captured
+                                                </span>
+
+                                            </div>
+
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <!-- WAITING MESSAGE -->
+
+                                    <div
+                                        id="signatureWaitingMessage"
+                                        class="bio-signature-message"
+                                    >
+                                    </div>
+
+
+                                    <!-- SIGNATURE LABEL -->
+
+                                    <div class="bio-signature-line">
+
+                                        Applicant
+
+                                    </div>
+
+
+                                    <!-- SIGNATURE BUTTON -->
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary bio-signature-btn"
+                                        id="captureApplicantSignature"
+                                    >
+
+                                        <i class="bi bi-pen me-1"></i>
+
+                                        {% if biometric.applicant_signature %}
+
+                                            Recapture Applicant Signature
+
+                                        {% else %}
+
+                                            Add Applicant Signature
+
+                                        {% endif %}
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
     </div>
 
 </div>
@@ -1316,19 +1662,59 @@ document.addEventListener(
     "DOMContentLoaded",
     function () {
 
+        /* =====================================================
+           FINGERPRINT CAPTURE URL
+        ===================================================== */
+
         const captureUrl =
             "{% url 'admin-capture-fingerprint' applicant.id %}";
 
 
-        // =====================================================
-        // CSRF TOKEN
-        // =====================================================
+        /* =====================================================
+           APPLICANT ID
+        ===================================================== */
+
+        const applicantId =
+            "{{ applicant.id }}";
+
+
+        /* =====================================================
+           SIGNATURE START URL
+           
+           Officer clicks this endpoint.
+           Django creates SignatureSession.
+        ===================================================== */
+
+        const signatureStartUrl =
+            "{% url 'start-signature-session' applicant.id %}";
+
+
+        /* =====================================================
+           SIGNATURE STATUS URL TEMPLATE
+           
+           We cannot know the session UUID until Django creates
+           the session.
+           
+           Therefore we generate a URL using a placeholder and
+           replace the placeholder with the real session UUID.
+        ===================================================== */
+
+        const signatureStatusUrlTemplate =
+            "{% url 'signature-session-status' '00000000-0000-0000-0000-000000000000' %}";
+
+
+        /* =====================================================
+           CSRF TOKEN
+        ===================================================== */
 
         function getCookie(name) {
 
             let cookieValue = null;
 
-            if (document.cookie && document.cookie !== "") {
+            if (
+                document.cookie &&
+                document.cookie !== ""
+            ) {
 
                 const cookies =
                     document.cookie.split(";");
@@ -1358,15 +1744,11 @@ document.addEventListener(
                             );
 
                         break;
-
                     }
-
                 }
-
             }
 
             return cookieValue;
-
         }
 
 
@@ -1374,9 +1756,9 @@ document.addEventListener(
             getCookie("csrftoken");
 
 
-        // =====================================================
-        // CAPTURE FINGER
-        // =====================================================
+        /* =====================================================
+           FINGERPRINT CAPTURE
+        ===================================================== */
 
         async function captureFinger(
             finger,
@@ -1390,12 +1772,7 @@ document.addEventListener(
                 button.innerHTML;
 
 
-            // =================================================
-            // DISABLE
-            // =================================================
-
             button.disabled = true;
-
 
             button.innerHTML = `
                 <span
@@ -1407,10 +1784,6 @@ document.addEventListener(
                 Waiting for fingerprint...
             `;
 
-
-            // =================================================
-            // MESSAGE
-            // =================================================
 
             message.className =
                 "bio-capture-message bio-message-info";
@@ -1425,11 +1798,6 @@ document.addEventListener(
 
             try {
 
-
-                // =============================================
-                // FORM DATA
-                // =============================================
-
                 const formData =
                     new FormData();
 
@@ -1439,10 +1807,6 @@ document.addEventListener(
                 );
 
 
-                // =============================================
-                // REQUEST
-                // =============================================
-
                 const response =
                     await fetch(
                         captureUrl,
@@ -1450,24 +1814,17 @@ document.addEventListener(
                             method: "POST",
 
                             headers: {
-
                                 "X-CSRFToken":
                                     csrfToken,
 
                                 "X-Requested-With":
                                     "XMLHttpRequest"
-
                             },
 
                             body: formData
-
                         }
                     );
 
-
-                // =============================================
-                // RESPONSE
-                // =============================================
 
                 const data =
                     await response.json();
@@ -1482,13 +1839,8 @@ document.addEventListener(
                         data.message ||
                         "Fingerprint capture failed."
                     );
-
                 }
 
-
-                // =============================================
-                // IMAGE
-                // =============================================
 
                 preview.innerHTML = `
 
@@ -1510,20 +1862,12 @@ document.addEventListener(
                 );
 
 
-                // =============================================
-                // STATUS
-                // =============================================
-
                 status.className =
                     "bio-capture-status bio-captured";
 
                 status.textContent =
                     "Captured";
 
-
-                // =============================================
-                // SUCCESS MESSAGE
-                // =============================================
 
                 message.className =
                     "bio-capture-message bio-message-success";
@@ -1536,10 +1880,6 @@ document.addEventListener(
 
                 `;
 
-
-                // =============================================
-                // BUTTON
-                // =============================================
 
                 const capitalizedFinger =
                     finger.charAt(0).toUpperCase() +
@@ -1554,10 +1894,6 @@ document.addEventListener(
 
                 `;
 
-
-                // =============================================
-                // BOTH COMPLETED
-                // =============================================
 
                 if (
                     data.biometrics_completed === true
@@ -1581,18 +1917,10 @@ document.addEventListener(
                         },
                         1200
                     );
-
                 }
 
             }
-
-
             catch (error) {
-
-
-                // =============================================
-                // ERROR
-                // =============================================
 
                 console.error(
                     "Fingerprint capture error:",
@@ -1617,8 +1945,6 @@ document.addEventListener(
                     originalButton;
 
             }
-
-
             finally {
 
                 button.disabled = false;
@@ -1628,9 +1954,9 @@ document.addEventListener(
         }
 
 
-        // =====================================================
-        // LEFT ELEMENTS
-        // =====================================================
+        /* =====================================================
+           LEFT FINGER
+        ===================================================== */
 
         const leftButton =
             document.getElementById(
@@ -1652,10 +1978,6 @@ document.addEventListener(
                 "leftCaptureMessage"
             );
 
-
-        // =====================================================
-        // LEFT CLICK
-        // =====================================================
 
         if (
             leftButton &&
@@ -1682,9 +2004,9 @@ document.addEventListener(
         }
 
 
-        // =====================================================
-        // RIGHT ELEMENTS
-        // =====================================================
+        /* =====================================================
+           RIGHT FINGER
+        ===================================================== */
 
         const rightButton =
             document.getElementById(
@@ -1706,10 +2028,6 @@ document.addEventListener(
                 "rightCaptureMessage"
             );
 
-
-        // =====================================================
-        // RIGHT CLICK
-        // =====================================================
 
         if (
             rightButton &&
@@ -1734,6 +2052,641 @@ document.addEventListener(
             );
 
         }
+
+
+        /* =====================================================
+           APPLICANT SIGNATURE ELEMENTS
+        ===================================================== */
+
+        const signatureButton =
+            document.getElementById(
+                "captureApplicantSignature"
+            );
+
+        const signaturePreview =
+            document.getElementById(
+                "applicantSignaturePreview"
+            );
+
+        const signatureStatus =
+            document.getElementById(
+                "applicantSignatureStatus"
+            );
+
+        const signatureWaitingMessage =
+            document.getElementById(
+                "signatureWaitingMessage"
+            );
+
+
+        /* =====================================================
+           SIGNATURE STATE
+        ===================================================== */
+
+        let signaturePollingInterval =
+            null;
+
+        let currentSignatureSessionId =
+            null;
+
+
+        /* =====================================================
+           STOP SIGNATURE POLLING
+        ===================================================== */
+
+        function stopSignaturePolling() {
+
+            if (
+                signaturePollingInterval !== null
+            ) {
+
+                clearInterval(
+                    signaturePollingInterval
+                );
+
+                signaturePollingInterval =
+                    null;
+            }
+        }
+
+
+        /* =====================================================
+           GET SESSION STATUS URL
+        ===================================================== */
+
+        function getSignatureStatusUrl(
+            sessionId
+        ) {
+
+            return signatureStatusUrlTemplate.replace(
+                "00000000-0000-0000-0000-000000000000",
+                sessionId
+            );
+        }
+
+
+        /* =====================================================
+           SHOW SIGNATURE WAITING
+        ===================================================== */
+
+        function showSignatureWaiting() {
+
+            signatureButton.disabled =
+                true;
+
+
+            signatureButton.innerHTML = `
+
+                <span
+                    class="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                ></span>
+
+                Waiting for Signature...
+
+            `;
+
+
+            signatureStatus.className =
+                "bio-capture-status bio-waiting";
+
+            signatureStatus.textContent =
+                "Waiting";
+
+
+            signaturePreview.innerHTML = `
+
+                <div
+                    class="bio-signature-waiting"
+                >
+
+                    <div
+                        class="spinner-border text-primary"
+                        role="status"
+                        aria-hidden="true"
+                    ></div>
+
+                    <div
+                        class="bio-signature-waiting-title"
+                    >
+
+                        Waiting for Applicant Signature
+
+                    </div>
+
+                    <div
+                        class="bio-signature-waiting-text"
+                    >
+
+                        Please ask the applicant to sign
+                        on the Android signature device.
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            signaturePreview.classList.remove(
+                "captured"
+            );
+
+
+            signatureWaitingMessage.className =
+                "bio-signature-message info show";
+
+
+            signatureWaitingMessage.innerHTML = `
+
+                <i class="bi bi-hourglass-split"></i>
+
+                Signature session started.
+                Waiting for the applicant to sign.
+
+            `;
+        }
+
+
+        /* =====================================================
+           SHOW SIGNATURE SUCCESS
+        ===================================================== */
+
+        function showSignatureCaptured(
+            signatureUrl
+        ) {
+
+            stopSignaturePolling();
+
+
+            signaturePreview.innerHTML = `
+
+                <img
+                    src="${signatureUrl}?t=${Date.now()}"
+                    alt="Applicant signature"
+                    class="bio-signature-image"
+                >
+
+            `;
+
+
+            signaturePreview.classList.add(
+                "captured"
+            );
+
+
+            signatureStatus.className =
+                "bio-capture-status bio-captured";
+
+            signatureStatus.textContent =
+                "Captured";
+
+
+            signatureWaitingMessage.className =
+                "bio-signature-message success show";
+
+
+            signatureWaitingMessage.innerHTML = `
+
+                <i class="bi bi-check-circle"></i>
+
+                Applicant signature captured successfully.
+
+            `;
+
+
+            signatureButton.disabled =
+                false;
+
+
+            signatureButton.innerHTML = `
+
+                <i class="bi bi-pen me-1"></i>
+
+                Recapture Applicant Signature
+
+            `;
+
+
+            currentSignatureSessionId =
+                null;
+        }
+
+
+        /* =====================================================
+           SHOW SIGNATURE ERROR
+        ===================================================== */
+
+        function showSignatureError(
+            message
+        ) {
+
+            stopSignaturePolling();
+
+
+            signatureButton.disabled =
+                false;
+
+
+            signatureButton.innerHTML = `
+
+                <i class="bi bi-pen me-1"></i>
+
+                {% if biometric.applicant_signature %}
+
+                    Recapture Applicant Signature
+
+                {% else %}
+
+                    Add Applicant Signature
+
+                {% endif %}
+
+            `;
+
+
+            signatureStatus.className =
+                "bio-capture-status bio-not-captured";
+
+            signatureStatus.textContent =
+                "Not Captured";
+
+
+            signatureWaitingMessage.className =
+                "bio-signature-message error show";
+
+
+            signatureWaitingMessage.innerHTML = `
+
+                <i class="bi bi-exclamation-circle"></i>
+
+                ${message}
+
+            `;
+        }
+
+
+        /* =====================================================
+           CHECK SIGNATURE SESSION STATUS
+        ===================================================== */
+
+        async function checkSignatureStatus() {
+
+            if (
+                !currentSignatureSessionId
+            ) {
+
+                return;
+            }
+
+
+            try {
+
+                const statusUrl =
+                    getSignatureStatusUrl(
+                        currentSignatureSessionId
+                    );
+
+
+                const response =
+                    await fetch(
+                        statusUrl +
+                        "?t=" +
+                        Date.now(),
+                        {
+                            method: "GET",
+
+                            headers: {
+                                "X-Requested-With":
+                                    "XMLHttpRequest"
+                            },
+
+                            cache: "no-store"
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+
+                    throw new Error(
+                        data.message ||
+                        "Unable to check signature status."
+                    );
+                }
+
+
+                console.log(
+                    "Signature session status:",
+                    data
+                );
+
+
+                /* =============================================
+                   COMPLETED
+                ============================================= */
+
+                if (
+                    data.status === "COMPLETED" &&
+                    data.signature_captured === true &&
+                    data.signature_url
+                ) {
+
+                    showSignatureCaptured(
+                        data.signature_url
+                    );
+
+                    return;
+                }
+
+
+                /* =============================================
+                   WAITING
+                ============================================= */
+
+                if (
+                    data.status === "WAITING"
+                ) {
+
+                    signatureStatus.className =
+                        "bio-capture-status bio-waiting";
+
+                    signatureStatus.textContent =
+                        "Waiting";
+
+
+                    signatureWaitingMessage.className =
+                        "bio-signature-message info show";
+
+
+                    signatureWaitingMessage.innerHTML = `
+
+                        <i class="bi bi-hourglass-split"></i>
+
+                        Waiting for the applicant to
+                        complete the signature.
+
+                    `;
+
+                    return;
+                }
+
+
+                /* =============================================
+                   CANCELLED
+                ============================================= */
+
+                if (
+                    data.status === "CANCELLED"
+                ) {
+
+                    showSignatureError(
+                        "The signature session was cancelled."
+                    );
+
+                    return;
+                }
+
+
+                /* =============================================
+                   EXPIRED
+                ============================================= */
+
+                if (
+                    data.status === "EXPIRED"
+                ) {
+
+                    showSignatureError(
+                        "The signature session has expired."
+                    );
+
+                    return;
+                }
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Signature status error:",
+                    error
+                );
+
+                /*
+                 * Do not immediately stop polling for a
+                 * temporary network error.
+                 *
+                 * The next poll will try again.
+                 */
+
+            }
+
+        }
+
+
+        /* =====================================================
+           START SIGNATURE POLLING
+        ===================================================== */
+
+        function startSignaturePolling(
+            sessionId
+        ) {
+
+            stopSignaturePolling();
+
+
+            currentSignatureSessionId =
+                sessionId;
+
+
+            /*
+             * Check immediately.
+             */
+
+            checkSignatureStatus();
+
+
+            /*
+             * Continue every 1 second.
+             */
+
+            signaturePollingInterval =
+                setInterval(
+                    function () {
+
+                        checkSignatureStatus();
+
+                    },
+                    1000
+                );
+        }
+
+
+        /* =====================================================
+           START SIGNATURE SESSION
+           
+           IMPORTANT:
+           
+           This does NOT open the Ionic application.
+           
+           It creates a SignatureSession in Django.
+           
+           The Android Ionic application independently
+           checks Django for a WAITING session.
+        ===================================================== */
+
+        async function startSignatureSession() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        signatureStartUrl,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "X-CSRFToken":
+                                    csrfToken,
+
+                                "X-Requested-With":
+                                    "XMLHttpRequest"
+                            }
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+
+                    throw new Error(
+                        data.message ||
+                        "Unable to start signature session."
+                    );
+                }
+
+
+                console.log(
+                    "Signature session created:",
+                    data
+                );
+
+
+                /*
+                 * Save session UUID.
+                 */
+
+                currentSignatureSessionId =
+                    data.session_id;
+
+
+                /*
+                 * Show waiting state.
+                 */
+
+                showSignatureWaiting();
+
+
+                /*
+                 * Start checking the newly-created
+                 * session.
+                 */
+
+                startSignaturePolling(
+                    data.session_id
+                );
+
+
+                return true;
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Start signature session error:",
+                    error
+                );
+
+
+                showSignatureError(
+                    error.message ||
+                    "Unable to start signature session."
+                );
+
+
+                return false;
+            }
+        }
+
+
+        /* =====================================================
+           APPLICANT SIGNATURE BUTTON
+        ===================================================== */
+
+        if (
+            signatureButton &&
+            signaturePreview &&
+            signatureStatus &&
+            signatureWaitingMessage
+        ) {
+
+            signatureButton.addEventListener(
+                "click",
+                async function () {
+
+                    /*
+                     * Stop any old polling.
+                     */
+
+                    stopSignaturePolling();
+
+
+                    /*
+                     * Remove previous session.
+                     */
+
+                    currentSignatureSessionId =
+                        null;
+
+
+                    /*
+                     * Start a completely new
+                     * signature session.
+                     */
+
+                    await startSignatureSession();
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           PAGE CLEANUP
+        ===================================================== */
+
+        window.addEventListener(
+            "beforeunload",
+            function () {
+
+                stopSignaturePolling();
+
+            }
+        );
+
 
     }
 

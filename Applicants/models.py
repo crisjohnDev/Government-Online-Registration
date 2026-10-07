@@ -1,3 +1,6 @@
+import uuid
+
+from django.conf import settings
 from django.db import models
 
 class Barangay(models.Model):
@@ -423,6 +426,16 @@ class ApplicantBiometric(models.Model):
     )
 
     # =========================================================
+    # ELECTRONIC SIGNATURES
+    # =========================================================
+
+    applicant_signature = models.FileField(
+        upload_to="biometrics/signatures/",
+        null=True,
+        blank=True
+    )
+
+    # =========================================================
     # CAPTURE STATUS
     # =========================================================
 
@@ -484,3 +497,62 @@ class ApplicantNotification(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.applicant}"
+
+class SignatureSession(models.Model):
+
+    STATUS_WAITING = "WAITING"
+    STATUS_COMPLETED = "COMPLETED"
+    STATUS_CANCELLED = "CANCELLED"
+    STATUS_EXPIRED = "EXPIRED"
+
+    STATUS_CHOICES = [
+        (STATUS_WAITING, "Waiting"),
+        (STATUS_COMPLETED, "Completed"),
+        (STATUS_CANCELLED, "Cancelled"),
+        (STATUS_EXPIRED, "Expired"),
+    ]
+
+    session_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False
+    )
+
+    applicant = models.ForeignKey(
+        Applicant,
+        on_delete=models.CASCADE,
+        related_name="signature_sessions"
+    )
+
+    officer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="signature_sessions"
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_WAITING
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    completed_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    cancelled_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    def __str__(self):
+        return (
+            f"Signature Session - "
+            f"{self.applicant} - "
+            f"{self.status}"
+        )
