@@ -2289,6 +2289,7 @@ def get_waiting_signature_session(request):
 # views.py
 # Make sure your Django endpoint accepts PNG exactly like this.
 
+@csrf_exempt
 @require_POST
 def complete_signature_session(request):
 
