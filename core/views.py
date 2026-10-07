@@ -2286,12 +2286,11 @@ def get_waiting_signature_session(request):
         }
     })
 
+# views.py
+# Make sure your Django endpoint accepts PNG exactly like this.
+
 @require_POST
 def complete_signature_session(request):
-
-    # ---------------------------------------------------------
-    # Parse JSON
-    # ---------------------------------------------------------
 
     try:
         body = json.loads(
@@ -2310,15 +2309,10 @@ def complete_signature_session(request):
             status=400
         )
 
-    # ---------------------------------------------------------
-    # Get values
-    # ---------------------------------------------------------
-
     session_id = body.get("session_id")
     signature_data = body.get("signature")
 
     if not session_id:
-
         return JsonResponse(
             {
                 "success": False,
@@ -2328,7 +2322,6 @@ def complete_signature_session(request):
         )
 
     if not signature_data:
-
         return JsonResponse(
             {
                 "success": False,
@@ -2337,12 +2330,7 @@ def complete_signature_session(request):
             status=400
         )
 
-    # ---------------------------------------------------------
-    # Get session
-    # ---------------------------------------------------------
-
     try:
-
         session = (
             SignatureSession.objects
             .select_related("applicant")
@@ -2352,7 +2340,6 @@ def complete_signature_session(request):
         )
 
     except SignatureSession.DoesNotExist:
-
         return JsonResponse(
             {
                 "success": False,
@@ -2361,12 +2348,10 @@ def complete_signature_session(request):
             status=404
         )
 
-    # ---------------------------------------------------------
-    # Validate session
-    # ---------------------------------------------------------
-
-    if session.status != SignatureSession.STATUS_WAITING:
-
+    if (
+        session.status !=
+        SignatureSession.STATUS_WAITING
+    ):
         return JsonResponse(
             {
                 "success": False,
@@ -2378,46 +2363,30 @@ def complete_signature_session(request):
             status=400
         )
 
-    # ---------------------------------------------------------
-    # Validate image format
-    # ---------------------------------------------------------
+    # =========================================================
+    # PNG ONLY
+    # =========================================================
 
     match = re.match(
-        r"^data:image/"
-        r"(?P<extension>png|jpeg|jpg);base64,"
+        r"^data:image/png;base64,"
         r"(?P<data>.+)$",
         signature_data
     )
 
     if not match:
-
         return JsonResponse(
             {
                 "success": False,
                 "message": (
-                    "Invalid signature image format."
+                    "Signature must be a PNG image."
                 )
             },
             status=400
         )
 
-    extension = match.group(
-        "extension"
-    )
-
-    if extension == "jpeg":
-        extension = "jpg"
-
-    encoded_data = match.group(
-        "data"
-    )
-
-    # ---------------------------------------------------------
-    # Decode image
-    # ---------------------------------------------------------
+    encoded_data = match.group("data")
 
     try:
-
         image_data = base64.b64decode(
             encoded_data,
             validate=True
@@ -2427,20 +2396,17 @@ def complete_signature_session(request):
         ValueError,
         binascii.Error
     ):
-
         return JsonResponse(
             {
                 "success": False,
-                "message": (
-                    "Invalid signature image."
-                )
+                "message": "Invalid PNG image."
             },
             status=400
         )
 
-    # ---------------------------------------------------------
-    # Get or create biometric record
-    # ---------------------------------------------------------
+    # =========================================================
+    # SAVE PNG
+    # =========================================================
 
     biometric, created = (
         ApplicantBiometric.objects
@@ -2449,24 +2415,14 @@ def complete_signature_session(request):
         )
     )
 
-    # ---------------------------------------------------------
-    # Delete previous signature
-    # ---------------------------------------------------------
-
     if biometric.applicant_signature:
-
         biometric.applicant_signature.delete(
             save=False
         )
 
-    # ---------------------------------------------------------
-    # Save signature
-    # ---------------------------------------------------------
-
     filename = (
         f"applicant_signature_"
-        f"{session.applicant.id}."
-        f"{extension}"
+        f"{session.applicant.id}.png"
     )
 
     biometric.applicant_signature.save(
@@ -2479,9 +2435,9 @@ def complete_signature_session(request):
 
     biometric.save()
 
-    # ---------------------------------------------------------
-    # Complete session
-    # ---------------------------------------------------------
+    # =========================================================
+    # COMPLETE SESSION
+    # =========================================================
 
     session.status = (
         SignatureSession.STATUS_COMPLETED
@@ -2496,26 +2452,19 @@ def complete_signature_session(request):
         ]
     )
 
-    # ---------------------------------------------------------
-    # Return result
-    # ---------------------------------------------------------
-
     return JsonResponse({
         "success": True,
         "message": (
-            "Applicant signature saved successfully."
+            "Applicant PNG signature "
+            "saved successfully."
         ),
         "session_id": str(
             session.session_id
         ),
-        "applicant_id": (
-            session.applicant.id
-        ),
-        "signature_url": (
-            biometric
-            .applicant_signature
-            .url
-        ),
+        "applicant_id":
+            session.applicant.id,
+        "signature_url":
+            biometric.applicant_signature.url,
     })
 
 @require_GET
@@ -2523,6 +2472,10 @@ def signature_session_status(
     request,
     session_id
 ):
+
+    # ---------------------------------------------------------
+    # Get session
+    # ---------------------------------------------------------
 
     try:
 
@@ -2544,6 +2497,10 @@ def signature_session_status(
             status=404
         )
 
+    # ---------------------------------------------------------
+    # Get biometric
+    # ---------------------------------------------------------
+
     biometric = (
         ApplicantBiometric.objects
         .filter(
@@ -2554,67 +2511,145 @@ def signature_session_status(
 
     signature_url = None
 
+    # ---------------------------------------------------------
+    # ONLY return signature when THIS session
+    # was actually completed.
+    # ---------------------------------------------------------
+
     if (
-        biometric and
+        session.status ==
+        SignatureSession.STATUS_COMPLETED
+        and
+        biometric
+        and
         biometric.applicant_signature
     ):
+
         signature_url = (
             biometric
             .applicant_signature
             .url
         )
 
+    # ---------------------------------------------------------
+    # Signature captured
+    # ---------------------------------------------------------
+
+    signature_captured = (
+        session.status ==
+        SignatureSession.STATUS_COMPLETED
+        and
+        bool(signature_url)
+    )
+
+    # ---------------------------------------------------------
+    # Response
+    # ---------------------------------------------------------
+
+    return JsonResponse({
+
+        "success": True,
+
+        "session_id": str(
+            session.session_id
+        ),
+
+        "status": session.status,
+
+        "applicant_id": (
+            session.applicant.id
+        ),
+
+        "applicant_name": str(
+            session.applicant
+        ),
+
+        "signature_captured": (
+            signature_captured
+        ),
+
+        "signature_url": (
+            signature_url
+        ),
+    })
+
+@login_required
+@require_POST
+def cancel_signature_session(
+    request,
+    session_id
+):
+    # ---------------------------------------------------------
+    # Get session
+    # ---------------------------------------------------------
+
+    try:
+        session = (
+            SignatureSession.objects
+            .get(
+                session_id=session_id
+            )
+        )
+
+    except SignatureSession.DoesNotExist:
+
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Signature session not found."
+            },
+            status=404
+        )
+
+    # ---------------------------------------------------------
+    # Only cancel waiting sessions
+    # ---------------------------------------------------------
+
+    if (
+        session.status !=
+        SignatureSession.STATUS_WAITING
+    ):
+        return JsonResponse({
+            "success": True,
+            "message": (
+                "Signature session is already closed."
+            ),
+            "session_id": str(
+                session.session_id
+            ),
+            "status": session.status,
+        })
+
+    # ---------------------------------------------------------
+    # Cancel session
+    # ---------------------------------------------------------
+
+    session.status = (
+        SignatureSession.STATUS_CANCELLED
+    )
+
+    session.cancelled_at = timezone.now()
+
+    session.save(
+        update_fields=[
+            "status",
+            "cancelled_at",
+        ]
+    )
+
+    # ---------------------------------------------------------
+    # Return result
+    # ---------------------------------------------------------
+
     return JsonResponse({
         "success": True,
+        "message": (
+            "Signature session cancelled successfully."
+        ),
         "session_id": str(
             session.session_id
         ),
         "status": session.status,
-        "applicant_id": (
-            session.applicant.id
-        ),
-        "applicant_name": str(
-            session.applicant
-        ),
-        "signature_captured": (
-            bool(signature_url)
-        ),
-        "signature_url": signature_url,
-    })
-
-@login_required
-@require_GET
-def signature_pending_session(request):
-
-    terminal_id = request.GET.get("terminal_id")
-
-    session = SignatureSession.objects.filter(
-        status="WAITING",
-        terminal_id=terminal_id
-    ).select_related(
-        "applicant"
-    ).order_by(
-        "created_at"
-    ).first()
-
-    if not session:
-        return JsonResponse({
-            "success": True,
-            "session": None,
-        })
-
-    return JsonResponse({
-        "success": True,
-        "session": {
-            "session_id": str(
-                session.session_id
-            ),
-            "applicant_id": session.applicant.id,
-            "applicant_name": str(
-                session.applicant
-            ),
-            "status": session.status,
-        }
     })
 
 @require_POST

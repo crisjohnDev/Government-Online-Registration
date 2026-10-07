@@ -163,4 +163,9 @@ urlpatterns = [
         views.signature_session_status,
         name="signature-session-status",
     ),
+    path(
+    "admin/signature/session/<uuid:session_id>/cancel/",
+    views.cancel_signature_session,
+    name="cancel-signature-session",
+),
 ]
