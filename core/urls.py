@@ -195,5 +195,9 @@ path(
     views.fingerprint_capture_status,
     name="fingerprint-capture-status",
 ),
-
+path(
+    "api/applicants/<int:applicant_id>/fingerprint/",
+    views.save_fingerprint,
+    name="save-fingerprint",
+),
 ]
