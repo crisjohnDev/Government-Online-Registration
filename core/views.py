@@ -24,7 +24,8 @@ from Applicants.models import (
     ApplicantTransferRequest,
     ApplicantReactivationRequest,
     ApplicantReinstatementRequest,
-    SignatureSession
+    SignatureSession,
+    FingerprintCaptureRequest
 )
 from core.fingerprint.scanner import capture_fingerprint
 from django.utils import timezone
@@ -4014,4 +4015,138 @@ def fingerprint_device_upload(request, applicant_id):
         "finger": finger,
         "template_bytes": len(template_bytes),
         "both_fingers_complete": biometric.biometrics_completed,
+    })
+
+@login_required
+@require_POST
+def start_fingerprint_capture(request, applicant_id):
+    if not request.user.is_staff:
+        return JsonResponse({"error": "Permission denied."}, status=403)
+
+    applicant = get_object_or_404(Applicant, pk=applicant_id)
+
+    finger = request.POST.get("finger", "").strip().lower()
+
+    if finger not in ("left", "right"):
+        return JsonResponse({"error": "Invalid finger."}, status=400)
+
+    # Avoid creating duplicate active commands for the same applicant/finger.
+    active = FingerprintCaptureRequest.objects.filter(
+        applicant=applicant,
+        finger=finger,
+        status__in=["pending", "capturing"],
+    ).exists()
+
+    if active:
+        return JsonResponse(
+            {"error": "A capture request is already active."},
+            status=409,
+        )
+
+    capture_request = FingerprintCaptureRequest.objects.create(
+        applicant=applicant,
+        finger=finger,
+        status="pending",
+        message="Waiting for fingerprint device.",
+    )
+
+    return JsonResponse({
+        "success": True,
+        "request_id": capture_request.id,
+        "status": capture_request.status,
+        "message": capture_request.message,
+    })
+
+
+@csrf_exempt
+@require_GET
+def fingerprint_device_next(request):
+    # Prototype endpoint: no device token, as requested.
+    with transaction.atomic():
+        capture_request = (
+            FingerprintCaptureRequest.objects
+            .select_for_update()
+            .filter(status="pending")
+            .order_by("created_at")
+            .first()
+        )
+
+        if capture_request is None:
+            return JsonResponse({"command": None})
+
+        capture_request.status = "capturing"
+        capture_request.message = "Device accepted capture request."
+        capture_request.save(
+            update_fields=["status", "message", "updated_at"]
+        )
+
+        return JsonResponse({
+            "command": "capture",
+            "request_id": capture_request.id,
+            "applicant_id": capture_request.applicant_id,
+            "finger": capture_request.finger,
+        })
+
+
+@csrf_exempt
+@require_POST
+def fingerprint_device_complete(request):
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({"error": "Invalid JSON."}, status=400)
+
+    request_id = data.get("request_id")
+    success = data.get("success")
+    message = str(data.get("message", ""))[:255]
+
+    if not isinstance(success, bool):
+        return JsonResponse(
+            {"error": "success must be true or false."},
+            status=400,
+        )
+
+    with transaction.atomic():
+        capture_request = get_object_or_404(
+            FingerprintCaptureRequest.objects.select_for_update(),
+            pk=request_id,
+        )
+
+        if capture_request.status != "capturing":
+            return JsonResponse(
+                {"error": "Capture request is not active."},
+                status=409,
+            )
+
+        capture_request.status = (
+            "completed" if success else "failed"
+        )
+        capture_request.message = message
+        capture_request.save(
+            update_fields=["status", "message", "updated_at"]
+        )
+
+    return JsonResponse({
+        "success": True,
+        "request_id": capture_request.id,
+        "status": capture_request.status,
+    })
+
+
+@login_required
+@require_GET
+def fingerprint_capture_status(request, request_id):
+    if not request.user.is_staff:
+        return JsonResponse({"error": "Permission denied."}, status=403)
+
+    capture_request = get_object_or_404(
+        FingerprintCaptureRequest,
+        pk=request_id,
+    )
+
+    return JsonResponse({
+        "request_id": capture_request.id,
+        "status": capture_request.status,
+        "message": capture_request.message,
+        "finger": capture_request.finger,
     })

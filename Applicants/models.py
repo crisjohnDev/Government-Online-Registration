@@ -556,3 +556,43 @@ class SignatureSession(models.Model):
             f"{self.applicant} - "
             f"{self.status}"
         )
+
+
+
+class FingerprintCaptureRequest(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("capturing", "Capturing"),
+        ("completed", "Completed"),
+        ("failed", "Failed"),
+    ]
+
+    applicant = models.ForeignKey(
+        Applicant,
+        on_delete=models.CASCADE,
+        related_name="fingerprint_capture_requests",
+    )
+
+    finger = models.CharField(
+        max_length=10,
+        choices=[
+            ("left", "Left"),
+            ("right", "Right"),
+        ],
+    )
+
+    status = models.CharField(
+        max_length=12,
+        choices=STATUS_CHOICES,
+        default="pending",
+    )
+
+    message = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return (
+            f"Applicant {self.applicant_id} - "
+            f"{self.finger} - {self.status}"
+        )

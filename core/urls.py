@@ -174,4 +174,26 @@ path(
     views.fingerprint_device_upload,
     name="fingerprint-device-upload",
 ),
+
+path(
+    "admin/applications/<int:applicant_id>/fingerprint/start/",
+    views.start_fingerprint_capture,
+    name="start-fingerprint-capture",
+),
+path(
+    "api/device/fingerprint/next/",
+    views.fingerprint_device_next,
+    name="fingerprint-device-next",
+),
+path(
+    "api/device/fingerprint/complete/",
+    views.fingerprint_device_complete,
+    name="fingerprint-device-complete",
+),
+path(
+    "admin/fingerprint-capture/<int:request_id>/status/",
+    views.fingerprint_capture_status,
+    name="fingerprint-capture-status",
+),
+
 ]
