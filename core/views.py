@@ -2,6 +2,7 @@ import base64
 import binascii
 import json
 import re
+import io
 
 
 import logging
@@ -34,7 +35,7 @@ from django.views.decorators.http import require_POST, require_GET
 from django.core.files import File
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
-
+from PIL import Image, UnidentifiedImageError
 
 logger = logging.getLogger(__name__)
 
@@ -3928,3 +3929,89 @@ def save_fingerprint(request, applicant_id):
             )
         }
     )
+
+@csrf_exempt
+@require_POST
+def fingerprint_device_upload(request, applicant_id):
+    applicant = get_object_or_404(Applicant, pk=applicant_id)
+
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse(
+            {"error": "Invalid JSON request."},
+            status=400,
+        )
+
+    finger = str(data.get("finger", "")).lower().strip()
+    template_b64 = data.get("template", "")
+
+    if finger not in ("left", "right"):
+        return JsonResponse(
+            {"error": "finger must be left or right."},
+            status=400,
+        )
+
+    if not isinstance(template_b64, str) or not template_b64:
+        return JsonResponse(
+            {"error": "A Base64 fingerprint template is required."},
+            status=400,
+        )
+
+    if len(template_b64) > 16000:
+        return JsonResponse(
+            {"error": "Template is too large."},
+            status=400,
+        )
+
+    try:
+        template_bytes = base64.b64decode(
+            template_b64,
+            validate=True,
+        )
+    except (ValueError, base64.binascii.Error):
+        return JsonResponse(
+            {"error": "Invalid Base64 template."},
+            status=400,
+        )
+
+    if not template_bytes or len(template_bytes) > 8192:
+        return JsonResponse(
+            {"error": "Invalid template length."},
+            status=400,
+        )
+
+    with transaction.atomic():
+        biometric, _ = ApplicantBiometric.objects.get_or_create(
+            applicant=applicant
+        )
+
+        setattr(
+            biometric,
+            f"{finger}_finger_template",
+            base64.b64encode(template_bytes).decode("ascii"),
+        )
+
+        biometric.captured_at = timezone.now()
+
+        biometric.biometrics_completed = all(
+            bool(getattr(biometric, field))
+            for field in (
+                "left_finger",
+                "left_finger_template",
+                "right_finger",
+                "right_finger_template",
+            )
+        )
+
+        biometric.completed = biometric.biometrics_completed
+        biometric.save()
+
+    return JsonResponse({
+        "success": True,
+        "message": f"{finger.title()} fingerprint template saved.",
+        "applicant_id": applicant_id,
+        "finger": finger,
+        "template_bytes": len(template_bytes),
+        "both_fingers_complete": biometric.biometrics_completed,
+    })

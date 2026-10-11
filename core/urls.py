@@ -168,4 +168,10 @@ urlpatterns = [
     views.cancel_signature_session,
     name="cancel-signature-session",
 ),
+
+path(
+    "api/device/applicants/<int:applicant_id>/fingerprint/",
+    views.fingerprint_device_upload,
+    name="fingerprint-device-upload",
+),
 ]

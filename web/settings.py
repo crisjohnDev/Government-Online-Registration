@@ -174,3 +174,9 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+
+FINGERPRINT_DEVICE_TOKEN = os.environ.get(
+    "FINGERPRINT_DEVICE_TOKEN",
+    "",
+)
