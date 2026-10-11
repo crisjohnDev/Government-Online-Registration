@@ -3779,157 +3779,98 @@ def delete_application(request, id):
 
     return redirect("admin-applications")
 
+
 @csrf_exempt
 @require_POST
 def save_fingerprint(request, applicant_id):
+    applicant = get_object_or_404(Applicant, pk=applicant_id)
 
-    # =========================================================
-    # GET APPLICANT
-    # =========================================================
-
-    applicant = get_object_or_404(
-        Applicant,
-        id=applicant_id
-    )
-
-    # =========================================================
-    # GET FINGER SIDE
-    # =========================================================
-
-    finger = request.POST.get("finger")
+    finger = request.POST.get("finger", "").strip().lower()
 
     if finger not in ("left", "right"):
+        return JsonResponse({
+            "success": False,
+            "error": "Finger must be 'left' or 'right'.",
+        }, status=400)
 
-        return JsonResponse(
-            {
-                "success": False,
-                "error": "Finger must be 'left' or 'right'."
-            },
-            status=400
-        )
-
-    # =========================================================
-    # GET IMAGE
-    # =========================================================
-
-    fingerprint_file = request.FILES.get(
-        "fingerprint"
-    )
+    fingerprint_file = request.FILES.get("fingerprint")
 
     if not fingerprint_file:
+        return JsonResponse({
+            "success": False,
+            "error": "No fingerprint image was uploaded.",
+        }, status=400)
 
-        return JsonResponse(
-            {
-                "success": False,
-                "error": "No fingerprint image was uploaded."
-            },
-            status=400
-        )
+    # Accept common image formats only.
+    allowed_types = {
+        "image/png",
+        "image/jpeg",
+        "image/bmp",
+    }
 
-    # =========================================================
-    # GET / CREATE BIOMETRIC RECORD
-    # =========================================================
+    if fingerprint_file.content_type not in allowed_types:
+        return JsonResponse({
+            "success": False,
+            "error": "Upload a PNG, JPEG, or BMP fingerprint image.",
+        }, status=400)
 
-    biometric, created = ApplicantBiometric.objects.get_or_create(
+    # Limit the image upload size to 2 MB.
+    if fingerprint_file.size > 2 * 1024 * 1024:
+        return JsonResponse({
+            "success": False,
+            "error": "Fingerprint image must not exceed 2 MB.",
+        }, status=400)
+
+    biometric, _ = ApplicantBiometric.objects.get_or_create(
         applicant=applicant
     )
 
-    # =========================================================
-    # SAVE LEFT FINGER
-    # =========================================================
-
+    # Save the image without deleting the existing template.
     if finger == "left":
-
         biometric.left_finger.save(
             fingerprint_file.name,
             fingerprint_file,
-            save=False
+            save=False,
         )
-
-        biometric.left_finger_template = None
-
-    # =========================================================
-    # SAVE RIGHT FINGER
-    # =========================================================
-
-    elif finger == "right":
-
+    else:
         biometric.right_finger.save(
             fingerprint_file.name,
             fingerprint_file,
-            save=False
+            save=False,
         )
 
-        biometric.right_finger_template = None
+    biometric.captured_at = timezone.now()
 
-    # =========================================================
-    # UPDATE COMPLETION
-    # =========================================================
+    # Both image files AND both templates are required.
+    biometric.biometrics_completed = all([
+        bool(biometric.left_finger),
+        bool(biometric.left_finger_template),
+        bool(biometric.right_finger),
+        bool(biometric.right_finger_template),
+    ])
 
-    has_left = bool(
-        biometric.left_finger
-    )
-
-    has_right = bool(
-        biometric.right_finger
-    )
-
-    biometric.biometrics_completed = (
-        has_left and has_right
-    )
-
-    biometric.completed = (
-        has_left and has_right
-    )
-
-    # =========================================================
-    # VERIFICATION STATUS
-    # =========================================================
-
-    if biometric.completed:
-
-        applicant.verification_status = "VERIFIED"
-
-        biometric.captured_at = timezone.now()
-
-        applicant.save(
-            update_fields=[
-                "verification_status"
-            ]
-        )
-
-    # =========================================================
-    # SAVE BIOMETRIC
-    # =========================================================
-
+    biometric.completed = biometric.biometrics_completed
     biometric.save()
 
-    # =========================================================
-    # RESPONSE
-    # =========================================================
+    # Update verification status only when all biometric data exists.
+    if biometric.biometrics_completed:
+        applicant.verification_status = "VERIFIED"
+        applicant.save(update_fields=["verification_status"])
 
-    return JsonResponse(
-        {
-            "success": True,
-            "applicant_id": applicant.id,
-            "finger": finger,
-            "left_captured": bool(
-                biometric.left_finger
-            ),
-            "right_captured": bool(
-                biometric.right_finger
-            ),
-            "biometrics_completed": (
-                biometric.biometrics_completed
-            ),
-            "completed": (
-                biometric.completed
-            ),
-            "verification_status": (
-                applicant.verification_status
-            )
-        }
-    )
+    return JsonResponse({
+        "success": True,
+        "message": f"{finger.title()} fingerprint image saved.",
+        "applicant_id": applicant.id,
+        "finger": finger,
+        "left_image_saved": bool(biometric.left_finger),
+        "right_image_saved": bool(biometric.right_finger),
+        "left_template_saved": bool(biometric.left_finger_template),
+        "right_template_saved": bool(biometric.right_finger_template),
+        "biometrics_completed": biometric.biometrics_completed,
+        "completed": biometric.completed,
+        "verification_status": applicant.verification_status,
+    })
+
 
 @csrf_exempt
 @require_POST
