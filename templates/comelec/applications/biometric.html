@@ -146,6 +146,14 @@
         background: #fff;
     }
 
+    .bio-preview a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+
     .bio-preview img {
         display: block;
         width: 100%;
@@ -316,10 +324,9 @@
     <!-- DEVICE INSTRUCTIONS -->
     <div class="bio-notice info">
         <strong>Fingerprint device instructions</strong><br>
-        Keep the ESP8266 powered on and connected to Wi-Fi. Select a finger,
-        then place that finger on the AS608 scanner when prompted.
-        A saved fingerprint template is not the same as a visible fingerprint image.
-        Images appear here only after the actual image file has been uploaded to Django.
+        Keep the fingerprint device powered on and connected to Wi-Fi.
+        Select a finger and place it on the AS608 scanner when prompted.
+        Fingerprint images and templates are stored separately.
     </div>
 
     <!-- APPLICANT DETAILS -->
@@ -339,7 +346,6 @@
 
                 <div class="col-lg-3">
                     <div class="bio-muted mb-1">Application Status</div>
-
                     <span class="bio-status
                         {% if applicant.status == 'APPROVED' %}success
                         {% elif applicant.status == 'PENDING' or applicant.status == 'REVIEW' %}warning
@@ -350,7 +356,6 @@
 
                 <div class="col-lg-3">
                     <div class="bio-muted mb-1">Verification Status</div>
-
                     <span class="bio-status
                         {% if applicant.verification_status == 'VERIFIED' %}success
                         {% elif applicant.verification_status == 'BIOMETRICS_PENDING' %}waiting
@@ -381,8 +386,8 @@
             </h5>
 
             <span id="applicantSignatureStatus"
-                  class="bio-status {% if biometric.applicant_signature %}success{% endif %}">
-                {% if biometric.applicant_signature %}
+                  class="bio-status {% if biometric and biometric.applicant_signature %}success{% endif %}">
+                {% if biometric and biometric.applicant_signature %}
                     Captured
                 {% else %}
                     Not Captured
@@ -394,11 +399,14 @@
             <div class="row justify-content-center">
                 <div class="col-lg-7">
                     <div id="applicantSignaturePreview"
-                         class="bio-preview {% if biometric.applicant_signature %}captured{% endif %}">
-
-                        {% if biometric.applicant_signature %}
-                            <img src="{{ biometric.applicant_signature.url }}"
-                                 alt="Applicant signature">
+                         class="bio-preview {% if biometric and biometric.applicant_signature %}captured{% endif %}">
+                        {% if biometric and biometric.applicant_signature %}
+                            <a href="{{ biometric.applicant_signature.url }}"
+                               target="_blank"
+                               rel="noopener noreferrer">
+                                <img src="{{ biometric.applicant_signature.url }}"
+                                     alt="Applicant signature">
+                            </a>
                         {% else %}
                             <div class="bio-placeholder">
                                 <i class="bi bi-pen"></i>
@@ -414,23 +422,20 @@
                          class="bio-message"
                          role="status"
                          aria-live="polite">
-                        {% if biometric.applicant_signature %}
+                        {% if biometric and biometric.applicant_signature %}
                             Signature already saved.
                         {% else %}
                             Start a signature session to capture the applicant's signature.
-                            Signature capture is optional during fingerprint testing.
                         {% endif %}
                     </div>
 
-                    <div class="bio-signature-line">
-                        Applicant Signature
-                    </div>
+                    <div class="bio-signature-line">Applicant Signature</div>
 
                     <button type="button"
                             id="captureApplicantSignature"
                             class="btn btn-primary bio-action">
                         <i class="bi bi-pen me-1"></i>
-                        {% if biometric.applicant_signature %}
+                        {% if biometric and biometric.applicant_signature %}
                             Recapture Applicant Signature
                         {% else %}
                             Capture Applicant Signature
@@ -441,13 +446,12 @@
         </div>
     </div>
 
-    <!-- STEP 2 AND 3: FINGERPRINTS -->
+    <!-- LEFT AND RIGHT FINGERPRINTS -->
     <div class="row g-4 mb-4">
 
         <!-- LEFT FINGER -->
         <div class="col-lg-6">
             <div id="leftFingerCard" class="bio-capture-card">
-
                 <div class="bio-capture-header">
                     <h5>
                         <span class="bio-step-number">2</span>
@@ -456,15 +460,14 @@
 
                     <span id="leftFingerStatus"
                           class="bio-status
-                          {% if biometric.left_finger and biometric.left_finger_template %}success
-                          {% elif biometric.left_finger or biometric.left_finger_template %}warning
+                          {% if biometric and biometric.left_finger and biometric.left_finger_template %}success
+                          {% elif biometric and biometric.left_finger or biometric and biometric.left_finger_template %}warning
                           {% endif %}">
-
-                        {% if biometric.left_finger and biometric.left_finger_template %}
+                        {% if biometric and biometric.left_finger and biometric.left_finger_template %}
                             Image and Template Saved
-                        {% elif biometric.left_finger %}
+                        {% elif biometric and biometric.left_finger %}
                             Image Saved
-                        {% elif biometric.left_finger_template %}
+                        {% elif biometric and biometric.left_finger_template %}
                             Template Saved
                         {% else %}
                             Not Captured
@@ -473,66 +476,56 @@
                 </div>
 
                 <div class="bio-capture-body">
-
-                    <!-- LEFT IMAGE PREVIEW -->
                     <div id="leftFingerprintPreview"
-                         class="bio-preview {% if biometric.left_finger %}captured{% endif %}">
-
-                        {% if biometric.left_finger %}
-                            <img src="{{ biometric.left_finger.url }}"
-                                 alt="Left fingerprint image">
-
-                        {% elif biometric.left_finger_template %}
+                         class="bio-preview {% if biometric and biometric.left_finger %}captured{% endif %}">
+                        {% if biometric and biometric.left_finger %}
+                            <a href="{{ biometric.left_finger.url }}"
+                               target="_blank"
+                               rel="noopener noreferrer">
+                                <img src="{{ biometric.left_finger.url }}"
+                                     alt="Left fingerprint image">
+                            </a>
+                        {% elif biometric and biometric.left_finger_template %}
                             <div class="bio-placeholder">
                                 <i class="bi bi-fingerprint"></i>
                                 <strong>Template Saved</strong>
-                                <span>
-                                    The left fingerprint template is saved,
-                                    but no fingerprint image has been uploaded.
-                                </span>
+                                <span>The left fingerprint image has not been uploaded.</span>
                             </div>
-
                         {% else %}
                             <div class="bio-placeholder">
                                 <i class="bi bi-fingerprint"></i>
                                 <strong>No Fingerprint Image</strong>
-                                <span>
-                                    Capture the left finger using the connected AS608 scanner.
-                                </span>
+                                <span>Capture the left finger using the connected scanner.</span>
                             </div>
                         {% endif %}
                     </div>
 
-                    <!-- LEFT MESSAGE -->
                     <div id="leftCaptureMessage"
                          class="bio-message"
                          role="status"
                          aria-live="polite">
-
-                        {% if biometric.left_finger and biometric.left_finger_template %}
+                        {% if biometric and biometric.left_finger and biometric.left_finger_template %}
                             Left fingerprint image and template are saved.
-                        {% elif biometric.left_finger %}
+                        {% elif biometric and biometric.left_finger %}
                             Left fingerprint image is saved.
-                        {% elif biometric.left_finger_template %}
-                            Left fingerprint template is saved. Image upload is still required.
+                        {% elif biometric and biometric.left_finger_template %}
+                            Template saved. The image is still required.
                         {% else %}
-                            Click Capture Left Finger, then place the left finger on the scanner.
+                            Click Capture Left Finger and follow the scanner instructions.
                         {% endif %}
                     </div>
 
-                    <!-- LEFT DATA DETAILS -->
                     <div class="bio-fingerprint-details">
                         <div>
                             <span>Fingerprint image</span>
                             <strong>
-                                {% if biometric.left_finger %}Saved{% else %}Not uploaded{% endif %}
+                                {% if biometric and biometric.left_finger %}Saved{% else %}Not uploaded{% endif %}
                             </strong>
                         </div>
-
                         <div>
                             <span>Fingerprint template</span>
                             <strong>
-                                {% if biometric.left_finger_template %}Saved{% else %}Not saved{% endif %}
+                                {% if biometric and biometric.left_finger_template %}Saved{% else %}Not saved{% endif %}
                             </strong>
                         </div>
                     </div>
@@ -550,7 +543,6 @@
         <!-- RIGHT FINGER -->
         <div class="col-lg-6">
             <div id="rightFingerCard" class="bio-capture-card">
-
                 <div class="bio-capture-header">
                     <h5>
                         <span class="bio-step-number">3</span>
@@ -559,15 +551,14 @@
 
                     <span id="rightFingerStatus"
                           class="bio-status
-                          {% if biometric.right_finger and biometric.right_finger_template %}success
-                          {% elif biometric.right_finger or biometric.right_finger_template %}warning
+                          {% if biometric and biometric.right_finger and biometric.right_finger_template %}success
+                          {% elif biometric and biometric.right_finger or biometric and biometric.right_finger_template %}warning
                           {% endif %}">
-
-                        {% if biometric.right_finger and biometric.right_finger_template %}
+                        {% if biometric and biometric.right_finger and biometric.right_finger_template %}
                             Image and Template Saved
-                        {% elif biometric.right_finger %}
+                        {% elif biometric and biometric.right_finger %}
                             Image Saved
-                        {% elif biometric.right_finger_template %}
+                        {% elif biometric and biometric.right_finger_template %}
                             Template Saved
                         {% else %}
                             Not Captured
@@ -576,66 +567,56 @@
                 </div>
 
                 <div class="bio-capture-body">
-
-                    <!-- RIGHT IMAGE PREVIEW -->
                     <div id="rightFingerprintPreview"
-                         class="bio-preview {% if biometric.right_finger %}captured{% endif %}">
-
-                        {% if biometric.right_finger %}
-                            <img src="{{ biometric.right_finger.url }}"
-                                 alt="Right fingerprint image">
-
-                        {% elif biometric.right_finger_template %}
+                         class="bio-preview {% if biometric and biometric.right_finger %}captured{% endif %}">
+                        {% if biometric and biometric.right_finger %}
+                            <a href="{{ biometric.right_finger.url }}"
+                               target="_blank"
+                               rel="noopener noreferrer">
+                                <img src="{{ biometric.right_finger.url }}"
+                                     alt="Right fingerprint image">
+                            </a>
+                        {% elif biometric and biometric.right_finger_template %}
                             <div class="bio-placeholder">
                                 <i class="bi bi-fingerprint"></i>
                                 <strong>Template Saved</strong>
-                                <span>
-                                    The right fingerprint template is saved,
-                                    but no fingerprint image has been uploaded.
-                                </span>
+                                <span>The right fingerprint image has not been uploaded.</span>
                             </div>
-
                         {% else %}
                             <div class="bio-placeholder">
                                 <i class="bi bi-fingerprint"></i>
                                 <strong>No Fingerprint Image</strong>
-                                <span>
-                                    Capture the right finger using the connected AS608 scanner.
-                                </span>
+                                <span>Capture the right finger using the connected scanner.</span>
                             </div>
                         {% endif %}
                     </div>
 
-                    <!-- RIGHT MESSAGE -->
                     <div id="rightCaptureMessage"
                          class="bio-message"
                          role="status"
                          aria-live="polite">
-
-                        {% if biometric.right_finger and biometric.right_finger_template %}
+                        {% if biometric and biometric.right_finger and biometric.right_finger_template %}
                             Right fingerprint image and template are saved.
-                        {% elif biometric.right_finger %}
+                        {% elif biometric and biometric.right_finger %}
                             Right fingerprint image is saved.
-                        {% elif biometric.right_finger_template %}
-                            Right fingerprint template is saved. Image upload is still required.
+                        {% elif biometric and biometric.right_finger_template %}
+                            Template saved. The image is still required.
                         {% else %}
-                            Click Capture Right Finger, then place the right finger on the scanner.
+                            Click Capture Right Finger and follow the scanner instructions.
                         {% endif %}
                     </div>
 
-                    <!-- RIGHT DATA DETAILS -->
                     <div class="bio-fingerprint-details">
                         <div>
                             <span>Fingerprint image</span>
                             <strong>
-                                {% if biometric.right_finger %}Saved{% else %}Not uploaded{% endif %}
+                                {% if biometric and biometric.right_finger %}Saved{% else %}Not uploaded{% endif %}
                             </strong>
                         </div>
-
                         <div>
                             <span>Fingerprint template</span>
                             <strong>
-                                {% if biometric.right_finger_template %}Saved{% else %}Not saved{% endif %}
+                                {% if biometric and biometric.right_finger_template %}Saved{% else %}Not saved{% endif %}
                             </strong>
                         </div>
                     </div>
@@ -651,7 +632,7 @@
         </div>
     </div>
 
-    <!-- BIOMETRIC COMPLETION SUMMARY -->
+    <!-- BIOMETRIC SUMMARY -->
     <div class="bio-card">
         <div class="bio-card-header">
             <h5>Biometric Registration Status</h5>
@@ -659,12 +640,11 @@
 
         <div class="bio-card-body">
             <div class="row g-3">
-
                 <div class="col-md-4">
                     <div class="bio-summary-item">
                         <strong>Applicant Signature</strong>
                         <span id="summarySignature">
-                            {% if biometric.applicant_signature %}
+                            {% if biometric and biometric.applicant_signature %}
                                 Saved
                             {% else %}
                                 Optional during testing
@@ -677,11 +657,11 @@
                     <div class="bio-summary-item">
                         <strong>Fingerprints</strong>
                         <span id="summaryFingerprints">
-                            {% if biometric.left_finger and biometric.left_finger_template and biometric.right_finger and biometric.right_finger_template %}
+                            {% if biometric and biometric.left_finger and biometric.left_finger_template and biometric.right_finger and biometric.right_finger_template %}
                                 Both images and templates saved
-                            {% elif biometric.left_finger_template and biometric.right_finger_template %}
-                                Both templates saved; images still required
-                            {% elif biometric.left_finger_template or biometric.right_finger_template %}
+                            {% elif biometric and biometric.left_finger_template and biometric.right_finger_template %}
+                                Both templates saved; check images
+                            {% elif biometric and biometric.left_finger_template or biometric and biometric.right_finger_template %}
                                 At least one template saved
                             {% else %}
                                 Both fingerprints required
@@ -692,9 +672,9 @@
 
                 <div class="col-md-4">
                     <div class="bio-summary-item">
-                        <strong>Overall Verification</strong>
+                        <strong>Overall Biometric Completion</strong>
                         <span id="summaryVerification">
-                            {% if biometric.completed %}
+                            {% if biometric and biometric.biometrics_completed %}
                                 Completed
                             {% else %}
                                 Pending
@@ -702,11 +682,9 @@
                         </span>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
-
 </div>
 
 <form id="csrfForm" hidden>
@@ -748,7 +726,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("captureRightFinger");
 
     let signatureSaved =
-        {% if biometric.applicant_signature %}true{% else %}false{% endif %};
+        {% if biometric and biometric.applicant_signature %}true{% else %}false{% endif %};
 
     let signaturePollingInterval = null;
     let currentSignatureSessionId = null;
@@ -758,7 +736,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const input = document.querySelector(
             "#csrfForm input[name='csrfmiddlewaretoken']"
         );
-
         return input ? input.value : "";
     }
 
@@ -770,7 +747,6 @@ document.addEventListener("DOMContentLoaded", function () {
             data = JSON.parse(raw);
         } catch (error) {
             console.error("Unexpected server response:", raw);
-
             throw new Error(
                 `Invalid server response (HTTP ${response.status}).`
             );
@@ -790,50 +766,13 @@ document.addEventListener("DOMContentLoaded", function () {
     function setMessage(element, text, type = "info") {
         element.className =
             "bio-message" + (type ? " " + type : "");
-
         element.textContent = text;
     }
 
     function setStatus(element, text, type = "") {
         element.className =
             "bio-status" + (type ? " " + type : "");
-
         element.textContent = text;
-    }
-
-    function showImagePreview(preview, url, alt) {
-        preview.replaceChildren();
-
-        const image = document.createElement("img");
-
-        image.src =
-            url + (url.includes("?") ? "&" : "?") + "t=" + Date.now();
-
-        image.alt = alt;
-
-        image.onerror = function () {
-            preview.replaceChildren();
-
-            const placeholder = document.createElement("div");
-            placeholder.className = "bio-placeholder";
-
-            const icon = document.createElement("i");
-            icon.className = "bi bi-exclamation-triangle";
-
-            const heading = document.createElement("strong");
-            heading.textContent = "Image Could Not Be Loaded";
-
-            const description = document.createElement("span");
-            description.textContent =
-                "Check that the uploaded file exists and its media URL is accessible.";
-
-            placeholder.append(icon, heading, description);
-            preview.appendChild(placeholder);
-            preview.classList.remove("captured");
-        };
-
-        preview.appendChild(image);
-        preview.classList.add("captured");
     }
 
     function showPlaceholder(preview, iconName, headingText, descriptionText) {
@@ -855,261 +794,6 @@ document.addEventListener("DOMContentLoaded", function () {
         preview.appendChild(wrapper);
         preview.classList.remove("captured");
     }
-
-    function updateSummary() {
-        const leftImageSaved =
-            {% if biometric.left_finger %}true{% else %}false{% endif %};
-
-        const leftTemplateSaved =
-            {% if biometric.left_finger_template %}true{% else %}false{% endif %};
-
-        const rightImageSaved =
-            {% if biometric.right_finger %}true{% else %}false{% endif %};
-
-        const rightTemplateSaved =
-            {% if biometric.right_finger_template %}true{% else %}false{% endif %};
-
-        const allImagesAndTemplatesSaved =
-            leftImageSaved &&
-            leftTemplateSaved &&
-            rightImageSaved &&
-            rightTemplateSaved;
-
-        const bothTemplatesSaved =
-            leftTemplateSaved && rightTemplateSaved;
-
-        const summary = document.getElementById("summaryFingerprints");
-
-        if (allImagesAndTemplatesSaved) {
-            summary.textContent = "Both images and templates saved";
-        } else if (bothTemplatesSaved) {
-            summary.textContent = "Both templates saved; images still required";
-        } else if (leftTemplateSaved || rightTemplateSaved) {
-            summary.textContent = "At least one template saved";
-        } else {
-            summary.textContent = "Both fingerprints required";
-        }
-
-        document.getElementById("summarySignature").textContent =
-            signatureSaved ? "Saved" : "Optional during testing";
-    }
-
-    // -----------------------------------------------------
-    // SIGNATURE CAPTURE
-    // -----------------------------------------------------
-
-    function stopSignaturePolling() {
-        if (signaturePollingInterval !== null) {
-            clearInterval(signaturePollingInterval);
-            signaturePollingInterval = null;
-        }
-    }
-
-    function getSignatureStatusUrl(sessionId) {
-        return signatureStatusUrlTemplate.replace(
-            "00000000-0000-0000-0000-000000000000",
-            encodeURIComponent(sessionId)
-        );
-    }
-
-    function showSignatureError(message) {
-        stopSignaturePolling();
-
-        currentSignatureSessionId = null;
-        signatureRequestInProgress = false;
-
-        signatureButton.disabled = false;
-
-        signatureButton.innerHTML =
-            '<i class="bi bi-pen me-1"></i>' +
-            (signatureSaved
-                ? "Recapture Applicant Signature"
-                : "Capture Applicant Signature");
-
-        setStatus(
-            signatureStatus,
-            signatureSaved ? "Captured" : "Not Captured",
-            signatureSaved ? "success" : ""
-        );
-
-        setMessage(signatureMessage, message, "error");
-    }
-
-    function showSignatureWaiting() {
-        signatureButton.disabled = true;
-
-        signatureButton.innerHTML =
-            '<span class="spinner-border spinner-border-sm me-2"></span>' +
-            "Waiting for Signature...";
-
-        setStatus(signatureStatus, "Waiting", "waiting");
-
-        showPlaceholder(
-            signaturePreview,
-            "bi-pen",
-            "Waiting for Signature",
-            "Waiting for the applicant to sign using the connected signature device."
-        );
-
-        setMessage(
-            signatureMessage,
-            "Signature session started. Waiting for confirmation from the server.",
-            "info"
-        );
-    }
-
-    function showSignatureCaptured(url) {
-        stopSignaturePolling();
-
-        if (!url) {
-            showSignatureError(
-                "The session completed, but the server did not return a signature image URL."
-            );
-            return;
-        }
-
-        signatureSaved = true;
-        currentSignatureSessionId = null;
-        signatureRequestInProgress = false;
-
-        showImagePreview(
-            signaturePreview,
-            url,
-            "Applicant signature"
-        );
-
-        setStatus(signatureStatus, "Captured", "success");
-
-        signatureButton.disabled = false;
-        signatureButton.innerHTML =
-            '<i class="bi bi-pen me-1"></i>Recapture Applicant Signature';
-
-        setMessage(
-            signatureMessage,
-            "Signature captured and saved successfully.",
-            "success"
-        );
-
-        updateSummary();
-    }
-
-    async function checkSignatureStatus() {
-        if (!currentSignatureSessionId) return;
-
-        try {
-            const response = await fetch(
-                getSignatureStatusUrl(currentSignatureSessionId) +
-                    "?t=" + Date.now(),
-                {
-                    method: "GET",
-                    headers: {
-                        "X-Requested-With": "XMLHttpRequest",
-                        "Accept": "application/json"
-                    },
-                    cache: "no-store"
-                }
-            );
-
-            const data = await parseResponse(response);
-
-            if (data.status === "COMPLETED") {
-                if (data.signature_captured === true && data.signature_url) {
-                    showSignatureCaptured(data.signature_url);
-                } else {
-                    showSignatureError(
-                        "The session completed, but the saved signature could not be confirmed."
-                    );
-                }
-
-                return;
-            }
-
-            if (data.status === "CANCELLED") {
-                showSignatureError("The signature session was cancelled.");
-                return;
-            }
-
-            if (data.status === "EXPIRED") {
-                showSignatureError(
-                    "The signature session expired. Please start again."
-                );
-                return;
-            }
-
-            if (data.status === "WAITING") {
-                setMessage(
-                    signatureMessage,
-                    "Waiting for the applicant to finish signing.",
-                    "info"
-                );
-            }
-        } catch (error) {
-            console.error("Signature status error:", error);
-        }
-    }
-
-    async function startSignatureSession() {
-        if (signatureRequestInProgress) return;
-
-        signatureRequestInProgress = true;
-        stopSignaturePolling();
-
-        signatureButton.disabled = true;
-
-        setMessage(
-            signatureMessage,
-            "Starting signature session...",
-            "info"
-        );
-
-        try {
-            const response = await fetch(signatureStartUrl, {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": getCsrfToken(),
-                    "X-Requested-With": "XMLHttpRequest",
-                    "Accept": "application/json"
-                }
-            });
-
-            const data = await parseResponse(response);
-
-            if (!data.success || !data.session_id) {
-                throw new Error(
-                    data.message ||
-                    data.error ||
-                    "Unable to start the signature session."
-                );
-            }
-
-            currentSignatureSessionId = data.session_id;
-
-            showSignatureWaiting();
-
-            await checkSignatureStatus();
-
-            if (currentSignatureSessionId) {
-                signaturePollingInterval = setInterval(
-                    checkSignatureStatus,
-                    1500
-                );
-            }
-        } catch (error) {
-            console.error("Signature session error:", error);
-
-            showSignatureError(
-                error.message || "Unable to start signature capture."
-            );
-        } finally {
-            if (currentSignatureSessionId === null) {
-                signatureRequestInProgress = false;
-            }
-        }
-    }
-
-    // -----------------------------------------------------
-    // FINGERPRINT CAPTURE REQUEST
-    // -----------------------------------------------------
 
     function getCaptureStatusUrl(requestId) {
         return captureStatusUrlTemplate.replace(
@@ -1153,28 +837,25 @@ document.addEventListener("DOMContentLoaded", function () {
             if (data.status === "capturing") {
                 setMessage(
                     messageElement,
-                    "The ESP8266 accepted the request. Follow the scanner instructions.",
+                    "The device is capturing and uploading fingerprint data.",
                     "info"
                 );
             } else if (data.status === "pending") {
                 setMessage(
                     messageElement,
-                    "Waiting for the ESP8266 to retrieve the capture request...",
+                    "Waiting for the fingerprint device to accept the request.",
                     "info"
                 );
             }
         }
 
         throw new Error(
-            "Timed out waiting for the fingerprint device. " +
-            "Check that the ESP8266 is powered on, connected to Wi-Fi, " +
-            "and polling Django."
+            "Timed out waiting for the fingerprint device. Check its power, Wi-Fi, and Django polling connection."
         );
     }
 
     async function captureFinger(finger) {
         const isLeft = finger === "left";
-
         const button = isLeft ? leftButton : rightButton;
 
         const preview = document.getElementById(
@@ -1203,7 +884,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         setMessage(
             message,
-            `Sending the ${finger} fingerprint capture request to Django...`,
+            `Sending the ${finger} fingerprint capture request...`,
             "info"
         );
 
@@ -1211,7 +892,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const formData = new FormData();
             formData.append("finger", finger);
 
-            // Create the capture request.
             const response = await fetch(startCaptureUrl, {
                 method: "POST",
                 headers: {
@@ -1238,46 +918,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
             setMessage(
                 message,
-                "Capture request created. Place the selected finger on the scanner when prompted.",
+                "Request created. Place the selected finger on the scanner when prompted.",
                 "info"
             );
 
-            // Wait for the ESP8266 to finish capturing and uploading.
             const result = await waitForCaptureResult(
                 data.request_id,
                 message
             );
 
-            setStatus(status, "Template Saved", "warning");
-
             /*
-             * The current firmware reports template capture success.
-             * Do not pretend that the template is an image.
+             * The device has reported completion.
+             * Reload the page to retrieve image URLs from Django.
              */
-            showPlaceholder(
-                preview,
-                "bi-fingerprint",
-                "Template Saved",
-                "The fingerprint template was saved. An image will appear here after the device uploads the actual fingerprint image."
-            );
-
             setMessage(
                 message,
                 result.message ||
-                "The fingerprint template was saved successfully. The image has not yet been uploaded.",
+                "Capture finished. Refreshing saved biometric data...",
                 "success"
             );
 
             button.innerHTML =
-                '<i class="bi bi-fingerprint me-1"></i>Recapture ' +
-                (isLeft ? "Left" : "Right") + " Finger";
+                '<span class="spinner-border spinner-border-sm me-2"></span>' +
+                "Loading Saved Image...";
 
-            /*
-             * Reload from Django so the page reflects saved database fields.
-             */
-            setTimeout(function () {
-                window.location.reload();
-            }, 1500);
+            window.location.reload();
 
         } catch (error) {
             console.error(`${finger} fingerprint error:`, error);
@@ -1294,6 +959,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 '<i class="bi bi-fingerprint me-1"></i>Capture ' +
                 (isLeft ? "Left" : "Right") + " Finger";
 
+            button.disabled = false;
+
         } finally {
             button.dataset.busy = "false";
             leftButton.disabled = false;
@@ -1301,10 +968,217 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    signatureButton.addEventListener(
-        "click",
-        startSignatureSession
-    );
+    // -----------------------------------------------------
+    // SIGNATURE CAPTURE
+    // Existing signature session endpoints are retained.
+    // -----------------------------------------------------
+
+    function stopSignaturePolling() {
+        if (signaturePollingInterval !== null) {
+            clearInterval(signaturePollingInterval);
+            signaturePollingInterval = null;
+        }
+    }
+
+    function getSignatureStatusUrl(sessionId) {
+        return signatureStatusUrlTemplate.replace(
+            "00000000-0000-0000-0000-000000000000",
+            encodeURIComponent(sessionId)
+        );
+    }
+
+    function showSignatureError(message) {
+        stopSignaturePolling();
+        currentSignatureSessionId = null;
+        signatureRequestInProgress = false;
+
+        signatureButton.disabled = false;
+        signatureButton.innerHTML =
+            '<i class="bi bi-pen me-1"></i>' +
+            (signatureSaved
+                ? "Recapture Applicant Signature"
+                : "Capture Applicant Signature");
+
+        setStatus(
+            signatureStatus,
+            signatureSaved ? "Captured" : "Not Captured",
+            signatureSaved ? "success" : ""
+        );
+
+        setMessage(signatureMessage, message, "error");
+    }
+
+    function showSignatureWaiting() {
+        signatureButton.disabled = true;
+        signatureButton.innerHTML =
+            '<span class="spinner-border spinner-border-sm me-2"></span>' +
+            "Waiting for Signature...";
+
+        setStatus(signatureStatus, "Waiting", "waiting");
+
+        showPlaceholder(
+            signaturePreview,
+            "bi-pen",
+            "Waiting for Signature",
+            "Waiting for the applicant to sign."
+        );
+
+        setMessage(
+            signatureMessage,
+            "Signature session started. Waiting for the server.",
+            "info"
+        );
+    }
+
+    function showSignatureCaptured(url) {
+        stopSignaturePolling();
+
+        if (!url) {
+            showSignatureError(
+                "The server did not return a signature image URL."
+            );
+            return;
+        }
+
+        signatureSaved = true;
+        currentSignatureSessionId = null;
+        signatureRequestInProgress = false;
+
+        signaturePreview.replaceChildren();
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+
+        const image = document.createElement("img");
+        image.src = url;
+        image.alt = "Applicant signature";
+
+        link.appendChild(image);
+        signaturePreview.appendChild(link);
+        signaturePreview.classList.add("captured");
+
+        setStatus(signatureStatus, "Captured", "success");
+
+        signatureButton.disabled = false;
+        signatureButton.innerHTML =
+            '<i class="bi bi-pen me-1"></i>Recapture Applicant Signature';
+
+        setMessage(
+            signatureMessage,
+            "Signature captured and saved successfully.",
+            "success"
+        );
+
+        document.getElementById("summarySignature").textContent = "Saved";
+    }
+
+    async function checkSignatureStatus() {
+        if (!currentSignatureSessionId) return;
+
+        try {
+            const response = await fetch(
+                getSignatureStatusUrl(currentSignatureSessionId) +
+                    "?t=" + Date.now(),
+                {
+                    method: "GET",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        "Accept": "application/json"
+                    },
+                    cache: "no-store"
+                }
+            );
+
+            const data = await parseResponse(response);
+
+            if (data.status === "COMPLETED") {
+                if (data.signature_captured === true && data.signature_url) {
+                    showSignatureCaptured(data.signature_url);
+                } else {
+                    showSignatureError(
+                        "The signature was not confirmed by the server."
+                    );
+                }
+                return;
+            }
+
+            if (data.status === "CANCELLED") {
+                showSignatureError("The signature session was cancelled.");
+                return;
+            }
+
+            if (data.status === "EXPIRED") {
+                showSignatureError("The signature session expired. Please try again.");
+                return;
+            }
+
+            if (data.status === "WAITING") {
+                setMessage(
+                    signatureMessage,
+                    "Waiting for the applicant to finish signing.",
+                    "info"
+                );
+            }
+        } catch (error) {
+            console.error("Signature status error:", error);
+        }
+    }
+
+    async function startSignatureSession() {
+        if (signatureRequestInProgress) return;
+
+        signatureRequestInProgress = true;
+        stopSignaturePolling();
+        signatureButton.disabled = true;
+
+        setMessage(signatureMessage, "Starting signature session...", "info");
+
+        try {
+            const response = await fetch(signatureStartUrl, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCsrfToken(),
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Accept": "application/json"
+                }
+            });
+
+            const data = await parseResponse(response);
+
+            if (!data.success || !data.session_id) {
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Unable to start the signature session."
+                );
+            }
+
+            currentSignatureSessionId = data.session_id;
+            showSignatureWaiting();
+
+            await checkSignatureStatus();
+
+            if (currentSignatureSessionId) {
+                signaturePollingInterval = setInterval(
+                    checkSignatureStatus,
+                    1500
+                );
+            }
+        } catch (error) {
+            console.error("Signature session error:", error);
+            showSignatureError(
+                error.message || "Unable to start signature capture."
+            );
+        } finally {
+            if (currentSignatureSessionId === null) {
+                signatureRequestInProgress = false;
+            }
+        }
+    }
+
+    signatureButton.addEventListener("click", startSignatureSession);
 
     leftButton.addEventListener("click", function () {
         captureFinger("left");
@@ -1314,11 +1188,7 @@ document.addEventListener("DOMContentLoaded", function () {
         captureFinger("right");
     });
 
-    updateSummary();
-
-    window.addEventListener("beforeunload", function () {
-        stopSignaturePolling();
-    });
+    window.addEventListener("beforeunload", stopSignaturePolling);
 });
 </script>
 {% endblock %}
