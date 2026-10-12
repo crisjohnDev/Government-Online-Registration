@@ -4130,12 +4130,16 @@ def fingerprint_device_upload(request, applicant_id):
             "error": f"Database save failed: {str(e)}",
         }, status=500)
 
+
 @login_required
 @require_POST
 def start_fingerprint_capture(request, applicant_id):
     if not request.user.is_staff:
         return JsonResponse(
-            {"success": False, "error": "Permission denied."},
+            {
+                "success": False,
+                "error": "Permission denied.",
+            },
             status=403,
         )
 
@@ -4143,7 +4147,10 @@ def start_fingerprint_capture(request, applicant_id):
 
     if finger not in ("left", "right"):
         return JsonResponse(
-            {"success": False, "error": "Invalid finger."},
+            {
+                "success": False,
+                "error": "Invalid finger. Use left or right.",
+            },
             status=400,
         )
 
@@ -4163,43 +4170,41 @@ def start_fingerprint_capture(request, applicant_id):
         )
 
         if active_request:
-            logger.warning(
-                "Duplicate fingerprint request rejected: "
-                "applicant=%s finger=%s request=%s status=%s",
+            # Reuse the active request so the staff member can retry.
+            active_request.status = "pending"
+            active_request.message = (
+                f"Capture restarted. Waiting for the device to capture "
+                f"the {finger} fingerprint."
+            )
+            active_request.save(
+                update_fields=["status", "message", "updated_at"]
+            )
+
+            capture_request = active_request
+            reused_request = True
+
+            logger.info(
+                "Fingerprint capture restarted: request=%s applicant=%s finger=%s",
+                capture_request.id,
                 applicant.id,
                 finger,
-                active_request.id,
-                active_request.status,
             )
 
-            return JsonResponse(
-                {
-                    "success": False,
-                    "error": (
-                        f"A {finger} fingerprint capture request is "
-                        "already active. Check the existing request."
-                    ),
-                    "request_id": active_request.id,
-                    "status": active_request.status,
-                },
-                status=409,
+        else:
+            capture_request = FingerprintCaptureRequest.objects.create(
+                applicant=applicant,
+                finger=finger,
+                status="pending",
+                message=f"Waiting for device to capture {finger} fingerprint.",
             )
+            reused_request = False
 
-        capture_request = FingerprintCaptureRequest.objects.create(
-            applicant=applicant,
-            finger=finger,
-            status="pending",
-            message=f"Waiting for device to capture {finger} fingerprint.",
-        )
-
-    logger.info(
-        "Fingerprint capture request created: "
-        "request=%s applicant=%s finger=%s status=%s",
-        capture_request.id,
-        applicant.id,
-        finger,
-        capture_request.status,
-    )
+            logger.info(
+                "Fingerprint capture request created: request=%s applicant=%s finger=%s",
+                capture_request.id,
+                applicant.id,
+                finger,
+            )
 
     return JsonResponse({
         "success": True,
@@ -4208,7 +4213,9 @@ def start_fingerprint_capture(request, applicant_id):
         "finger": capture_request.finger,
         "status": capture_request.status,
         "message": capture_request.message,
+        "reused_request": reused_request,
     })
+
 
 
 
