@@ -3963,6 +3963,7 @@ def fingerprint_device_upload(request, applicant_id):
             status=400,
         )
 
+    # Validate that it is valid Base64 before saving
     try:
         template_bytes = base64.b64decode(
             template_b64,
@@ -3980,40 +3981,29 @@ def fingerprint_device_upload(request, applicant_id):
             status=400,
         )
 
-    with transaction.atomic():
-        biometric, _ = ApplicantBiometric.objects.get_or_create(
-            applicant=applicant
-        )
-
-        setattr(
-            biometric,
-            f"{finger}_finger_template",
-            base64.b64encode(template_bytes).decode("ascii"),
-        )
-
-        biometric.captured_at = timezone.now()
-
-        biometric.biometrics_completed = all(
-            bool(getattr(biometric, field))
-            for field in (
-                "left_finger",
-                "left_finger_template",
-                "right_finger",
-                "right_finger_template",
+    try:
+        with transaction.atomic():
+            biometric, _ = ApplicantBiometric.objects.get_or_create(
+                applicant=applicant
             )
-        )
 
-        biometric.completed = biometric.biometrics_completed
-        biometric.save()
+            # Dynamically set either left_finger_template or right_finger_template
+            field_name = f"{finger}_finger_template"
+            setattr(biometric, field_name, template_b64)
+            biometric.save()
 
-    return JsonResponse({
-        "success": True,
-        "message": f"{finger.title()} fingerprint template saved.",
-        "applicant_id": applicant_id,
-        "finger": finger,
-        "template_bytes": len(template_bytes),
-        "both_fingers_complete": biometric.biometrics_completed,
-    })
+        return JsonResponse({
+            "success": True,
+            "message": f"{finger.capitalize()} fingerprint template saved successfully.",
+            "applicant_id": applicant_id,
+            "finger": finger,
+        }, status=200)
+
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "error": f"Database save failed: {str(e)}",
+        }, status=500)
 
 @login_required
 @require_POST
