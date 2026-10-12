@@ -3783,92 +3783,149 @@ def delete_application(request, id):
 @csrf_exempt
 @require_POST
 def save_fingerprint(request, applicant_id):
-    applicant = get_object_or_404(Applicant, pk=applicant_id)
+    """
+    Receive a fingerprint image from the ESP32,
+    convert it to PNG, and save it to ApplicantBiometric.
+    """
 
     finger = request.POST.get("finger", "").strip().lower()
+    uploaded_file = request.FILES.get("fingerprint")
+
+    # --------------------------------------------------
+    # Validate request
+    # --------------------------------------------------
 
     if finger not in ("left", "right"):
         return JsonResponse({
             "success": False,
-            "error": "Finger must be 'left' or 'right'.",
+            "message": "Invalid finger. Use left or right.",
         }, status=400)
 
-    fingerprint_file = request.FILES.get("fingerprint")
-
-    if not fingerprint_file:
+    if not uploaded_file:
         return JsonResponse({
             "success": False,
-            "error": "No fingerprint image was uploaded.",
+            "message": "No fingerprint image was uploaded.",
         }, status=400)
 
-    # Accept common image formats only.
-    allowed_types = {
-        "image/png",
-        "image/jpeg",
-        "image/bmp",
-    }
-
-    if fingerprint_file.content_type not in allowed_types:
+    # Maximum upload size: 2 MB
+    if uploaded_file.size > 2 * 1024 * 1024:
         return JsonResponse({
             "success": False,
-            "error": "Upload a PNG, JPEG, or BMP fingerprint image.",
+            "message": "Fingerprint image must not exceed 2 MB.",
         }, status=400)
 
-    # Limit the image upload size to 2 MB.
-    if fingerprint_file.size > 2 * 1024 * 1024:
+    # --------------------------------------------------
+    # Decode and convert the image to PNG
+    # --------------------------------------------------
+
+    try:
+        with Image.open(uploaded_file) as source:
+            # Force Pillow to decode the uploaded image.
+            source.load()
+
+            # Convert the decoded pixels to grayscale.
+            png_image = source.convert("L")
+
+            output = BytesIO()
+            png_image.save(output, format="PNG", optimize=False)
+            png_data = output.getvalue()
+
+    except (UnidentifiedImageError, OSError, ValueError):
         return JsonResponse({
             "success": False,
-            "error": "Fingerprint image must not exceed 2 MB.",
+            "message": (
+                "The uploaded image is invalid or cannot be decoded. "
+                "Check the ESP32 image conversion."
+            ),
         }, status=400)
 
-    biometric, _ = ApplicantBiometric.objects.get_or_create(
-        applicant=applicant
+    # --------------------------------------------------
+    # Get or create the applicant biometric record
+    # --------------------------------------------------
+
+    try:
+        biometric, created = (
+            ApplicantBiometric.objects.get_or_create(
+                applicant_id=applicant_id
+            )
+        )
+    except Exception:
+        return JsonResponse({
+            "success": False,
+            "message": "Could not retrieve the applicant biometric record.",
+        }, status=500)
+
+    # --------------------------------------------------
+    # Select the correct image field
+    # --------------------------------------------------
+
+    if finger == "left":
+        image_field = biometric.left_finger
+    else:
+        image_field = biometric.right_finger
+
+    # Remove the previous file if one exists.
+    if image_field and image_field.name:
+        image_field.delete(save=False)
+
+    # --------------------------------------------------
+    # Save a real PNG file
+    # --------------------------------------------------
+
+    filename = f"{finger}_fingerprint.png"
+
+    image_field.save(
+        filename,
+        ContentFile(png_data),
+        save=False,
     )
 
-    # Save the image without deleting the existing template.
-    if finger == "left":
-        biometric.left_finger.save(
-            fingerprint_file.name,
-            fingerprint_file,
-            save=False,
-        )
-    else:
-        biometric.right_finger.save(
-            fingerprint_file.name,
-            fingerprint_file,
-            save=False,
-        )
-
-    biometric.captured_at = timezone.now()
-
-    # Both image files AND both templates are required.
-    biometric.biometrics_completed = all([
-        bool(biometric.left_finger),
-        bool(biometric.left_finger_template),
-        bool(biometric.right_finger),
-        bool(biometric.right_finger_template),
-    ])
-
-    biometric.completed = biometric.biometrics_completed
     biometric.save()
 
-    # Update verification status only when all biometric data exists.
-    if biometric.biometrics_completed:
-        applicant.verification_status = "VERIFIED"
-        applicant.save(update_fields=["verification_status"])
+    # --------------------------------------------------
+    # Check both fingerprint images and templates
+    # --------------------------------------------------
+
+    biometric.refresh_from_db()
+
+    left_image_saved = bool(biometric.left_finger)
+    right_image_saved = bool(biometric.right_finger)
+
+    left_template_saved = bool(
+        biometric.left_finger_template
+    )
+    right_template_saved = bool(
+        biometric.right_finger_template
+    )
+
+    completed = all((
+        left_image_saved,
+        right_image_saved,
+        left_template_saved,
+        right_template_saved,
+    ))
 
     return JsonResponse({
         "success": True,
-        "message": f"{finger.title()} fingerprint image saved.",
-        "applicant_id": applicant.id,
+        "message": f"{finger.capitalize()} fingerprint PNG saved.",
+        "applicant_id": applicant_id,
         "finger": finger,
-        "left_image_saved": bool(biometric.left_finger),
-        "right_image_saved": bool(biometric.right_finger),
-        "left_template_saved": bool(biometric.left_finger_template),
-        "right_template_saved": bool(biometric.right_finger_template),
-        "biometrics_completed": biometric.biometrics_completed,
-        "completed": biometric.completed,
-        "verification_status": applicant.verification_status,
+        "image_url": image_field.url,
+        "image_format": "PNG",
+        "image_width": png_image.width,
+        "image_height": png_image.height,
+        "image_bytes": len(png_data),
+        "left_image_saved": left_image_saved,
+        "right_image_saved": right_image_saved,
+        "left_template_saved": left_template_saved,
+        "right_template_saved": right_template_saved,
+        "biometrics_completed": completed,
+        "completed": completed,
+        "verification_status": (
+            "BIOMETRICS_COMPLETED"
+            if completed
+            else "BIOMETRICS_PENDING"
+        ),
     })
 
 
