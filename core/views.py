@@ -3,7 +3,7 @@ import binascii
 import json
 import re
 import io
-
+from io import BytesIO
 
 import logging
 import requests
