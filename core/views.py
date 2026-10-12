@@ -3784,16 +3784,19 @@ def delete_application(request, id):
 @require_POST
 def save_fingerprint(request, applicant_id):
     """
-    Receive a fingerprint image from the ESP32,
-    convert it to PNG, and save it to ApplicantBiometric.
+    Receive a fingerprint image from the ESP32, validate and convert
+    it to PNG, and save it to the applicant's biometric record.
+
+    Expected multipart fields:
+        finger: left or right
+        fingerprint: image file
     """
 
-    finger = request.POST.get("finger", "").strip().lower()
-    uploaded_file = request.FILES.get("fingerprint")
+    # --------------------------------------------------
+    # 1. Validate the requested finger
+    # --------------------------------------------------
 
-    # --------------------------------------------------
-    # Validate request
-    # --------------------------------------------------
+    finger = request.POST.get("finger", "").strip().lower()
 
     if finger not in ("left", "right"):
         return JsonResponse({
@@ -3801,62 +3804,157 @@ def save_fingerprint(request, applicant_id):
             "message": "Invalid finger. Use left or right.",
         }, status=400)
 
-    if not uploaded_file:
-        return JsonResponse({
-            "success": False,
-            "message": "No fingerprint image was uploaded.",
-        }, status=400)
-
-    # Maximum upload size: 2 MB
-    if uploaded_file.size > 2 * 1024 * 1024:
-        return JsonResponse({
-            "success": False,
-            "message": "Fingerprint image must not exceed 2 MB.",
-        }, status=400)
-
     # --------------------------------------------------
-    # Decode and convert the image to PNG
+    # 2. Get the uploaded image
     # --------------------------------------------------
 
-    try:
-        with Image.open(uploaded_file) as source:
-            # Force Pillow to decode the uploaded image.
-            source.load()
+    uploaded_file = request.FILES.get("fingerprint")
 
-            # Convert the decoded pixels to grayscale.
-            png_image = source.convert("L")
+    if uploaded_file is None:
+        logger.warning(
+            "Fingerprint upload missing file: applicant=%s, "
+            "finger=%s, POST fields=%s, FILES fields=%s",
+            applicant_id,
+            finger,
+            list(request.POST.keys()),
+            list(request.FILES.keys()),
+        )
 
-            output = BytesIO()
-            png_image.save(output, format="PNG", optimize=False)
-            png_data = output.getvalue()
-
-    except (UnidentifiedImageError, OSError, ValueError):
         return JsonResponse({
             "success": False,
             "message": (
-                "The uploaded image is invalid or cannot be decoded. "
-                "Check the ESP32 image conversion."
+                "No fingerprint image was uploaded. "
+                "Expected multipart file field: fingerprint."
             ),
+            "received_fields": list(request.FILES.keys()),
         }, status=400)
 
     # --------------------------------------------------
-    # Get or create the applicant biometric record
+    # 3. Validate file size
+    # --------------------------------------------------
+
+    max_upload_size = 2 * 1024 * 1024
+
+    if uploaded_file.size <= 0:
+        return JsonResponse({
+            "success": False,
+            "message": "The uploaded fingerprint image is empty.",
+        }, status=400)
+
+    if uploaded_file.size > max_upload_size:
+        return JsonResponse({
+            "success": False,
+            "message": "Fingerprint image must not exceed 2 MB.",
+            "received_bytes": uploaded_file.size,
+        }, status=400)
+
+    logger.info(
+        "Fingerprint upload received: applicant=%s, finger=%s, "
+        "filename=%s, content_type=%s, bytes=%s",
+        applicant_id,
+        finger,
+        uploaded_file.name,
+        uploaded_file.content_type,
+        uploaded_file.size,
+    )
+
+    # --------------------------------------------------
+    # 4. Decode and convert the image to PNG
     # --------------------------------------------------
 
     try:
-        biometric, created = (
-            ApplicantBiometric.objects.get_or_create(
-                applicant_id=applicant_id
-            )
+        uploaded_file.seek(0)
+
+        with Image.open(uploaded_file) as source:
+            source.load()
+
+            original_format = source.format
+            original_width, original_height = source.size
+
+            if original_width <= 0 or original_height <= 0:
+                return JsonResponse({
+                    "success": False,
+                    "message": "The fingerprint image has invalid dimensions.",
+                }, status=400)
+
+            # Convert to grayscale.
+            png_image = source.convert("L")
+
+            output = BytesIO()
+            png_image.save(output, format="PNG")
+            png_data = output.getvalue()
+
+    except (UnidentifiedImageError, OSError, ValueError) as exc:
+        logger.warning(
+            "Invalid fingerprint image: applicant=%s, finger=%s, "
+            "filename=%s, bytes=%s, error=%s",
+            applicant_id,
+            finger,
+            uploaded_file.name,
+            uploaded_file.size,
+            str(exc),
         )
-    except Exception:
+
         return JsonResponse({
             "success": False,
-            "message": "Could not retrieve the applicant biometric record.",
+            "message": (
+                "The uploaded fingerprint data is not a valid image "
+                "or cannot be decoded by Pillow. Check the ESP32 "
+                "image format and BMP header."
+            ),
+            "filename": uploaded_file.name,
+            "content_type": uploaded_file.content_type,
+            "received_bytes": uploaded_file.size,
+            "hint": (
+                "Upload a valid BMP, PNG, or JPEG image. "
+                "Raw sensor bytes must be converted into a valid "
+                "image file before uploading."
+            ),
+        }, status=400)
+
+    except Exception:
+        logger.exception(
+            "Unexpected fingerprint image processing error: "
+            "applicant=%s, finger=%s",
+            applicant_id,
+            finger,
+        )
+
+        return JsonResponse({
+            "success": False,
+            "message": "An unexpected error occurred while processing the image.",
+        }, status=500)
+
+    finally:
+        output_data = None
+
+    # --------------------------------------------------
+    # 5. Retrieve or create the biometric record
+    # --------------------------------------------------
+
+    try:
+        biometric, created = ApplicantBiometric.objects.get_or_create(
+            applicant_id=applicant_id
+        )
+
+    except Exception:
+        logger.exception(
+            "Could not retrieve biometric record: applicant=%s",
+            applicant_id,
+        )
+
+        return JsonResponse({
+            "success": False,
+            "message": (
+                "Could not retrieve or create the biometric record. "
+                "Verify that the applicant exists and the database "
+                "relationship is correct."
+            ),
+            "applicant_id": applicant_id,
         }, status=500)
 
     # --------------------------------------------------
-    # Select the correct image field
+    # 6. Select the correct image field
     # --------------------------------------------------
 
     if finger == "left":
@@ -3864,26 +3962,47 @@ def save_fingerprint(request, applicant_id):
     else:
         image_field = biometric.right_finger
 
-    # Remove the previous file if one exists.
-    if image_field and image_field.name:
-        image_field.delete(save=False)
+    old_file_name = image_field.name if image_field else ""
 
     # --------------------------------------------------
-    # Save a real PNG file
+    # 7. Save the validated PNG image
     # --------------------------------------------------
 
-    filename = f"{finger}_fingerprint.png"
+    filename = f"applicant_{applicant_id}_{finger}_fingerprint.png"
 
-    image_field.save(
-        filename,
-        ContentFile(png_data),
-        save=False,
-    )
+    try:
+        image_field.save(
+            filename,
+            ContentFile(png_data),
+            save=False,
+        )
 
-    biometric.save()
+        biometric.save()
+
+    except Exception:
+        logger.exception(
+            "Failed to save fingerprint PNG: applicant=%s, finger=%s",
+            applicant_id,
+            finger,
+        )
+
+        return JsonResponse({
+            "success": False,
+            "message": "The fingerprint image was decoded but could not be saved.",
+        }, status=500)
+
+    # Delete the previous image only after the new image has been saved.
+    if old_file_name and old_file_name != image_field.name:
+        try:
+            image_field.storage.delete(old_file_name)
+        except Exception:
+            logger.exception(
+                "Could not delete previous fingerprint file: %s",
+                old_file_name,
+            )
 
     # --------------------------------------------------
-    # Check both fingerprint images and templates
+    # 8. Check saved images and templates
     # --------------------------------------------------
 
     biometric.refresh_from_db()
@@ -3891,12 +4010,8 @@ def save_fingerprint(request, applicant_id):
     left_image_saved = bool(biometric.left_finger)
     right_image_saved = bool(biometric.right_finger)
 
-    left_template_saved = bool(
-        biometric.left_finger_template
-    )
-    right_template_saved = bool(
-        biometric.right_finger_template
-    )
+    left_template_saved = bool(biometric.left_finger_template)
+    right_template_saved = bool(biometric.right_finger_template)
 
     completed = all((
         left_image_saved,
@@ -3905,16 +4020,25 @@ def save_fingerprint(request, applicant_id):
         right_template_saved,
     ))
 
+    # --------------------------------------------------
+    # 9. Return a diagnostic response
+    # --------------------------------------------------
+
     return JsonResponse({
         "success": True,
-        "message": f"{finger.capitalize()} fingerprint PNG saved.",
+        "message": f"{finger.capitalize()} fingerprint PNG saved successfully.",
         "applicant_id": applicant_id,
         "finger": finger,
+        "biometric_record_created": created,
         "image_url": image_field.url,
         "image_format": "PNG",
+        "original_format": original_format,
         "image_width": png_image.width,
         "image_height": png_image.height,
-        "image_bytes": len(png_data),
+        "original_width": original_width,
+        "original_height": original_height,
+        "original_bytes": uploaded_file.size,
+        "png_bytes": len(png_data),
         "left_image_saved": left_image_saved,
         "right_image_saved": right_image_saved,
         "left_template_saved": left_template_saved,
@@ -3927,6 +4051,7 @@ def save_fingerprint(request, applicant_id):
             else "BIOMETRICS_PENDING"
         ),
     })
+
 
 
 @csrf_exempt

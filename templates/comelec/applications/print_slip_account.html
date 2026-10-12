@@ -1,3 +1,4 @@
+
 {% extends "admin.html" %}
 
 {% load static %}
@@ -17,7 +18,6 @@ Applicant and COMELEC registration copies
 {% block extra_css %}
 
 <style>
-
     /* =========================================================
        SCREEN
     ========================================================= */
@@ -125,11 +125,13 @@ Applicant and COMELEC registration copies
     }
 
     /* =========================================================
-       MANUAL SIGNATURE AREA
+       SIGNATURE AREA
     ========================================================= */
 
     .signature-area {
         margin-top: 45px;
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
 
     .signature-block {
@@ -158,6 +160,69 @@ Applicant and COMELEC registration copies
         margin-top: 10px;
     }
 
+    /* Added styles for the three signature columns */
+
+    .signature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-top: 25px;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .signature-grid .signature-block {
+        min-width: 0;
+        min-height: 120px;
+        text-align: center;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .electronic-signature-box {
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 1px solid #212529;
+        margin-bottom: 8px;
+        padding: 5px;
+    }
+
+    .electronic-signature-image {
+        display: block;
+        max-width: 100%;
+        max-height: 65px;
+        object-fit: contain;
+    }
+
+    .signature-grid .signature-line {
+        width: 100%;
+        height: 70px;
+        border-top: none;
+        border-bottom: 1px solid #212529;
+        margin-bottom: 8px;
+        padding-top: 0;
+    }
+
+    .signature-grid .signature-name {
+        font-size: 12px;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .signature-grid .signature-label {
+        font-size: 10px;
+        color: #6c757d;
+        line-height: 1.4;
+    }
+
+    .signature-grid .signature-date {
+        margin-top: 8px;
+        font-size: 10px;
+        color: #6c757d;
+    }
+
     .slip-footer {
         border-top: 1px solid #dee2e6;
         margin-top: 25px;
@@ -176,13 +241,11 @@ Applicant and COMELEC registration copies
         margin: 20px auto;
     }
 
-
     /* =========================================================
        PRINT
     ========================================================= */
 
     @media print {
-
         html,
         body {
             background: #ffffff !important;
@@ -261,13 +324,34 @@ Applicant and COMELEC registration copies
             margin-top: 35px !important;
         }
 
+        .signature-grid {
+            display: grid !important;
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            gap: 12px !important;
+        }
+
+        .signature-grid .signature-block {
+            min-width: 0 !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+
+        .electronic-signature-image {
+            max-width: 100% !important;
+            max-height: 65px !important;
+        }
+
         @page {
             size: A4;
             margin: 12mm;
         }
-
     }
 
+    @media screen and (max-width: 600px) {
+        .signature-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 
 {% endblock %}
@@ -277,7 +361,6 @@ Applicant and COMELEC registration copies
 
 <div class="container-fluid px-0">
 
-
     <!-- =====================================================
          PRINT ACTIONS
     ====================================================== -->
@@ -285,7 +368,7 @@ Applicant and COMELEC registration copies
     <div class="print-actions d-flex justify-content-between align-items-center no-print">
 
         <a
-            href="{% url 'admin-applications'%}"
+            href="{% url 'admin-applications' %}"
             class="btn btn-outline-secondary"
         >
             <i class="bi bi-arrow-left me-1"></i>
@@ -312,7 +395,6 @@ Applicant and COMELEC registration copies
 
         <div class="slip-card">
 
-
             <!-- =================================================
                  APPLICANT COPY
             ================================================== -->
@@ -321,10 +403,7 @@ Applicant and COMELEC registration copies
 
                 <div class="slip-copy-inner p-4">
 
-
-                    <!-- =================================================
-                         HEADER
-                    ================================================== -->
+                    <!-- HEADER -->
 
                     <div class="slip-header">
 
@@ -367,21 +446,17 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         VERIFIED STATUS
-                    ================================================== -->
+                    <!-- VERIFIED STATUS -->
 
                     <div class="verified-box rounded p-3 mt-4">
 
                         <div class="d-flex align-items-center">
 
                             <div class="me-3">
-
                                 <i
                                     class="bi bi-patch-check-fill"
                                     style="font-size: 32px;"
                                 ></i>
-
                             </div>
 
                             <div>
@@ -402,9 +477,7 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         APPLICANT INFORMATION
-                    ================================================== -->
+                    <!-- APPLICANT INFORMATION -->
 
                     <div class="mt-4">
 
@@ -415,87 +488,38 @@ Applicant and COMELEC registration copies
                         <div class="row g-3">
 
                             <div class="col-md-5">
-
-                                <div class="info-label">
-                                    Last Name
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.lastname }}
-                                </div>
-
+                                <div class="info-label">Last Name</div>
+                                <div class="info-value">{{ applicant.lastname }}</div>
                             </div>
 
                             <div class="col-md-4">
-
-                                <div class="info-label">
-                                    First Name
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.firstname }}
-                                </div>
-
+                                <div class="info-label">First Name</div>
+                                <div class="info-value">{{ applicant.firstname }}</div>
                             </div>
 
                             <div class="col-md-3">
-
-                                <div class="info-label">
-                                    Middle Name
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.middlename }}
-                                </div>
-
+                                <div class="info-label">Middle Name</div>
+                                <div class="info-value">{{ applicant.middlename }}</div>
                             </div>
 
                             <div class="col-md-3">
-
-                                <div class="info-label">
-                                    Date of Birth
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.birthdate|date:"F d, Y" }}
-                                </div>
-
+                                <div class="info-label">Date of Birth</div>
+                                <div class="info-value">{{ applicant.birthdate|date:"F d, Y" }}</div>
                             </div>
 
                             <div class="col-md-2">
-
-                                <div class="info-label">
-                                    Age
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.age }}
-                                </div>
-
+                                <div class="info-label">Age</div>
+                                <div class="info-value">{{ applicant.age }}</div>
                             </div>
 
                             <div class="col-md-2">
-
-                                <div class="info-label">
-                                    Sex
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.sex }}
-                                </div>
-
+                                <div class="info-label">Sex</div>
+                                <div class="info-value">{{ applicant.sex }}</div>
                             </div>
 
                             <div class="col-md-5">
-
-                                <div class="info-label">
-                                    Birthplace
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.birthplace }}
-                                </div>
-
+                                <div class="info-label">Birthplace</div>
+                                <div class="info-value">{{ applicant.birthplace }}</div>
                             </div>
 
                         </div>
@@ -503,9 +527,7 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         ADDRESS
-                    ================================================== -->
+                    <!-- ADDRESS -->
 
                     <div class="mt-4">
 
@@ -517,44 +539,26 @@ Applicant and COMELEC registration copies
 
                             <div class="col-md-5">
 
-                                <div class="info-label">
-                                    Barangay
-                                </div>
+                                <div class="info-label">Barangay</div>
 
                                 <div class="info-value">
-
                                     {% if applicant.brgy %}
                                         {{ applicant.brgy.name }}
                                     {% else %}
                                         —
                                     {% endif %}
-
                                 </div>
 
                             </div>
 
                             <div class="col-md-3">
-
-                                <div class="info-label">
-                                    Municipality
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.municipality }}
-                                </div>
-
+                                <div class="info-label">Municipality</div>
+                                <div class="info-value">{{ applicant.municipality }}</div>
                             </div>
 
                             <div class="col-md-4">
-
-                                <div class="info-label">
-                                    Province
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.province }}
-                                </div>
-
+                                <div class="info-label">Province</div>
+                                <div class="info-value">{{ applicant.province }}</div>
                             </div>
 
                         </div>
@@ -562,9 +566,7 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         CONTACT INFORMATION
-                    ================================================== -->
+                    <!-- CONTACT INFORMATION -->
 
                     <div class="mt-4">
 
@@ -575,27 +577,13 @@ Applicant and COMELEC registration copies
                         <div class="row g-3">
 
                             <div class="col-md-6">
-
-                                <div class="info-label">
-                                    Mobile Number
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.phone }}
-                                </div>
-
+                                <div class="info-label">Mobile Number</div>
+                                <div class="info-value">{{ applicant.phone }}</div>
                             </div>
 
                             <div class="col-md-6">
-
-                                <div class="info-label">
-                                    Email Address
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.email }}
-                                </div>
-
+                                <div class="info-label">Email Address</div>
+                                <div class="info-value">{{ applicant.email }}</div>
                             </div>
 
                         </div>
@@ -603,9 +591,7 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         REGISTRATION DETAILS
-                    ================================================== -->
+                    <!-- REGISTRATION DETAILS -->
 
                     <div class="mt-4">
 
@@ -617,12 +603,9 @@ Applicant and COMELEC registration copies
 
                             <div class="col-md-4">
 
-                                <div class="info-label">
-                                    Application Type
-                                </div>
+                                <div class="info-label">Application Type</div>
 
                                 <div class="info-value">
-
                                     {% if applicant.application_type == "NEW" %}
                                         New Registration
                                     {% elif applicant.application_type == "UPDATE" %}
@@ -636,33 +619,18 @@ Applicant and COMELEC registration copies
                                     {% else %}
                                         {{ applicant.application_type }}
                                     {% endif %}
-
                                 </div>
 
                             </div>
 
                             <div class="col-md-4">
-
-                                <div class="info-label">
-                                    Registration Date
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.date_joined|date:"F d, Y" }}
-                                </div>
-
+                                <div class="info-label">Registration Date</div>
+                                <div class="info-value">{{ applicant.date_joined|date:"F d, Y" }}</div>
                             </div>
 
                             <div class="col-md-4">
-
-                                <div class="info-label">
-                                    Account Status
-                                </div>
-
-                                <div class="info-value text-success">
-                                    VERIFIED
-                                </div>
-
+                                <div class="info-label">Account Status</div>
+                                <div class="info-value text-success">VERIFIED</div>
                             </div>
 
                         </div>
@@ -670,9 +638,7 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         FAMILY INFORMATION
-                    ================================================== -->
+                    <!-- FAMILY INFORMATION -->
 
                     <div class="mt-4">
 
@@ -683,27 +649,13 @@ Applicant and COMELEC registration copies
                         <div class="row g-3">
 
                             <div class="col-md-6">
-
-                                <div class="info-label">
-                                    Father's Name
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.father }}
-                                </div>
-
+                                <div class="info-label">Father's Name</div>
+                                <div class="info-value">{{ applicant.father }}</div>
                             </div>
 
                             <div class="col-md-6">
-
-                                <div class="info-label">
-                                    Mother's Name
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.mother }}
-                                </div>
-
+                                <div class="info-label">Mother's Name</div>
+                                <div class="info-value">{{ applicant.mother }}</div>
                             </div>
 
                         </div>
@@ -711,9 +663,7 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         BIOMETRIC VERIFICATION
-                    ================================================== -->
+                    <!-- BIOMETRIC VERIFICATION -->
 
                     <div class="mt-4">
 
@@ -723,7 +673,6 @@ Applicant and COMELEC registration copies
 
                         <div class="row g-3">
 
-
                             <!-- LEFT FINGER -->
 
                             <div class="col-md-6">
@@ -732,22 +681,12 @@ Applicant and COMELEC registration copies
 
                                     <div class="d-flex justify-content-between align-items-center mb-2">
 
-                                        <span class="fw-semibold">
-                                            Left Finger
-                                        </span>
+                                        <span class="fw-semibold">Left Finger</span>
 
                                         {% if biometric.left_finger %}
-
-                                            <span class="badge bg-success">
-                                                Captured
-                                            </span>
-
+                                            <span class="badge bg-success">Captured</span>
                                         {% else %}
-
-                                            <span class="badge bg-danger">
-                                                Not Captured
-                                            </span>
-
+                                            <span class="badge bg-danger">Not Captured</span>
                                         {% endif %}
 
                                     </div>
@@ -764,16 +703,8 @@ Applicant and COMELEC registration copies
                                         {% else %}
 
                                             <div class="text-muted">
-
-                                                <i
-                                                    class="bi bi-fingerprint"
-                                                    style="font-size: 42px;"
-                                                ></i>
-
-                                                <div class="small mt-2">
-                                                    Fingerprint not captured
-                                                </div>
-
+                                                <i class="bi bi-fingerprint" style="font-size: 42px;"></i>
+                                                <div class="small mt-2">Fingerprint not captured</div>
                                             </div>
 
                                         {% endif %}
@@ -793,22 +724,12 @@ Applicant and COMELEC registration copies
 
                                     <div class="d-flex justify-content-between align-items-center mb-2">
 
-                                        <span class="fw-semibold">
-                                            Right Finger
-                                        </span>
+                                        <span class="fw-semibold">Right Finger</span>
 
                                         {% if biometric.right_finger %}
-
-                                            <span class="badge bg-success">
-                                                Captured
-                                            </span>
-
+                                            <span class="badge bg-success">Captured</span>
                                         {% else %}
-
-                                            <span class="badge bg-danger">
-                                                Not Captured
-                                            </span>
-
+                                            <span class="badge bg-danger">Not Captured</span>
                                         {% endif %}
 
                                     </div>
@@ -825,16 +746,8 @@ Applicant and COMELEC registration copies
                                         {% else %}
 
                                             <div class="text-muted">
-
-                                                <i
-                                                    class="bi bi-fingerprint"
-                                                    style="font-size: 42px;"
-                                                ></i>
-
-                                                <div class="small mt-2">
-                                                    Fingerprint not captured
-                                                </div>
-
+                                                <i class="bi bi-fingerprint" style="font-size: 42px;"></i>
+                                                <div class="small mt-2">Fingerprint not captured</div>
                                             </div>
 
                                         {% endif %}
@@ -850,9 +763,7 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         VERIFICATION SUMMARY
-                    ================================================== -->
+                    <!-- VERIFICATION SUMMARY -->
 
                     <div class="mt-4">
 
@@ -868,22 +779,12 @@ Applicant and COMELEC registration copies
 
                                     <div class="d-flex justify-content-between">
 
-                                        <span>
-                                            Fingerprint Biometrics
-                                        </span>
+                                        <span>Fingerprint Biometrics</span>
 
                                         {% if biometric.biometrics_completed %}
-
-                                            <span class="text-success fw-bold">
-                                                COMPLETE
-                                            </span>
-
+                                            <span class="text-success fw-bold">COMPLETE</span>
                                         {% else %}
-
-                                            <span class="text-danger fw-bold">
-                                                INCOMPLETE
-                                            </span>
-
+                                            <span class="text-danger fw-bold">INCOMPLETE</span>
                                         {% endif %}
 
                                     </div>
@@ -892,29 +793,18 @@ Applicant and COMELEC registration copies
 
                             </div>
 
-
                             <div class="col-md-6">
 
                                 <div class="verification-item">
 
                                     <div class="d-flex justify-content-between">
 
-                                        <span>
-                                            Overall Verification
-                                        </span>
+                                        <span>Overall Verification</span>
 
                                         {% if biometric.completed %}
-
-                                            <span class="text-success fw-bold">
-                                                VERIFIED
-                                            </span>
-
+                                            <span class="text-success fw-bold">VERIFIED</span>
                                         {% else %}
-
-                                            <span class="text-danger fw-bold">
-                                                NOT VERIFIED
-                                            </span>
-
+                                            <span class="text-danger fw-bold">NOT VERIFIED</span>
                                         {% endif %}
 
                                     </div>
@@ -928,9 +818,7 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         CERTIFICATION
-                    ================================================== -->
+                    <!-- CERTIFICATION -->
 
                     <div class="mt-4 p-3 border bg-light">
 
@@ -957,33 +845,95 @@ Applicant and COMELEC registration copies
 
 
                     <!-- =================================================
-                         APPLICANT COPY SIGNATURE
+                         APPLICANT COPY - THREE SIGNATURES
                     ================================================== -->
 
                     <div class="signature-area">
 
-                        <div class="row">
+                        <div class="section-title">
+                            Applicant and Authorized Officer Signatures
+                        </div>
 
-                            <div class="col-md-6">
+                        <div class="signature-grid">
 
-                                <div class="signature-block">
+                            <!-- 1. ELECTRONIC SIGNATURE -->
 
-                                    <div class="signature-line">
+                            <div class="signature-block">
 
-                                        <div class="signature-name">
-                                            Applicant's Signature
-                                        </div>
+                                <div class="electronic-signature-box">
 
-                                        <div class="signature-label">
-                                            Sign above this line
-                                        </div>
+                                    {% if biometric.applicant_signature %}
 
-                                        <div class="signature-date">
-                                            Date: __________________________
-                                        </div>
+                                        <img
+                                            src="{{ biometric.applicant_signature.url }}"
+                                            alt="Applicant Electronic Signature"
+                                            class="electronic-signature-image"
+                                        >
 
-                                    </div>
+                                    {% else %}
 
+                                        <span class="signature-label">
+                                            No electronic signature recorded
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+                                <div class="signature-name">
+                                    {{ applicant.firstname }}
+                                    {{ applicant.middlename }}
+                                    {{ applicant.lastname }}
+                                </div>
+
+                                <div class="signature-label">
+                                    Applicant's Electronic Signature
+                                </div>
+
+                                <div class="signature-date">
+                                    Date: __________________
+                                </div>
+
+                            </div>
+
+
+                            <!-- 2. HANDWRITTEN APPLICANT SIGNATURE -->
+
+                            <div class="signature-block">
+
+                                <div class="signature-line"></div>
+
+                                <div class="signature-name">
+                                    {{ applicant.firstname }} {{ applicant.lastname }}
+                                </div>
+
+                                <div class="signature-label">
+                                    Applicant's Handwritten Signature
+                                </div>
+
+                                <div class="signature-date">
+                                    Date: __________________
+                                </div>
+
+                            </div>
+
+
+                            <!-- 3. AUTHORIZED COMELEC OFFICER -->
+
+                            <div class="signature-block">
+
+                                <div class="signature-line"></div>
+
+                                <div class="signature-name">
+                                    __________________________
+                                </div>
+
+                                <div class="signature-label">
+                                    Authorized COMELEC Officer
+                                </div>
+
+                                <div class="signature-date">
+                                    Date: __________________
                                 </div>
 
                             </div>
@@ -993,52 +943,38 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         FOOTER
-                    ================================================== -->
+                    <!-- FOOTER -->
 
                     <div class="slip-footer">
 
                         <div class="row">
 
                             <div class="col-md-8">
-
-                                Generated from the Pio Duran Voter Registration
-                                System.
-
+                                Generated from the Pio Duran Voter Registration System.
                             </div>
 
                             <div class="col-md-4 text-md-end">
-
                                 Verification Status:
                                 <strong>VERIFIED</strong>
-
                             </div>
 
                         </div>
 
                         {% if biometric.captured_at %}
-
                             <div class="mt-1">
-
                                 Verification completed:
                                 {{ biometric.captured_at|date:"F d, Y h:i A" }}
-
                             </div>
-
                         {% endif %}
 
                     </div>
-
 
                 </div>
 
             </div>
 
 
-            <!-- =================================================
-                 SCREEN SEPARATOR
-            ================================================== -->
+            <!-- SCREEN SEPARATOR -->
 
             <div class="copy-separator no-print"></div>
 
@@ -1051,10 +987,7 @@ Applicant and COMELEC registration copies
 
                 <div class="slip-copy-inner p-4">
 
-
-                    <!-- =================================================
-                         HEADER
-                    ================================================== -->
+                    <!-- HEADER -->
 
                     <div class="slip-header">
 
@@ -1097,21 +1030,14 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         VERIFIED STATUS
-                    ================================================== -->
+                    <!-- VERIFIED STATUS -->
 
                     <div class="verified-box rounded p-3 mt-4">
 
                         <div class="d-flex align-items-center">
 
                             <div class="me-3">
-
-                                <i
-                                    class="bi bi-patch-check-fill"
-                                    style="font-size: 32px;"
-                                ></i>
-
+                                <i class="bi bi-patch-check-fill" style="font-size: 32px;"></i>
                             </div>
 
                             <div>
@@ -1132,9 +1058,7 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         APPLICANT INFORMATION
-                    ================================================== -->
+                    <!-- APPLICANT INFORMATION -->
 
                     <div class="mt-4">
 
@@ -1145,87 +1069,38 @@ Applicant and COMELEC registration copies
                         <div class="row g-3">
 
                             <div class="col-md-5">
-
-                                <div class="info-label">
-                                    Last Name
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.lastname }}
-                                </div>
-
+                                <div class="info-label">Last Name</div>
+                                <div class="info-value">{{ applicant.lastname }}</div>
                             </div>
 
                             <div class="col-md-4">
-
-                                <div class="info-label">
-                                    First Name
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.firstname }}
-                                </div>
-
+                                <div class="info-label">First Name</div>
+                                <div class="info-value">{{ applicant.firstname }}</div>
                             </div>
 
                             <div class="col-md-3">
-
-                                <div class="info-label">
-                                    Middle Name
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.middlename }}
-                                </div>
-
+                                <div class="info-label">Middle Name</div>
+                                <div class="info-value">{{ applicant.middlename }}</div>
                             </div>
 
                             <div class="col-md-3">
-
-                                <div class="info-label">
-                                    Date of Birth
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.birthdate|date:"F d, Y" }}
-                                </div>
-
+                                <div class="info-label">Date of Birth</div>
+                                <div class="info-value">{{ applicant.birthdate|date:"F d, Y" }}</div>
                             </div>
 
                             <div class="col-md-2">
-
-                                <div class="info-label">
-                                    Age
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.age }}
-                                </div>
-
+                                <div class="info-label">Age</div>
+                                <div class="info-value">{{ applicant.age }}</div>
                             </div>
 
                             <div class="col-md-2">
-
-                                <div class="info-label">
-                                    Sex
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.sex }}
-                                </div>
-
+                                <div class="info-label">Sex</div>
+                                <div class="info-value">{{ applicant.sex }}</div>
                             </div>
 
                             <div class="col-md-5">
-
-                                <div class="info-label">
-                                    Birthplace
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.birthplace }}
-                                </div>
-
+                                <div class="info-label">Birthplace</div>
+                                <div class="info-value">{{ applicant.birthplace }}</div>
                             </div>
 
                         </div>
@@ -1233,9 +1108,7 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         ADDRESS
-                    ================================================== -->
+                    <!-- ADDRESS -->
 
                     <div class="mt-4">
 
@@ -1247,44 +1120,26 @@ Applicant and COMELEC registration copies
 
                             <div class="col-md-5">
 
-                                <div class="info-label">
-                                    Barangay
-                                </div>
+                                <div class="info-label">Barangay</div>
 
                                 <div class="info-value">
-
                                     {% if applicant.brgy %}
                                         {{ applicant.brgy.name }}
                                     {% else %}
                                         —
                                     {% endif %}
-
                                 </div>
 
                             </div>
 
                             <div class="col-md-3">
-
-                                <div class="info-label">
-                                    Municipality
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.municipality }}
-                                </div>
-
+                                <div class="info-label">Municipality</div>
+                                <div class="info-value">{{ applicant.municipality }}</div>
                             </div>
 
                             <div class="col-md-4">
-
-                                <div class="info-label">
-                                    Province
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.province }}
-                                </div>
-
+                                <div class="info-label">Province</div>
+                                <div class="info-value">{{ applicant.province }}</div>
                             </div>
 
                         </div>
@@ -1292,9 +1147,7 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         CONTACT INFORMATION
-                    ================================================== -->
+                    <!-- CONTACT INFORMATION -->
 
                     <div class="mt-4">
 
@@ -1305,27 +1158,13 @@ Applicant and COMELEC registration copies
                         <div class="row g-3">
 
                             <div class="col-md-6">
-
-                                <div class="info-label">
-                                    Mobile Number
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.phone }}
-                                </div>
-
+                                <div class="info-label">Mobile Number</div>
+                                <div class="info-value">{{ applicant.phone }}</div>
                             </div>
 
                             <div class="col-md-6">
-
-                                <div class="info-label">
-                                    Email Address
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.email }}
-                                </div>
-
+                                <div class="info-label">Email Address</div>
+                                <div class="info-value">{{ applicant.email }}</div>
                             </div>
 
                         </div>
@@ -1333,9 +1172,7 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         REGISTRATION DETAILS
-                    ================================================== -->
+                    <!-- REGISTRATION DETAILS -->
 
                     <div class="mt-4">
 
@@ -1347,12 +1184,9 @@ Applicant and COMELEC registration copies
 
                             <div class="col-md-4">
 
-                                <div class="info-label">
-                                    Application Type
-                                </div>
+                                <div class="info-label">Application Type</div>
 
                                 <div class="info-value">
-
                                     {% if applicant.application_type == "NEW" %}
                                         New Registration
                                     {% elif applicant.application_type == "UPDATE" %}
@@ -1366,33 +1200,18 @@ Applicant and COMELEC registration copies
                                     {% else %}
                                         {{ applicant.application_type }}
                                     {% endif %}
-
                                 </div>
 
                             </div>
 
                             <div class="col-md-4">
-
-                                <div class="info-label">
-                                    Registration Date
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.date_joined|date:"F d, Y" }}
-                                </div>
-
+                                <div class="info-label">Registration Date</div>
+                                <div class="info-value">{{ applicant.date_joined|date:"F d, Y" }}</div>
                             </div>
 
                             <div class="col-md-4">
-
-                                <div class="info-label">
-                                    Account Status
-                                </div>
-
-                                <div class="info-value text-success">
-                                    VERIFIED
-                                </div>
-
+                                <div class="info-label">Account Status</div>
+                                <div class="info-value text-success">VERIFIED</div>
                             </div>
 
                         </div>
@@ -1400,9 +1219,7 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         FAMILY INFORMATION
-                    ================================================== -->
+                    <!-- FAMILY INFORMATION -->
 
                     <div class="mt-4">
 
@@ -1413,27 +1230,13 @@ Applicant and COMELEC registration copies
                         <div class="row g-3">
 
                             <div class="col-md-6">
-
-                                <div class="info-label">
-                                    Father's Name
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.father }}
-                                </div>
-
+                                <div class="info-label">Father's Name</div>
+                                <div class="info-value">{{ applicant.father }}</div>
                             </div>
 
                             <div class="col-md-6">
-
-                                <div class="info-label">
-                                    Mother's Name
-                                </div>
-
-                                <div class="info-value">
-                                    {{ applicant.mother }}
-                                </div>
-
+                                <div class="info-label">Mother's Name</div>
+                                <div class="info-value">{{ applicant.mother }}</div>
                             </div>
 
                         </div>
@@ -1441,9 +1244,7 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         BIOMETRIC VERIFICATION
-                    ================================================== -->
+                    <!-- BIOMETRIC VERIFICATION -->
 
                     <div class="mt-4">
 
@@ -1453,7 +1254,6 @@ Applicant and COMELEC registration copies
 
                         <div class="row g-3">
 
-
                             <!-- LEFT FINGER -->
 
                             <div class="col-md-6">
@@ -1462,22 +1262,12 @@ Applicant and COMELEC registration copies
 
                                     <div class="d-flex justify-content-between align-items-center mb-2">
 
-                                        <span class="fw-semibold">
-                                            Left Finger
-                                        </span>
+                                        <span class="fw-semibold">Left Finger</span>
 
                                         {% if biometric.left_finger %}
-
-                                            <span class="badge bg-success">
-                                                Captured
-                                            </span>
-
+                                            <span class="badge bg-success">Captured</span>
                                         {% else %}
-
-                                            <span class="badge bg-danger">
-                                                Not Captured
-                                            </span>
-
+                                            <span class="badge bg-danger">Not Captured</span>
                                         {% endif %}
 
                                     </div>
@@ -1494,16 +1284,8 @@ Applicant and COMELEC registration copies
                                         {% else %}
 
                                             <div class="text-muted">
-
-                                                <i
-                                                    class="bi bi-fingerprint"
-                                                    style="font-size: 42px;"
-                                                ></i>
-
-                                                <div class="small mt-2">
-                                                    Fingerprint not captured
-                                                </div>
-
+                                                <i class="bi bi-fingerprint" style="font-size: 42px;"></i>
+                                                <div class="small mt-2">Fingerprint not captured</div>
                                             </div>
 
                                         {% endif %}
@@ -1523,22 +1305,12 @@ Applicant and COMELEC registration copies
 
                                     <div class="d-flex justify-content-between align-items-center mb-2">
 
-                                        <span class="fw-semibold">
-                                            Right Finger
-                                        </span>
+                                        <span class="fw-semibold">Right Finger</span>
 
                                         {% if biometric.right_finger %}
-
-                                            <span class="badge bg-success">
-                                                Captured
-                                            </span>
-
+                                            <span class="badge bg-success">Captured</span>
                                         {% else %}
-
-                                            <span class="badge bg-danger">
-                                                Not Captured
-                                            </span>
-
+                                            <span class="badge bg-danger">Not Captured</span>
                                         {% endif %}
 
                                     </div>
@@ -1555,16 +1327,8 @@ Applicant and COMELEC registration copies
                                         {% else %}
 
                                             <div class="text-muted">
-
-                                                <i
-                                                    class="bi bi-fingerprint"
-                                                    style="font-size: 42px;"
-                                                ></i>
-
-                                                <div class="small mt-2">
-                                                    Fingerprint not captured
-                                                </div>
-
+                                                <i class="bi bi-fingerprint" style="font-size: 42px;"></i>
+                                                <div class="small mt-2">Fingerprint not captured</div>
                                             </div>
 
                                         {% endif %}
@@ -1580,9 +1344,7 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         VERIFICATION SUMMARY
-                    ================================================== -->
+                    <!-- VERIFICATION SUMMARY -->
 
                     <div class="mt-4">
 
@@ -1598,22 +1360,12 @@ Applicant and COMELEC registration copies
 
                                     <div class="d-flex justify-content-between">
 
-                                        <span>
-                                            Fingerprint Biometrics
-                                        </span>
+                                        <span>Fingerprint Biometrics</span>
 
                                         {% if biometric.biometrics_completed %}
-
-                                            <span class="text-success fw-bold">
-                                                COMPLETE
-                                            </span>
-
+                                            <span class="text-success fw-bold">COMPLETE</span>
                                         {% else %}
-
-                                            <span class="text-danger fw-bold">
-                                                INCOMPLETE
-                                            </span>
-
+                                            <span class="text-danger fw-bold">INCOMPLETE</span>
                                         {% endif %}
 
                                     </div>
@@ -1622,29 +1374,18 @@ Applicant and COMELEC registration copies
 
                             </div>
 
-
                             <div class="col-md-6">
 
                                 <div class="verification-item">
 
                                     <div class="d-flex justify-content-between">
 
-                                        <span>
-                                            Overall Verification
-                                        </span>
+                                        <span>Overall Verification</span>
 
                                         {% if biometric.completed %}
-
-                                            <span class="text-success fw-bold">
-                                                VERIFIED
-                                            </span>
-
+                                            <span class="text-success fw-bold">VERIFIED</span>
                                         {% else %}
-
-                                            <span class="text-danger fw-bold">
-                                                NOT VERIFIED
-                                            </span>
-
+                                            <span class="text-danger fw-bold">NOT VERIFIED</span>
                                         {% endif %}
 
                                     </div>
@@ -1658,9 +1399,7 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         CERTIFICATION
-                    ================================================== -->
+                    <!-- CERTIFICATION -->
 
                     <div class="mt-4 p-3 border bg-light">
 
@@ -1687,62 +1426,95 @@ Applicant and COMELEC registration copies
 
 
                     <!-- =================================================
-                         COMELEC COPY SIGNATURES
+                         COMELEC COPY - THREE SIGNATURES
                     ================================================== -->
 
                     <div class="signature-area">
 
-                        <div class="row g-4">
+                        <div class="section-title">
+                            Applicant and Authorized Officer Signatures
+                        </div>
 
-                            <!-- APPLICANT SIGNATURE -->
+                        <div class="signature-grid">
 
-                            <div class="col-md-6">
+                            <!-- 1. ELECTRONIC SIGNATURE -->
 
-                                <div class="signature-block">
+                            <div class="signature-block">
 
-                                    <div class="signature-line">
+                                <div class="electronic-signature-box">
 
-                                        <div class="signature-name">
-                                            Applicant's Signature
-                                        </div>
+                                    {% if biometric.applicant_signature %}
 
-                                        <div class="signature-label">
-                                            Sign above this line
-                                        </div>
+                                        <img
+                                            src="{{ biometric.applicant_signature.url }}"
+                                            alt="Applicant Electronic Signature"
+                                            class="electronic-signature-image"
+                                        >
 
-                                        <div class="signature-date">
-                                            Date: __________________________
-                                        </div>
+                                    {% else %}
 
-                                    </div>
+                                        <span class="signature-label">
+                                            No electronic signature recorded
+                                        </span>
 
+                                    {% endif %}
+
+                                </div>
+
+                                <div class="signature-name">
+                                    {{ applicant.firstname }}
+                                    {{ applicant.middlename }}
+                                    {{ applicant.lastname }}
+                                </div>
+
+                                <div class="signature-label">
+                                    Applicant's Electronic Signature
+                                </div>
+
+                                <div class="signature-date">
+                                    Date: __________________
                                 </div>
 
                             </div>
 
 
-                            <!-- COMELEC OFFICER SIGNATURE -->
+                            <!-- 2. HANDWRITTEN APPLICANT SIGNATURE -->
 
-                            <div class="col-md-6">
+                            <div class="signature-block">
 
-                                <div class="signature-block">
+                                <div class="signature-line"></div>
 
-                                    <div class="signature-line">
+                                <div class="signature-name">
+                                    {{ applicant.firstname }} {{ applicant.lastname }}
+                                </div>
 
-                                        <div class="signature-name">
-                                            Authorized COMELEC Officer
-                                        </div>
+                                <div class="signature-label">
+                                    Applicant's Handwritten Signature
+                                </div>
 
-                                        <div class="signature-label">
-                                            Signature above this line
-                                        </div>
+                                <div class="signature-date">
+                                    Date: __________________
+                                </div>
 
-                                        <div class="signature-date">
-                                            Date: __________________________
-                                        </div>
+                            </div>
 
-                                    </div>
 
+                            <!-- 3. AUTHORIZED COMELEC OFFICER -->
+
+                            <div class="signature-block">
+
+                                <div class="signature-line"></div>
+
+                                <div class="signature-name">
+                                    __________________________
+                                </div>
+
+                                <div class="signature-label">
+                                    Authorized COMELEC Officer
+                                </div>
+
+                                <div class="signature-date">
+                                    Date: __________________
                                 </div>
 
                             </div>
@@ -1752,43 +1524,31 @@ Applicant and COMELEC registration copies
                     </div>
 
 
-                    <!-- =================================================
-                         FOOTER
-                    ================================================== -->
+                    <!-- FOOTER -->
 
                     <div class="slip-footer">
 
                         <div class="row">
 
                             <div class="col-md-8">
-
-                                Generated from the Pio Duran Voter Registration
-                                System.
-
+                                Generated from the Pio Duran Voter Registration System.
                             </div>
 
                             <div class="col-md-4 text-md-end">
-
                                 Verification Status:
                                 <strong>VERIFIED</strong>
-
                             </div>
 
                         </div>
 
                         {% if biometric.captured_at %}
-
                             <div class="mt-1">
-
                                 Verification completed:
                                 {{ biometric.captured_at|date:"F d, Y h:i A" }}
-
                             </div>
-
                         {% endif %}
 
                     </div>
-
 
                 </div>
 
@@ -1806,14 +1566,10 @@ Applicant and COMELEC registration copies
 {% block extra_js %}
 
 <script>
-
     window.addEventListener("beforeprint", function () {
-
         document.title =
-            "Registration Slips - {{ applicant.lastname }}, {{ applicant.firstname }}";
-
+            "Registration Slips - {{ applicant.lastname }}";
     });
-
 </script>
 
 {% endblock %}
