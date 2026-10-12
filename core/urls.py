@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     path("api/keep-alive/", views.keep_alive, name="keep_alive"),
     path(
-        "admin/",
+        "/",
         views.admin_login,
         name="admin-login"
     ),
