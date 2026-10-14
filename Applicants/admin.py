@@ -1,4 +1,6 @@
+
 from django.contrib import admin
+from django.utils.html import format_html
 
 from .models import (
     Barangay,
@@ -9,11 +11,22 @@ from .models import (
     ApplicantReinstatementRequest,
     ApplicantBiometric,
     ApplicantNotification,
+    SignatureSession,
+    FingerprintCaptureRequest,
 )
 
 
 # =========================================================
-# BARANGAY
+# COMMON ADMIN CONFIGURATION
+# =========================================================
+
+admin.site.site_header = "Pio Duran Online Registration Administration"
+admin.site.site_title = "Registration Admin"
+admin.site.index_title = "Applicant Registration Management"
+
+
+# =========================================================
+# BARANGAY ADMIN
 # =========================================================
 
 @admin.register(Barangay)
@@ -33,7 +46,7 @@ class BarangayAdmin(admin.ModelAdmin):
 
 
 # =========================================================
-# APPLICANT
+# APPLICANT ADMIN
 # =========================================================
 
 @admin.register(Applicant)
@@ -41,12 +54,12 @@ class ApplicantAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "full_name",
+        "email",
+        "phone",
         "brgy",
         "application_type",
         "status",
         "verification_status",
-        "pwd_status",
-        "is_senior",
         "is_active",
         "date_joined",
     )
@@ -55,121 +68,43 @@ class ApplicantAdmin(admin.ModelAdmin):
         "application_type",
         "status",
         "verification_status",
+        "is_active",
+        "is_senior",
         "pwd_status",
         "citizenship_status",
-        "is_senior",
-        "is_active",
+        "sex",
         "brgy",
         "date_joined",
     )
 
     search_fields = (
-        "lastname",
         "firstname",
         "middlename",
+        "lastname",
         "email",
         "phone",
-        "father",
-        "mother",
     )
-
-    ordering = (
-        "-date_joined",
-        "-id",
-    )
-
-    date_hierarchy = "date_joined"
-
-    list_per_page = 25
 
     readonly_fields = (
         "date_joined",
     )
 
-    fieldsets = (
-        (
-            "Personal Information",
-            {
-                "fields": (
-                    "lastname",
-                    "firstname",
-                    "middlename",
-                    "age",
-                    "sex",
-                    "birthdate",
-                    "birthplace",
-                    "civil_status",
-                )
-            },
-        ),
-        (
-            "Address",
-            {
-                "fields": (
-                    "brgy",
-                    "municipality",
-                    "province",
-                    "phone",
-                    "email",
-                )
-            },
-        ),
-        (
-            "Application",
-            {
-                "fields": (
-                    "application_type",
-                    "status",
-                    "verification_status",
-                )
-            },
-        ),
-        (
-            "PWD / Citizenship",
-            {
-                "fields": (
-                    "pwd_status",
-                    "citizenship_status",
-                    "is_senior",
-                )
-            },
-        ),
-        (
-            "Family Information",
-            {
-                "fields": (
-                    "father",
-                    "mother",
-                )
-            },
-        ),
-        (
-            "Office Visit",
-            {
-                "fields": (
-                    "office_visit_date",
-                    "office_visit_slot",
-                )
-            },
-        ),
-        (
-            "Account Status",
-            {
-                "fields": (
-                    "is_active",
-                    "date_joined",
-                )
-            },
-        ),
+    ordering = (
+        "-date_joined",
     )
 
-    @admin.display(description="Full Name")
+    list_per_page = 25
+
+    @admin.display(description="Full Name", ordering="lastname")
     def full_name(self, obj):
-        return f"{obj.lastname}, {obj.firstname} {obj.middlename}"
+        return (
+            f"{obj.lastname}, {obj.firstname} "
+            f"{obj.middlename or ''}"
+        ).strip()
 
 
 # =========================================================
-# UPDATE REQUEST
+# APPLICANT UPDATE REQUEST ADMIN
 # =========================================================
 
 @admin.register(ApplicantUpdateRequest)
@@ -177,48 +112,51 @@ class ApplicantUpdateRequestAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "applicant",
-        "requested_at",
+        "requested_name",
+        "email",
+        "brgy",
         "status",
+        "requested_at",
         "reviewed_at",
     )
 
     list_filter = (
         "status",
+        "brgy",
         "requested_at",
         "reviewed_at",
     )
 
     search_fields = (
-        "applicant__lastname",
         "applicant__firstname",
         "applicant__middlename",
-        "applicant__email",
+        "applicant__lastname",
+        "firstname",
+        "middlename",
+        "lastname",
         "email",
-        "phone",
-        "reason",
     )
-
-    ordering = (
-        "-requested_at",
-        "-id",
-    )
-
-    date_hierarchy = "requested_at"
-
-    list_per_page = 25
 
     readonly_fields = (
         "requested_at",
     )
 
-    autocomplete_fields = (
-        "applicant",
-        "brgy",
+    ordering = (
+        "-requested_at",
     )
+
+    list_per_page = 25
+
+    @admin.display(description="Requested Name")
+    def requested_name(self, obj):
+        return (
+            f"{obj.lastname}, {obj.firstname} "
+            f"{obj.middlename or ''}"
+        ).strip()
 
 
 # =========================================================
-# TRANSFER REQUEST
+# APPLICANT TRANSFER REQUEST ADMIN
 # =========================================================
 
 @admin.register(ApplicantTransferRequest)
@@ -228,6 +166,8 @@ class ApplicantTransferRequestAdmin(admin.ModelAdmin):
         "applicant",
         "current_brgy",
         "new_brgy",
+        "current_municipality",
+        "new_municipality",
         "status",
         "requested_at",
         "reviewed_at",
@@ -238,39 +178,29 @@ class ApplicantTransferRequestAdmin(admin.ModelAdmin):
         "current_brgy",
         "new_brgy",
         "requested_at",
-        "reviewed_at",
     )
 
     search_fields = (
-        "applicant__lastname",
         "applicant__firstname",
         "applicant__middlename",
+        "applicant__lastname",
         "applicant__email",
         "reason",
     )
-
-    ordering = (
-        "-requested_at",
-        "-id",
-    )
-
-    date_hierarchy = "requested_at"
-
-    list_per_page = 25
 
     readonly_fields = (
         "requested_at",
     )
 
-    autocomplete_fields = (
-        "applicant",
-        "current_brgy",
-        "new_brgy",
+    ordering = (
+        "-requested_at",
     )
+
+    list_per_page = 25
 
 
 # =========================================================
-# REACTIVATION REQUEST
+# APPLICANT REACTIVATION REQUEST ADMIN
 # =========================================================
 
 @admin.register(ApplicantReactivationRequest)
@@ -286,37 +216,27 @@ class ApplicantReactivationRequestAdmin(admin.ModelAdmin):
     list_filter = (
         "status",
         "requested_at",
-        "reviewed_at",
     )
 
     search_fields = (
-        "applicant__lastname",
         "applicant__firstname",
         "applicant__middlename",
+        "applicant__lastname",
         "applicant__email",
         "reason",
     )
-
-    ordering = (
-        "-requested_at",
-        "-id",
-    )
-
-    date_hierarchy = "requested_at"
-
-    list_per_page = 25
 
     readonly_fields = (
         "requested_at",
     )
 
-    autocomplete_fields = (
-        "applicant",
+    ordering = (
+        "-requested_at",
     )
 
 
 # =========================================================
-# REINSTATEMENT REQUEST
+# APPLICANT REINSTATEMENT REQUEST ADMIN
 # =========================================================
 
 @admin.register(ApplicantReinstatementRequest)
@@ -332,48 +252,38 @@ class ApplicantReinstatementRequestAdmin(admin.ModelAdmin):
     list_filter = (
         "status",
         "requested_at",
-        "reviewed_at",
     )
 
     search_fields = (
-        "applicant__lastname",
         "applicant__firstname",
         "applicant__middlename",
+        "applicant__lastname",
         "applicant__email",
         "reason",
     )
-
-    ordering = (
-        "-requested_at",
-        "-id",
-    )
-
-    date_hierarchy = "requested_at"
-
-    list_per_page = 25
 
     readonly_fields = (
         "requested_at",
     )
 
-    autocomplete_fields = (
-        "applicant",
+    ordering = (
+        "-requested_at",
     )
 
 
 # =========================================================
-# BIOMETRICS
+# APPLICANT BIOMETRIC ADMIN
 # =========================================================
 
 @admin.register(ApplicantBiometric)
 class ApplicantBiometricAdmin(admin.ModelAdmin):
-
     list_display = (
+        "id",
         "applicant",
-        "left_finger_status",
-        "right_finger_status",
-        "biometrics_completed",
-        "completed",
+        "left_fingerprint_status",
+        "right_fingerprint_status",
+        "signature_status",
+        "completion_status",
         "captured_at",
         "updated_at",
     )
@@ -386,23 +296,27 @@ class ApplicantBiometricAdmin(admin.ModelAdmin):
     )
 
     search_fields = (
-        "applicant__lastname",
         "applicant__firstname",
         "applicant__middlename",
+        "applicant__lastname",
+        "applicant__email",
     )
 
     readonly_fields = (
+        "left_fingerprint_preview",
+        "right_fingerprint_preview",
+        "signature_preview",
         "captured_at",
         "updated_at",
     )
 
     fieldsets = (
         (
-            "Applicant",
+            "Applicant Information",
             {
                 "fields": (
                     "applicant",
-                )
+                ),
             },
         ),
         (
@@ -410,8 +324,9 @@ class ApplicantBiometricAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "left_finger",
+                    "left_fingerprint_preview",
                     "left_finger_template",
-                )
+                ),
             },
         ),
         (
@@ -419,41 +334,153 @@ class ApplicantBiometricAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "right_finger",
+                    "right_fingerprint_preview",
                     "right_finger_template",
-                )
+                ),
             },
         ),
         (
-            "Capture Status",
+            "Electronic Signature",
+            {
+                "fields": (
+                    "applicant_signature",
+                    "signature_preview",
+                ),
+            },
+        ),
+        (
+            "Completion Status",
             {
                 "fields": (
                     "biometrics_completed",
                     "completed",
                     "captured_at",
                     "updated_at",
-                )
+                ),
             },
         ),
     )
 
-    def left_finger_status(self, obj):
-        if obj.left_finger_template:
-            return "Captured"
-        return "Not Captured"
+    ordering = (
+        "-updated_at",
+    )
 
-    left_finger_status.short_description = "Left Finger"
+    list_per_page = 25
 
-    def right_finger_status(self, obj):
-        if obj.right_finger_template:
-            return "Captured"
-        return "Not Captured"
+    @admin.display(description="Left Finger")
+    def left_fingerprint_status(self, obj):
+        if obj.left_finger:
+            return format_html(
+                '<span style="color: #15803d; font-weight: 600;">'
+                'Saved</span>'
+            )
 
-    right_finger_status.short_description = "Right Finger"
+        return format_html(
+            '<span style="color: #dc2626; font-weight: 600;">'
+            'Missing</span>'
+        )
 
+    @admin.display(description="Right Finger")
+    def right_fingerprint_status(self, obj):
+        if obj.right_finger:
+            return format_html(
+                '<span style="color: #15803d; font-weight: 600;">'
+                'Saved</span>'
+            )
+
+        return format_html(
+            '<span style="color: #dc2626; font-weight: 600;">'
+            'Missing</span>'
+        )
+
+    @admin.display(description="Signature")
+    def signature_status(self, obj):
+        if obj.applicant_signature:
+            return format_html(
+                '<span style="color: #15803d; font-weight: 600;">'
+                'Saved</span>'
+            )
+
+        return format_html(
+            '<span style="color: #64748b;">Not provided</span>'
+        )
+
+    @admin.display(description="Biometrics Status")
+    def completion_status(self, obj):
+        # Completion is determined by the two fingerprint images.
+        if obj.left_finger and obj.right_finger:
+            return format_html(
+                '<span style="background: #dcfce7; color: #166534; '
+                'padding: 4px 9px; border-radius: 12px; '
+                'font-weight: 600;">COMPLETE</span>'
+            )
+
+        return format_html(
+            '<span style="background: #fef3c7; color: #92400e; '
+            'padding: 4px 9px; border-radius: 12px; '
+            'font-weight: 600;">PENDING</span>'
+        )
+
+    @admin.display(description="Left Fingerprint Preview")
+    def left_fingerprint_preview(self, obj):
+        if obj and obj.left_finger:
+            try:
+                return format_html(
+                    '<a href="{}" target="_blank" rel="noopener">'
+                    '<img src="{}" alt="Left fingerprint" '
+                    'style="max-width: 280px; max-height: 280px; '
+                    'object-fit: contain; border: 1px solid #ddd; '
+                    'padding: 8px; background: white;" />'
+                    '</a>',
+                    obj.left_finger.url,
+                    obj.left_finger.url,
+                )
+            except (ValueError, NotImplementedError):
+                pass
+
+        return "No left fingerprint image."
+
+    @admin.display(description="Right Fingerprint Preview")
+    def right_fingerprint_preview(self, obj):
+        if obj and obj.right_finger:
+            try:
+                return format_html(
+                    '<a href="{}" target="_blank" rel="noopener">'
+                    '<img src="{}" alt="Right fingerprint" '
+                    'style="max-width: 280px; max-height: 280px; '
+                    'object-fit: contain; border: 1px solid #ddd; '
+                    'padding: 8px; background: white;" />'
+                    '</a>',
+                    obj.right_finger.url,
+                    obj.right_finger.url,
+                )
+            except (ValueError, NotImplementedError):
+                pass
+
+        return "No right fingerprint image."
+
+    @admin.display(description="Signature Preview")
+    def signature_preview(self, obj):
+        if obj and obj.applicant_signature:
+            try:
+                return format_html(
+                    '<a href="{}" target="_blank" rel="noopener">'
+                    '<img src="{}" alt="Applicant signature" '
+                    'style="max-width: 350px; max-height: 160px; '
+                    'object-fit: contain; border: 1px solid #ddd; '
+                    'padding: 8px; background: white;" />'
+                    '</a>',
+                    obj.applicant_signature.url,
+                    obj.applicant_signature.url,
+                )
+            except (ValueError, NotImplementedError):
+                pass
+
+        return "No signature image."
 
 
 # =========================================================
-# NOTIFICATIONS
+# APPLICANT NOTIFICATION ADMIN
 # =========================================================
 
 @admin.register(ApplicantNotification)
@@ -461,8 +488,8 @@ class ApplicantNotificationAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "applicant",
-        "notification_type",
         "title",
+        "notification_type",
         "is_read",
         "created_at",
     )
@@ -474,50 +501,105 @@ class ApplicantNotificationAdmin(admin.ModelAdmin):
     )
 
     search_fields = (
-        "applicant__lastname",
         "applicant__firstname",
         "applicant__middlename",
+        "applicant__lastname",
         "applicant__email",
         "title",
         "message",
     )
 
-    ordering = (
-        "-created_at",
-        "-id",
-    )
-
-    date_hierarchy = "created_at"
-
-    list_per_page = 25
-
     readonly_fields = (
         "created_at",
     )
 
-    autocomplete_fields = (
-        "applicant",
+    ordering = (
+        "-created_at",
     )
 
-    fieldsets = (
-        (
-            "Notification",
-            {
-                "fields": (
-                    "applicant",
-                    "notification_type",
-                    "title",
-                    "message",
-                    "is_read",
-                )
-            },
-        ),
-        (
-            "System Information",
-            {
-                "fields": (
-                    "created_at",
-                )
-            },
-        ),
+
+# =========================================================
+# SIGNATURE SESSION ADMIN
+# =========================================================
+
+@admin.register(SignatureSession)
+class SignatureSessionAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "session_id",
+        "applicant",
+        "officer",
+        "status",
+        "created_at",
+        "completed_at",
+        "cancelled_at",
     )
+
+    list_filter = (
+        "status",
+        "created_at",
+        "completed_at",
+    )
+
+    search_fields = (
+        "session_id",
+        "applicant__firstname",
+        "applicant__middlename",
+        "applicant__lastname",
+        "applicant__email",
+        "officer__username",
+    )
+
+    readonly_fields = (
+        "session_id",
+        "created_at",
+    )
+
+    ordering = (
+        "-created_at",
+    )
+
+    list_per_page = 25
+
+
+# =========================================================
+# FINGERPRINT CAPTURE REQUEST ADMIN
+# =========================================================
+
+@admin.register(FingerprintCaptureRequest)
+class FingerprintCaptureRequestAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "applicant",
+        "finger",
+        "status",
+        "message",
+        "created_at",
+        "updated_at",
+    )
+
+    list_filter = (
+        "finger",
+        "status",
+        "created_at",
+        "updated_at",
+    )
+
+    search_fields = (
+        "applicant__firstname",
+        "applicant__middlename",
+        "applicant__lastname",
+        "applicant__email",
+        "message",
+    )
+
+    readonly_fields = (
+        "created_at",
+        "updated_at",
+    )
+
+    ordering = (
+        "-created_at",
+    )
+
+    list_per_page = 25

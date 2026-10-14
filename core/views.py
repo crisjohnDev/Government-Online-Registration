@@ -12,7 +12,7 @@ from datetime import timedelta, datetime
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from Applicants.models import Barangay
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import apps, authenticate, login, logout
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from django.http import HttpResponse
@@ -3817,18 +3817,25 @@ def delete_application(request, id):
 @require_POST
 def save_fingerprint(request, applicant_id):
     """
-    Receive a fingerprint image from the ESP32, validate and convert
-    it to PNG, and save it to the applicant's biometric record.
+    Save a left or right fingerprint image.
 
-    Expected multipart fields:
-        finger: left or right
-        fingerprint: image file
+    When both fingerprint images exist:
+        - biometrics_completed = True
+        - completed = True
+        - verification_status = VERIFIED
+
+    When either image is missing:
+        - biometrics_completed = False
+        - completed = False
+        - verification_status = BIOMETRICS_PENDING
     """
 
-    # --------------------------------------------------
-    # 1. Validate the requested finger
-    # --------------------------------------------------
+    Applicant = apps.get_model("comelec", "Applicant")
+    ApplicantBiometric = apps.get_model(
+        "comelec", "ApplicantBiometric"
+    )
 
+    # 1. Validate finger selection.
     finger = request.POST.get("finger", "").strip().lower()
 
     if finger not in ("left", "right"):
@@ -3837,255 +3844,187 @@ def save_fingerprint(request, applicant_id):
             "message": "Invalid finger. Use left or right.",
         }, status=400)
 
-    # --------------------------------------------------
-    # 2. Get the uploaded image
-    # --------------------------------------------------
-
-    uploaded_file = request.FILES.get("fingerprint")
-
-    if uploaded_file is None:
-        logger.warning(
-            "Fingerprint upload missing file: applicant=%s, "
-            "finger=%s, POST fields=%s, FILES fields=%s",
-            applicant_id,
-            finger,
-            list(request.POST.keys()),
-            list(request.FILES.keys()),
-        )
-
+    # 2. Find applicant.
+    try:
+        applicant = Applicant.objects.get(pk=applicant_id)
+    except Applicant.DoesNotExist:
         return JsonResponse({
             "success": False,
-            "message": (
-                "No fingerprint image was uploaded. "
-                "Expected multipart file field: fingerprint."
-            ),
-            "received_fields": list(request.FILES.keys()),
+            "message": "Applicant not found.",
+        }, status=404)
+
+    # 3. Validate uploaded file.
+    uploaded_file = request.FILES.get("fingerprint")
+
+    if not uploaded_file:
+        return JsonResponse({
+            "success": False,
+            "message": "No fingerprint image was uploaded.",
         }, status=400)
-
-    # --------------------------------------------------
-    # 3. Validate file size
-    # --------------------------------------------------
-
-    max_upload_size = 2 * 1024 * 1024
 
     if uploaded_file.size <= 0:
         return JsonResponse({
             "success": False,
-            "message": "The uploaded fingerprint image is empty.",
+            "message": "The uploaded image is empty.",
         }, status=400)
 
-    if uploaded_file.size > max_upload_size:
+    if uploaded_file.size > 2 * 1024 * 1024:
         return JsonResponse({
             "success": False,
-            "message": "Fingerprint image must not exceed 2 MB.",
-            "received_bytes": uploaded_file.size,
+            "message": "Fingerprint image exceeds the 2 MB limit.",
         }, status=400)
 
-    logger.info(
-        "Fingerprint upload received: applicant=%s, finger=%s, "
-        "filename=%s, content_type=%s, bytes=%s",
-        applicant_id,
-        finger,
-        uploaded_file.name,
-        uploaded_file.content_type,
-        uploaded_file.size,
-    )
-
-    # --------------------------------------------------
-    # 4. Decode and convert the image to PNG
-    # --------------------------------------------------
-
+    # 4. Convert the uploaded image to grayscale PNG.
     try:
-        uploaded_file.seek(0)
-
         with Image.open(uploaded_file) as source:
             source.load()
-
-            original_format = source.format
-            original_width, original_height = source.size
-
-            if original_width <= 0 or original_height <= 0:
-                return JsonResponse({
-                    "success": False,
-                    "message": "The fingerprint image has invalid dimensions.",
-                }, status=400)
-
-            # Convert to grayscale.
-            png_image = source.convert("L")
+            image = source.convert("L")
 
             output = BytesIO()
-            png_image.save(output, format="PNG")
+            image.save(output, format="PNG")
             png_data = output.getvalue()
+            output.close()
 
-    except (UnidentifiedImageError, OSError, ValueError) as exc:
-        logger.warning(
-            "Invalid fingerprint image: applicant=%s, finger=%s, "
-            "filename=%s, bytes=%s, error=%s",
-            applicant_id,
-            finger,
-            uploaded_file.name,
-            uploaded_file.size,
-            str(exc),
-        )
-
+    except (UnidentifiedImageError, OSError, ValueError):
         return JsonResponse({
             "success": False,
-            "message": (
-                "The uploaded fingerprint data is not a valid image "
-                "or cannot be decoded by Pillow. Check the ESP32 "
-                "image format and BMP header."
-            ),
-            "filename": uploaded_file.name,
-            "content_type": uploaded_file.content_type,
-            "received_bytes": uploaded_file.size,
-            "hint": (
-                "Upload a valid BMP, PNG, or JPEG image. "
-                "Raw sensor bytes must be converted into a valid "
-                "image file before uploading."
-            ),
+            "message": "The uploaded fingerprint is not a valid image.",
         }, status=400)
 
-    except Exception:
-        logger.exception(
-            "Unexpected fingerprint image processing error: "
-            "applicant=%s, finger=%s",
-            applicant_id,
-            finger,
-        )
-
-        return JsonResponse({
-            "success": False,
-            "message": "An unexpected error occurred while processing the image.",
-        }, status=500)
-
-    finally:
-        output_data = None
-
-    # --------------------------------------------------
-    # 5. Retrieve or create the biometric record
-    # --------------------------------------------------
-
+    # 5. Save image and update statuses.
     try:
-        biometric, created = ApplicantBiometric.objects.get_or_create(
-            applicant_id=applicant_id
-        )
-
-    except Exception:
-        logger.exception(
-            "Could not retrieve biometric record: applicant=%s",
-            applicant_id,
-        )
-
-        return JsonResponse({
-            "success": False,
-            "message": (
-                "Could not retrieve or create the biometric record. "
-                "Verify that the applicant exists and the database "
-                "relationship is correct."
-            ),
-            "applicant_id": applicant_id,
-        }, status=500)
-
-    # --------------------------------------------------
-    # 6. Select the correct image field
-    # --------------------------------------------------
-
-    if finger == "left":
-        image_field = biometric.left_finger
-    else:
-        image_field = biometric.right_finger
-
-    old_file_name = image_field.name if image_field else ""
-
-    # --------------------------------------------------
-    # 7. Save the validated PNG image
-    # --------------------------------------------------
-
-    filename = f"applicant_{applicant_id}_{finger}_fingerprint.png"
-
-    try:
-        image_field.save(
-            filename,
-            ContentFile(png_data),
-            save=False,
-        )
-
-        biometric.save()
-
-    except Exception:
-        logger.exception(
-            "Failed to save fingerprint PNG: applicant=%s, finger=%s",
-            applicant_id,
-            finger,
-        )
-
-        return JsonResponse({
-            "success": False,
-            "message": "The fingerprint image was decoded but could not be saved.",
-        }, status=500)
-
-    # Delete the previous image only after the new image has been saved.
-    if old_file_name and old_file_name != image_field.name:
-        try:
-            image_field.storage.delete(old_file_name)
-        except Exception:
-            logger.exception(
-                "Could not delete previous fingerprint file: %s",
-                old_file_name,
+        with transaction.atomic():
+            applicant = Applicant.objects.select_for_update().get(
+                pk=applicant_id
             )
 
-    # --------------------------------------------------
-    # 8. Check saved images and templates
-    # --------------------------------------------------
+            biometric, _ = (
+                ApplicantBiometric.objects.select_for_update()
+                .get_or_create(applicant=applicant)
+            )
 
-    biometric.refresh_from_db()
+            image_field = (
+                biometric.left_finger
+                if finger == "left"
+                else biometric.right_finger
+            )
 
-    left_image_saved = bool(biometric.left_finger)
-    right_image_saved = bool(biometric.right_finger)
+            old_name = image_field.name if image_field else ""
 
-    left_template_saved = bool(biometric.left_finger_template)
-    right_template_saved = bool(biometric.right_finger_template)
+            filename = (
+                f"applicant_{applicant_id}_{finger}_fingerprint.png"
+            )
 
-    completed = all((
-        left_image_saved,
-        right_image_saved,
-        left_template_saved,
-        right_template_saved,
-    ))
+            if finger == "left":
+                biometric.left_finger.save(
+                    filename,
+                    ContentFile(png_data),
+                    save=False,
+                )
+            else:
+                biometric.right_finger.save(
+                    filename,
+                    ContentFile(png_data),
+                    save=False,
+                )
 
-    # --------------------------------------------------
-    # 9. Return a diagnostic response
-    # --------------------------------------------------
+            biometric.save()
 
+            # Remove the old image after the replacement is saved.
+            new_field = (
+                biometric.left_finger
+                if finger == "left"
+                else biometric.right_finger
+            )
+
+            if (
+                old_name
+                and old_name != new_field.name
+            ):
+                try:
+                    new_field.storage.delete(old_name)
+                except Exception:
+                    logger.exception(
+                        "Could not delete old fingerprint file."
+                    )
+
+            # Reload the saved record.
+            biometric.refresh_from_db()
+
+            left_saved = bool(
+                biometric.left_finger
+                and biometric.left_finger.name
+            )
+
+            right_saved = bool(
+                biometric.right_finger
+                and biometric.right_finger.name
+            )
+
+            # Completion requires both images, not templates.
+            completed = left_saved and right_saved
+
+            biometric.biometrics_completed = completed
+            biometric.completed = completed
+
+            biometric.save(
+                update_fields=[
+                    "biometrics_completed",
+                    "completed",
+                    "updated_at",
+                ]
+            )
+
+            # Update the applicant status in the same database.
+            new_status = (
+                "VERIFIED"
+                if completed
+                else "BIOMETRICS_PENDING"
+            )
+
+            Applicant.objects.filter(
+                pk=applicant.pk
+            ).update(
+                verification_status=new_status
+            )
+
+            # Confirm the saved status.
+            applicant.refresh_from_db()
+            biometric.refresh_from_db()
+
+            final_status = applicant.verification_status
+
+    except Exception:
+        logger.exception(
+            "Fingerprint save/status update failed for applicant %s",
+            applicant_id,
+        )
+
+        return JsonResponse({
+            "success": False,
+            "message": "Could not save the fingerprint or update its status.",
+        }, status=500)
+
+    # 6. Return the actual database status.
     return JsonResponse({
         "success": True,
-        "message": f"{finger.capitalize()} fingerprint PNG saved successfully.",
+        "message": (
+            "Both fingerprints saved. Verification status updated to Verified."
+            if completed
+            else f"{finger.capitalize()} fingerprint saved. "
+                 "Waiting for the other fingerprint."
+        ),
         "applicant_id": applicant_id,
         "finger": finger,
-        "biometric_record_created": created,
-        "image_url": image_field.url,
-        "image_format": "PNG",
-        "original_format": original_format,
-        "image_width": png_image.width,
-        "image_height": png_image.height,
-        "original_width": original_width,
-        "original_height": original_height,
-        "original_bytes": uploaded_file.size,
-        "png_bytes": len(png_data),
-        "left_image_saved": left_image_saved,
-        "right_image_saved": right_image_saved,
-        "left_template_saved": left_template_saved,
-        "right_template_saved": right_template_saved,
-        "biometrics_completed": completed,
-        "completed": completed,
-        "verification_status": (
-            "BIOMETRICS_COMPLETED"
-            if completed
-            else "BIOMETRICS_PENDING"
+        "left_image_saved": left_saved,
+        "right_image_saved": right_saved,
+        "biometrics_completed": biometric.biometrics_completed,
+        "completed": biometric.completed,
+        "verification_status": final_status,
+        "verification_status_display": (
+            applicant.get_verification_status_display()
         ),
     })
-
-
 
 @csrf_exempt
 @require_POST
@@ -4395,3 +4334,60 @@ def fingerprint_capture_status(request, request_id):
         "created_at": capture_request.created_at.isoformat(),
         "updated_at": capture_request.updated_at.isoformat(),
     })
+
+
+# @staff_member_required
+def sync_applicant_biometrics(request, applicant_id):
+    Applicant = apps.get_model("comelec", "Applicant")
+    ApplicantBiometric = apps.get_model(
+        "comelec", "ApplicantBiometric"
+    )
+
+    applicant = get_object_or_404(
+        Applicant,
+        pk=applicant_id,
+    )
+
+    biometric = ApplicantBiometric.objects.filter(
+        applicant=applicant
+    ).first()
+
+    if biometric is None:
+        messages.error(request, "No biometric record exists.")
+        return redirect(
+            "admin-applicant-biometric",
+            applicant_id=applicant.pk,
+        )
+
+    left_saved = bool(
+        biometric.left_finger
+        and biometric.left_finger.name
+    )
+
+    right_saved = bool(
+        biometric.right_finger
+        and biometric.right_finger.name
+    )
+
+    completed = left_saved and right_saved
+
+    biometric.biometrics_completed = completed
+    biometric.completed = completed
+    biometric.save(
+        update_fields=[
+            "biometrics_completed",
+            "completed",
+            "updated_at",
+        ]
+    )
+
+    applicant.verification_status = (
+        "VERIFIED" if completed else "BIOMETRICS_PENDING"
+    )
+
+    applicant.save(update_fields=["verification_status"])
+
+    return redirect(
+        "admin-applicant-biometric",
+        applicant_id=applicant.pk,
+    )
