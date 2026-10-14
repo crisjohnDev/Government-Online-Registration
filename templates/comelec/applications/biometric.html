@@ -275,7 +275,6 @@
 {% block content %}
 <div class="container-fluid px-0 biometrics-page">
 
-    <!-- PAGE HEADER -->
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
             <h4 class="fw-bold mb-1">Applicant Biometrics</h4>
@@ -341,105 +340,54 @@
     </div>
     {% endif %}
 
-    {% if biometric.left_finger and not left_image_exists %}
-    <div class="bio-notice warning">
-        <strong>Left fingerprint image missing.</strong>
-        The database references a file that cannot be found in configured storage.
-        Recapture the left fingerprint or restore the correct file from backup.
-    </div>
-    {% endif %}
-
-    {% if biometric.right_finger and not right_image_exists %}
-    <div class="bio-notice warning">
-        <strong>Right fingerprint image missing.</strong>
-        The database references a file that cannot be found in configured storage.
-        Recapture the right fingerprint or restore the correct file from backup.
-    </div>
-    {% endif %}
-
-    {% if biometric.applicant_signature and not signature_exists %}
-    <div class="bio-notice warning">
-        <strong>Signature image missing.</strong>
-        The database references a signature file that cannot be found in configured storage.
-        Recapture the signature or restore the correct file from backup.
-    </div>
-    {% endif %}
-
     <!-- SIGNATURE -->
     <div class="bio-card mb-4">
         <div class="bio-card-header">
             <h5><span class="bio-step-number">1</span>Applicant Signature</h5>
-
             <span id="applicantSignatureStatus"
-                  class="bio-status {% if signature_exists %}success{% elif biometric.applicant_signature %}error{% endif %}">
-                {% if signature_exists %}
-                    Captured
-                {% elif biometric.applicant_signature %}
-                    Image Missing
-                {% else %}
-                    Not Captured
-                {% endif %}
+                  class="bio-status {% if biometric and biometric.applicant_signature %}success{% endif %}">
+                {% if biometric and biometric.applicant_signature %}Captured{% else %}Not Captured{% endif %}
             </span>
         </div>
 
         <div class="bio-card-body">
             <div class="row justify-content-center">
                 <div class="col-lg-7">
-
                     <div id="applicantSignaturePreview"
-                         class="bio-preview {% if signature_exists %}captured{% endif %}">
-
-                        {% if signature_exists %}
+                         class="bio-preview {% if biometric and biometric.applicant_signature %}captured{% endif %}">
+                        {% if biometric and biometric.applicant_signature %}
                         <a href="{{ biometric.applicant_signature.url }}"
-                           target="_blank"
-                           rel="noopener noreferrer">
+                           target="_blank" rel="noopener noreferrer">
                             <img src="{{ biometric.applicant_signature.url }}"
                                  alt="Applicant signature">
                         </a>
                         {% else %}
                         <div class="bio-placeholder">
                             <i class="bi bi-pen"></i>
-                            <strong>
-                                {% if biometric.applicant_signature %}
-                                    Signature Image Missing
-                                {% else %}
-                                    No Signature Image
-                                {% endif %}
-                            </strong>
-                            <span>
-                                {% if biometric.applicant_signature %}
-                                    Recapture the signature to restore the missing image.
-                                {% else %}
-                                    The applicant's signature has not been captured.
-                                {% endif %}
-                            </span>
+                            <strong>No Signature Image</strong>
+                            <span>The applicant's signature has not been captured.</span>
                         </div>
                         {% endif %}
                     </div>
 
-                    <div id="signatureMessage"
-                         class="bio-message"
-                         role="status"
-                         aria-live="polite">
-                        {% if signature_exists %}
-                            Signature already saved.
-                        {% elif biometric.applicant_signature %}
-                            The signature file is missing. Please recapture it.
+                    <div id="signatureMessage" class="bio-message"
+                         role="status" aria-live="polite">
+                        {% if biometric and biometric.applicant_signature %}
+                        Signature already saved.
                         {% else %}
-                            Start a signature session to capture the applicant's signature.
+                        Start a signature session to capture the applicant's signature.
                         {% endif %}
                     </div>
 
                     <div class="bio-signature-line">Applicant Signature</div>
 
-                    <button type="button"
-                            id="captureApplicantSignature"
+                    <button type="button" id="captureApplicantSignature"
                             class="btn btn-primary bio-action">
                         <i class="bi bi-pen me-1"></i>
-                        {% if signature_exists %}
-                            Recapture Applicant Signature
+                        {% if biometric and biometric.applicant_signature %}
+                        Recapture Applicant Signature
                         {% else %}
-                            Capture Applicant Signature
+                        Capture Applicant Signature
                         {% endif %}
                     </button>
                 </div>
@@ -453,78 +401,59 @@
         <!-- LEFT FINGER -->
         <div class="col-lg-6">
             <div id="leftFingerCard" class="bio-capture-card">
-
                 <div class="bio-capture-header">
                     <h5><span class="bio-step-number">2</span>Left Fingerprint</h5>
-
                     <span id="leftFingerStatus"
                           class="bio-status
-                          {% if left_image_exists and biometric.left_finger_template %}success
-                          {% elif left_image_exists or biometric.left_finger_template %}warning
-                          {% elif biometric.left_finger %}error
+                          {% if biometric and biometric.left_finger and biometric.left_finger_template %}success
+                          {% elif biometric and biometric.left_finger or biometric and biometric.left_finger_template %}warning
                           {% endif %}">
-
-                        {% if left_image_exists and biometric.left_finger_template %}
-                            Image and Template Saved
-                        {% elif biometric.left_finger_template and not left_image_exists %}
-                            Template Saved; Image Missing
-                        {% elif left_image_exists %}
-                            Image Saved; Template Missing
-                        {% elif biometric.left_finger %}
-                            Image File Missing
+                        {% if biometric and biometric.left_finger and biometric.left_finger_template %}
+                        Image and Template Saved
+                        {% elif biometric and biometric.left_finger %}
+                        Image Saved
+                        {% elif biometric and biometric.left_finger_template %}
+                        Template Saved
                         {% else %}
-                            Not Captured
+                        Not Captured
                         {% endif %}
                     </span>
                 </div>
 
                 <div class="bio-capture-body">
-
                     <div id="leftFingerprintPreview"
-                         class="bio-preview {% if left_image_exists %}captured{% endif %}">
-
-                        {% if left_image_exists %}
+                         class="bio-preview {% if biometric and biometric.left_finger %}captured{% endif %}">
+                        {% if biometric and biometric.left_finger %}
                         <a href="{{ biometric.left_finger.url }}"
-                           target="_blank"
-                           rel="noopener noreferrer">
+                           target="_blank" rel="noopener noreferrer">
                             <img src="{{ biometric.left_finger.url }}"
                                  alt="Left fingerprint image">
                         </a>
-
-                        {% elif biometric.left_finger_template %}
+                        {% elif biometric and biometric.left_finger_template %}
                         <div class="bio-placeholder">
                             <i class="bi bi-fingerprint"></i>
-                            <strong>Template Saved; Image Missing</strong>
-                            <span>Recapture the left fingerprint to restore the image.</span>
+                            <strong>Template Saved</strong>
+                            <span>The left fingerprint image has not been uploaded.</span>
                         </div>
-
                         {% else %}
                         <div class="bio-placeholder">
                             <i class="bi bi-fingerprint"></i>
-                            <strong>
-                                {% if biometric.left_finger %}
-                                    Fingerprint Image Missing
-                                {% else %}
-                                    No Fingerprint Image
-                                {% endif %}
-                            </strong>
+                            <strong>No Fingerprint Image</strong>
                             <span>Capture the left finger using the connected scanner.</span>
                         </div>
                         {% endif %}
                     </div>
 
-                    <div id="leftCaptureMessage"
-                         class="bio-message"
-                         role="status"
-                         aria-live="polite">
-                        {% if left_image_exists and biometric.left_finger_template %}
-                            Left fingerprint image and template are saved. You can recapture this finger.
-                        {% elif biometric.left_finger_template and not left_image_exists %}
-                            Left fingerprint template exists, but its image is missing. Recapture the finger.
-                        {% elif left_image_exists %}
-                            Left fingerprint image is saved. The template is still required.
+                    <div id="leftCaptureMessage" class="bio-message"
+                         role="status" aria-live="polite">
+                        {% if biometric and biometric.left_finger and biometric.left_finger_template %}
+                        Left fingerprint image and template are saved. You can recapture this finger.
+                        {% elif biometric and biometric.left_finger %}
+                        Left fingerprint image is saved. The template is still required.
+                        {% elif biometric and biometric.left_finger_template %}
+                        Template saved. The image is still required.
                         {% else %}
-                            Click Capture Left Finger and follow the scanner instructions.
+                        Click Capture Left Finger and follow the scanner instructions.
                         {% endif %}
                     </div>
 
@@ -532,36 +461,24 @@
                         <div>
                             <span>Fingerprint image</span>
                             <strong id="leftImageDetail">
-                                {% if left_image_exists %}
-                                    Saved
-                                {% elif biometric.left_finger %}
-                                    File missing
-                                {% else %}
-                                    Not uploaded
-                                {% endif %}
+                                {% if biometric and biometric.left_finger %}Saved{% else %}Not uploaded{% endif %}
                             </strong>
                         </div>
-
                         <div>
                             <span>Fingerprint template</span>
                             <strong id="leftTemplateDetail">
-                                {% if biometric.left_finger_template %}
-                                    Saved
-                                {% else %}
-                                    Not saved
-                                {% endif %}
+                                {% if biometric and biometric.left_finger_template %}Saved{% else %}Not saved{% endif %}
                             </strong>
                         </div>
                     </div>
 
-                    <button type="button"
-                            id="captureLeftFinger"
+                    <button type="button" id="captureLeftFinger"
                             class="btn btn-primary bio-action">
                         <i class="bi bi-fingerprint me-1"></i>
-                        {% if left_image_exists and biometric.left_finger_template %}
-                            Recapture Left Finger
+                        {% if biometric and biometric.left_finger and biometric.left_finger_template %}
+                        Recapture Left Finger
                         {% else %}
-                            Capture Left Finger
+                        Capture Left Finger
                         {% endif %}
                     </button>
                 </div>
@@ -571,78 +488,59 @@
         <!-- RIGHT FINGER -->
         <div class="col-lg-6">
             <div id="rightFingerCard" class="bio-capture-card">
-
                 <div class="bio-capture-header">
                     <h5><span class="bio-step-number">3</span>Right Fingerprint</h5>
-
                     <span id="rightFingerStatus"
                           class="bio-status
-                          {% if right_image_exists and biometric.right_finger_template %}success
-                          {% elif right_image_exists or biometric.right_finger_template %}warning
-                          {% elif biometric.right_finger %}error
+                          {% if biometric and biometric.right_finger and biometric.right_finger_template %}success
+                          {% elif biometric and biometric.right_finger or biometric and biometric.right_finger_template %}warning
                           {% endif %}">
-
-                        {% if right_image_exists and biometric.right_finger_template %}
-                            Image and Template Saved
-                        {% elif biometric.right_finger_template and not right_image_exists %}
-                            Template Saved; Image Missing
-                        {% elif right_image_exists %}
-                            Image Saved; Template Missing
-                        {% elif biometric.right_finger %}
-                            Image File Missing
+                        {% if biometric and biometric.right_finger and biometric.right_finger_template %}
+                        Image and Template Saved
+                        {% elif biometric and biometric.right_finger %}
+                        Image Saved
+                        {% elif biometric and biometric.right_finger_template %}
+                        Template Saved
                         {% else %}
-                            Not Captured
+                        Not Captured
                         {% endif %}
                     </span>
                 </div>
 
                 <div class="bio-capture-body">
-
                     <div id="rightFingerprintPreview"
-                         class="bio-preview {% if right_image_exists %}captured{% endif %}">
-
-                        {% if right_image_exists %}
+                         class="bio-preview {% if biometric and biometric.right_finger %}captured{% endif %}">
+                        {% if biometric and biometric.right_finger %}
                         <a href="{{ biometric.right_finger.url }}"
-                           target="_blank"
-                           rel="noopener noreferrer">
+                           target="_blank" rel="noopener noreferrer">
                             <img src="{{ biometric.right_finger.url }}"
                                  alt="Right fingerprint image">
                         </a>
-
-                        {% elif biometric.right_finger_template %}
+                        {% elif biometric and biometric.right_finger_template %}
                         <div class="bio-placeholder">
                             <i class="bi bi-fingerprint"></i>
-                            <strong>Template Saved; Image Missing</strong>
-                            <span>Recapture the right fingerprint to restore the image.</span>
+                            <strong>Template Saved</strong>
+                            <span>The right fingerprint image has not been uploaded.</span>
                         </div>
-
                         {% else %}
                         <div class="bio-placeholder">
                             <i class="bi bi-fingerprint"></i>
-                            <strong>
-                                {% if biometric.right_finger %}
-                                    Fingerprint Image Missing
-                                {% else %}
-                                    No Fingerprint Image
-                                {% endif %}
-                            </strong>
+                            <strong>No Fingerprint Image</strong>
                             <span>Capture the right finger using the connected scanner.</span>
                         </div>
                         {% endif %}
                     </div>
 
-                    <div id="rightCaptureMessage"
-                         class="bio-message"
-                         role="status"
-                         aria-live="polite">
-                        {% if right_image_exists and biometric.right_finger_template %}
-                            Right fingerprint image and template are saved. You can recapture this finger.
-                        {% elif biometric.right_finger_template and not right_image_exists %}
-                            Right fingerprint template exists, but its image is missing. Recapture the finger.
-                        {% elif right_image_exists %}
-                            Right fingerprint image is saved. The template is still required.
+                    <div id="rightCaptureMessage" class="bio-message"
+                         role="status" aria-live="polite">
+                        {% if biometric and biometric.right_finger and biometric.right_finger_template %}
+                        Right fingerprint image and template are saved. You can recapture this finger.
+                        {% elif biometric and biometric.right_finger %}
+                        Right fingerprint image is saved. The template is still required.
+                        {% elif biometric and biometric.right_finger_template %}
+                        Template saved. The image is still required.
                         {% else %}
-                            Click Capture Right Finger and follow the scanner instructions.
+                        Click Capture Right Finger and follow the scanner instructions.
                         {% endif %}
                     </div>
 
@@ -650,36 +548,24 @@
                         <div>
                             <span>Fingerprint image</span>
                             <strong id="rightImageDetail">
-                                {% if right_image_exists %}
-                                    Saved
-                                {% elif biometric.right_finger %}
-                                    File missing
-                                {% else %}
-                                    Not uploaded
-                                {% endif %}
+                                {% if biometric and biometric.right_finger %}Saved{% else %}Not uploaded{% endif %}
                             </strong>
                         </div>
-
                         <div>
                             <span>Fingerprint template</span>
                             <strong id="rightTemplateDetail">
-                                {% if biometric.right_finger_template %}
-                                    Saved
-                                {% else %}
-                                    Not saved
-                                {% endif %}
+                                {% if biometric and biometric.right_finger_template %}Saved{% else %}Not saved{% endif %}
                             </strong>
                         </div>
                     </div>
 
-                    <button type="button"
-                            id="captureRightFinger"
+                    <button type="button" id="captureRightFinger"
                             class="btn btn-primary bio-action">
                         <i class="bi bi-fingerprint me-1"></i>
-                        {% if right_image_exists and biometric.right_finger_template %}
-                            Recapture Right Finger
+                        {% if biometric and biometric.right_finger and biometric.right_finger_template %}
+                        Recapture Right Finger
                         {% else %}
-                            Capture Right Finger
+                        Capture Right Finger
                         {% endif %}
                     </button>
                 </div>
@@ -695,17 +581,14 @@
 
         <div class="bio-card-body">
             <div class="row g-3">
-
                 <div class="col-md-4">
                     <div class="bio-summary-item">
                         <strong>Applicant Signature</strong>
                         <span id="summarySignature">
-                            {% if signature_exists %}
-                                Saved
-                            {% elif biometric.applicant_signature %}
-                                File missing
+                            {% if biometric and biometric.applicant_signature %}
+                            Saved
                             {% else %}
-                                Not captured
+                            Optional during testing
                             {% endif %}
                         </span>
                     </div>
@@ -715,14 +598,14 @@
                     <div class="bio-summary-item">
                         <strong>Fingerprints</strong>
                         <span id="summaryFingerprints">
-                            {% if left_image_exists and biometric.left_finger_template and right_image_exists and biometric.right_finger_template %}
-                                Both images and templates saved
-                            {% elif biometric.left_finger_template and biometric.right_finger_template %}
-                                Both templates saved; check images
-                            {% elif biometric.left_finger_template or biometric.right_finger_template %}
-                                At least one template saved
+                            {% if biometric and biometric.left_finger and biometric.left_finger_template and biometric.right_finger and biometric.right_finger_template %}
+                            Both images and templates saved
+                            {% elif biometric and biometric.left_finger_template and biometric.right_finger_template %}
+                            Both templates saved; check images
+                            {% elif biometric and biometric.left_finger_template or biometric and biometric.right_finger_template %}
+                            At least one template saved
                             {% else %}
-                                Both fingerprints required
+                            Both fingerprints required
                             {% endif %}
                         </span>
                     </div>
@@ -732,19 +615,17 @@
                     <div class="bio-summary-item">
                         <strong>Overall Biometric Completion</strong>
                         <span id="summaryVerification">
-                            {% if biometric.biometrics_completed and left_image_exists and right_image_exists and biometric.left_finger_template and biometric.right_finger_template %}
-                                Completed
+                            {% if biometric and biometric.biometrics_completed %}
+                            Completed
                             {% else %}
-                                Pending
+                            Pending
                             {% endif %}
                         </span>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
-
 </div>
 
 <form id="csrfForm" hidden>
@@ -784,17 +665,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const savedFingers = {
         left: {
-            image: {% if left_image_exists %}true{% else %}false{% endif %},
-            template: {% if biometric.left_finger_template %}true{% else %}false{% endif %}
+            image: {% if biometric and biometric.left_finger %}true{% else %}false{% endif %},
+            template: {% if biometric and biometric.left_finger_template %}true{% else %}false{% endif %}
         },
         right: {
-            image: {% if right_image_exists %}true{% else %}false{% endif %},
-            template: {% if biometric.right_finger_template %}true{% else %}false{% endif %}
+            image: {% if biometric and biometric.right_finger %}true{% else %}false{% endif %},
+            template: {% if biometric and biometric.right_finger_template %}true{% else %}false{% endif %}
         }
     };
 
     let signatureSaved =
-        {% if signature_exists %}true{% else %}false{% endif %};
+        {% if biometric and biometric.applicant_signature %}true{% else %}false{% endif %};
 
     let signaturePollingInterval = null;
     let currentSignatureSessionId = null;
@@ -804,7 +685,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const input = document.querySelector(
             "#csrfForm input[name='csrfmiddlewaretoken']"
         );
-
         return input ? input.value : "";
     }
 
@@ -833,25 +713,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function setMessage(element, text, type = "info") {
-        element.className =
-            "bio-message" + (type ? " " + type : "");
-
+        element.className = "bio-message" + (type ? " " + type : "");
         element.textContent = text;
     }
 
     function setStatus(element, text, type = "") {
-        element.className =
-            "bio-status" + (type ? " " + type : "");
-
+        element.className = "bio-status" + (type ? " " + type : "");
         element.textContent = text;
     }
 
-    function showPlaceholder(
-        preview,
-        iconName,
-        headingText,
-        descriptionText
-    ) {
+    function showPlaceholder(preview, iconName, headingText, descriptionText) {
         preview.replaceChildren();
 
         const wrapper = document.createElement("div");
@@ -944,8 +815,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function captureFinger(finger) {
         const isLeft = finger === "left";
-
         const button = isLeft ? leftButton : rightButton;
+
+        const preview = document.getElementById(
+            isLeft ? "leftFingerprintPreview" : "rightFingerprintPreview"
+        );
 
         const status = document.getElementById(
             isLeft ? "leftFingerStatus" : "rightFingerStatus"
@@ -1063,12 +937,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function showSignatureError(message) {
         stopSignaturePolling();
-
         currentSignatureSessionId = null;
         signatureRequestInProgress = false;
 
         signatureButton.disabled = false;
-
         signatureButton.innerHTML =
             '<i class="bi bi-pen me-1"></i>' +
             (signatureSaved
@@ -1086,7 +958,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function showSignatureWaiting() {
         signatureButton.disabled = true;
-
         signatureButton.innerHTML =
             '<span class="spinner-border spinner-border-sm me-2"></span>' +
             "Waiting for Signature...";
@@ -1131,23 +1002,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const image = document.createElement("img");
         image.src = url;
         image.alt = "Applicant signature";
-
-        image.addEventListener("error", function () {
-            showPlaceholder(
-                signaturePreview,
-                "bi-pen",
-                "Signature Image Unavailable",
-                "The signature URL returned an image-loading error. Check the server storage."
-            );
-
-            setStatus(signatureStatus, "Image Unavailable", "error");
-
-            setMessage(
-                signatureMessage,
-                "The server reported a signature URL, but the browser could not load the image.",
-                "error"
-            );
-        }, { once: true });
 
         link.appendChild(image);
         signaturePreview.appendChild(link);
@@ -1195,7 +1049,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         "The signature was not confirmed by the server."
                     );
                 }
-
                 return;
             }
 
@@ -1218,7 +1071,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     "info"
                 );
             }
-
         } catch (error) {
             console.error("Signature status error:", error);
         }
@@ -1229,7 +1081,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         signatureRequestInProgress = true;
         stopSignaturePolling();
-
         signatureButton.disabled = true;
 
         setMessage(
@@ -1259,7 +1110,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             currentSignatureSessionId = data.session_id;
-
             showSignatureWaiting();
 
             await checkSignatureStatus();
@@ -1270,14 +1120,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     1500
                 );
             }
-
         } catch (error) {
             console.error("Signature session error:", error);
-
             showSignatureError(
                 error.message || "Unable to start signature capture."
             );
-
         } finally {
             if (currentSignatureSessionId === null) {
                 signatureRequestInProgress = false;
@@ -1285,10 +1132,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    signatureButton.addEventListener(
-        "click",
-        startSignatureSession
-    );
+    signatureButton.addEventListener("click", startSignatureSession);
 
     leftButton.addEventListener("click", function () {
         captureFinger("left");
@@ -1298,10 +1142,7 @@ document.addEventListener("DOMContentLoaded", function () {
         captureFinger("right");
     });
 
-    window.addEventListener(
-        "beforeunload",
-        stopSignaturePolling
-    );
+    window.addEventListener("beforeunload", stopSignaturePolling);
 });
 </script>
 {% endblock %}
