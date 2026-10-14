@@ -2178,8 +2178,9 @@ def admin_application_action(
         "admin-applications"
     )
 
-def admin_applicant_biometric(request, applicant_id):
 
+
+def admin_applicant_biometric(request, applicant_id):
     access = admin_superuser_required(request)
 
     if access:
@@ -2194,9 +2195,37 @@ def admin_applicant_biometric(request, applicant_id):
         applicant=applicant
     )
 
+    # Check the actual files in the configured storage.
+    def file_exists(field):
+        if not field or not field.name:
+            return False
+
+        try:
+            return field.storage.exists(field.name)
+        except (OSError, ValueError):
+            return False
+
+    left_image_exists = file_exists(
+        biometric.left_finger
+    )
+
+    right_image_exists = file_exists(
+        biometric.right_finger
+    )
+
+    signature_exists = file_exists(
+        biometric.applicant_signature
+    )
+
+    # Only redirect when the stored biometric files and templates
+    # are present and the applicant is already verified.
     if (
         biometric.biometrics_completed
         and biometric.completed
+        and left_image_exists
+        and right_image_exists
+        and biometric.left_finger_template
+        and biometric.right_finger_template
         and applicant.verification_status == "VERIFIED"
     ):
         return redirect(
@@ -2210,8 +2239,12 @@ def admin_applicant_biometric(request, applicant_id):
         {
             "applicant": applicant,
             "biometric": biometric,
+            "left_image_exists": left_image_exists,
+            "right_image_exists": right_image_exists,
+            "signature_exists": signature_exists,
         }
     )
+
 
 @login_required
 @require_POST
