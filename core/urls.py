@@ -200,9 +200,5 @@ path(
     views.save_fingerprint,
     name="save-fingerprint",
 ),
-path(
-    "admin/applicants/<int:applicant_id>/sync-biometrics/",
-    views.sync_applicant_biometrics,
-    name="sync-applicant-biometrics",
-),
+
 ]
