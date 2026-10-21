@@ -26,6 +26,13 @@ class Applicant(models.Model):
         ("REVIEW", "Review"),
     ]
 
+    CIVIL_STATUS_CHOICES = [
+        ("Single", "Single"),
+        ("Married", "Married"),
+        ("Widowed", "Widowed"),
+        ("Separated", "Separated"),
+    ]
+
     PWD_CHOICES = [
         ("NO", "Not PWD"),
         ("VISUAL", "Visual Disability"),
@@ -48,79 +55,99 @@ class Applicant(models.Model):
         ("NATURALIZED", "Naturalized"),
     ]
 
+    # Personal Information
     lastname = models.CharField(max_length=255)
     firstname = models.CharField(max_length=255)
     middlename = models.CharField(max_length=255)
 
-    civil_status = models.CharField(max_length=20, null=True, blank=True)
+    civil_status = models.CharField(
+        max_length=20,
+        choices=CIVIL_STATUS_CHOICES,
+        default="Single",
+    )
 
     age = models.IntegerField()
     sex = models.CharField(max_length=20)
     birthdate = models.DateField()
     birthplace = models.CharField(max_length=255)
-    civil_status = models.CharField(max_length=20, null=True, blank=True)
-
 
     # Address
     brgy = models.ForeignKey(
         Barangay,
         on_delete=models.SET_NULL,
         null=True,
-        blank=True
+        blank=True,
     )
-    province = models.CharField(max_length=255, default="Albay")
-    municipality = models.CharField(max_length=255, default="Pio Duran")
+
+    province = models.CharField(
+        max_length=255,
+        default="Albay",
+    )
+
+    municipality = models.CharField(
+        max_length=255,
+        default="Pio Duran",
+    )
+
+    # Contact Information
     phone = models.CharField(max_length=11)
     email = models.EmailField(unique=True)
 
+    # Application Information
     application_type = models.CharField(
         max_length=20,
         choices=APPLICATION_CHOICES,
-        default="NEW"
-    )
-
-    pwd_status = models.CharField(
-        max_length=20,
-        choices=PWD_CHOICES,
-        default="NO"
-    )
-
-    citizenship_status = models.CharField(
-        max_length=20,
-        choices=CITIZENSHIP_CHOICES,
-        default="BY_BIRTH"
+        default="NEW",
     )
 
     status = models.CharField(
         max_length=20,
         choices=APPLICATION_STATUS,
-        default='PENDING'
+        default="PENDING",
     )
 
     verification_status = models.CharField(
         max_length=30,
         choices=VERIFICATION_STATUS,
-        default="UNVERIFIED"
+        default="UNVERIFIED",
+    )
+
+    # Other Information
+    pwd_status = models.CharField(
+        max_length=20,
+        choices=PWD_CHOICES,
+        default="NO",
+    )
+
+    citizenship_status = models.CharField(
+        max_length=20,
+        choices=CITIZENSHIP_CHOICES,
+        default="BY_BIRTH",
     )
 
     father = models.CharField(max_length=255)
     mother = models.CharField(max_length=255)
 
-    is_active = models.BooleanField(default=True)
+    # Uploaded ID or supporting document
+    valid_id_document = models.FileField(
+        upload_to="applicant_documents/",
+        null=True,
+        blank=True,
+    )
 
+    is_active = models.BooleanField(default=True)
     is_senior = models.BooleanField(default=False)
 
     date_joined = models.DateField(auto_now_add=True)
 
-
     office_visit_date = models.DateField(
         null=True,
-        blank=True
+        blank=True,
     )
 
     office_visit_slot = models.PositiveIntegerField(
         null=True,
-        blank=True
+        blank=True,
     )
 
     def __str__(self):
@@ -216,6 +243,12 @@ class ApplicantUpdateRequest(models.Model):
         default="PENDING"
     )
 
+    valid_id_document = models.FileField(
+        upload_to="applicant_update_documents/",
+        null=True,
+        blank=True,
+    )
+
     requested_at = models.DateTimeField(
         auto_now_add=True
     )
@@ -288,6 +321,12 @@ class ApplicantTransferRequest(models.Model):
         null=True
     )
 
+    valid_id_document = models.FileField(
+        upload_to="applicant_transfer_documents/",
+        null=True,
+        blank=True,
+    )
+
     status = models.CharField(
         max_length=20,
         choices=REQUEST_STATUS,
@@ -310,6 +349,7 @@ class ApplicantTransferRequest(models.Model):
         )
 
 
+
 class ApplicantReactivationRequest(models.Model):
 
     REQUEST_STATUS = [
@@ -322,7 +362,14 @@ class ApplicantReactivationRequest(models.Model):
     applicant = models.ForeignKey(
         "Applicant",
         on_delete=models.CASCADE,
-        related_name="reactivation_requests"
+        related_name="reactivation_requests",
+    )
+
+    # Uploaded valid ID
+    valid_id_document = models.FileField(
+        upload_to="applicant_reactivation_documents/",
+        null=True,
+        blank=True,
     )
 
     reason = models.TextField()
@@ -330,16 +377,16 @@ class ApplicantReactivationRequest(models.Model):
     status = models.CharField(
         max_length=20,
         choices=REQUEST_STATUS,
-        default="PENDING"
+        default="PENDING",
     )
 
     requested_at = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
     )
 
     reviewed_at = models.DateTimeField(
         null=True,
-        blank=True
+        blank=True,
     )
 
     def __str__(self):
@@ -348,8 +395,8 @@ class ApplicantReactivationRequest(models.Model):
             f"Reactivation Request #{self.id}"
         )
 
-class ApplicantReinstatementRequest(models.Model):
 
+class ApplicantReinstatementRequest(models.Model):
     REQUEST_STATUS = [
         ("PENDING", "Pending"),
         ("REVIEW", "Review"),
@@ -360,7 +407,14 @@ class ApplicantReinstatementRequest(models.Model):
     applicant = models.ForeignKey(
         "Applicant",
         on_delete=models.CASCADE,
-        related_name="reinstatement_requests"
+        related_name="reinstatement_requests",
+    )
+
+    # Supporting identity document for this reinstatement request
+    valid_id_document = models.FileField(
+        upload_to="applicant_reinstatement_documents/",
+        null=True,
+        blank=True,
     )
 
     reason = models.TextField()
@@ -368,16 +422,14 @@ class ApplicantReinstatementRequest(models.Model):
     status = models.CharField(
         max_length=20,
         choices=REQUEST_STATUS,
-        default="PENDING"
+        default="PENDING",
     )
 
-    requested_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    requested_at = models.DateTimeField(auto_now_add=True)
 
     reviewed_at = models.DateTimeField(
         null=True,
-        blank=True
+        blank=True,
     )
 
     def __str__(self):
@@ -385,7 +437,6 @@ class ApplicantReinstatementRequest(models.Model):
             f"{self.applicant} - "
             f"Reinstatement Request #{self.id}"
         )
-
 
 class ApplicantBiometric(models.Model):
 

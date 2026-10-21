@@ -1,54 +1,42 @@
+
 {% extends "base.html" %}
 
-
-{% block title %}
-New Registration
-{% endblock %}
-
+{% block title %}New Registration{% endblock %}
 
 {% block extra_css %}
-
 <style>
-
 /* =========================================================
-   REGISTRATION PAGE
+   GOVERNMENT REGISTRATION DESIGN
 ========================================================= */
-
-.registration-container {
+.registration-container,
+.review-container {
     max-width: 1100px;
     margin: 0 auto;
 }
 
-
-/* =========================================================
-   FORM HEADER
-========================================================= */
-
-.registration-header {
-    background: white;
+.registration-header,
+.review-header {
+    background: #fff;
     border: 1px solid #dbe3ef;
     border-left: 4px solid #0038a8;
     padding: 24px 28px;
     margin-bottom: 25px;
 }
 
-.registration-header h1 {
+.registration-header h1,
+.review-header h1 {
     margin: 0 0 7px;
     color: #172554;
     font-size: 27px;
     font-weight: 700;
 }
 
-.registration-header p {
+.registration-header p,
+.review-header p {
     margin: 0;
     color: #64748b;
     font-size: 14px;
 }
-
-
-/* =========================================================
-   APPLICATION BADGE
-========================================================= */
 
 .application-badge {
     display: inline-block;
@@ -63,13 +51,9 @@ New Registration
     text-transform: uppercase;
 }
 
-
-/* =========================================================
-   FORM SECTION
-========================================================= */
-
-.form-section {
-    background: white;
+.form-section,
+.review-section {
+    background: #fff;
     border: 1px solid #dbe3ef;
     margin-bottom: 22px;
 }
@@ -88,6 +72,7 @@ New Registration
     height: 25px;
     background: #0038a8;
     margin-right: 12px;
+    flex-shrink: 0;
 }
 
 .form-section-header h2 {
@@ -101,12 +86,8 @@ New Registration
     padding: 25px;
 }
 
-
-/* =========================================================
-   FORM FIELDS
-========================================================= */
-
 .form-label {
+    display: block;
     color: #334155;
     font-size: 14px;
     font-weight: 600;
@@ -130,16 +111,18 @@ New Registration
 .form-control:focus,
 .form-select:focus {
     border-color: #0038a8;
-    box-shadow: 0 0 0 3px rgba(0, 56, 168, 0.10);
+    box-shadow: 0 0 0 3px rgba(0, 56, 168, .10);
 }
 
-.form-control.is-invalid {
-    border-color: #dc3545;
+.form-control[readonly] {
+    background: #f1f5f9;
+    color: #475569;
+    cursor: not-allowed;
 }
 
-.form-control.is-invalid:focus {
+.form-control.is-invalid,
+.form-select.is-invalid {
     border-color: #dc3545;
-    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.10);
 }
 
 .form-text {
@@ -148,28 +131,14 @@ New Registration
     line-height: 1.6;
 }
 
-.phone-network-note {
-    margin-top: 5px;
-    color: #475569;
-    font-size: 12px;
-}
-
-.phone-network-note strong {
-    color: #0038a8;
-}
-
-.phone-error {
+.phone-error,
+.document-error {
     display: none;
-    margin-top: 6px;
+    margin-top: 7px;
     color: #b42318;
     font-size: 12px;
     font-weight: 600;
 }
-
-
-/* =========================================================
-   ERROR
-========================================================= */
 
 .registration-error {
     background: #fff1f2;
@@ -181,17 +150,13 @@ New Registration
     font-size: 14px;
 }
 
-
-/* =========================================================
-   FORM ACTIONS
-========================================================= */
-
-.form-actions {
+.form-actions,
+.review-actions {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    background: white;
+    background: #fff;
     border: 1px solid #dbe3ef;
     padding: 20px 25px;
     margin-bottom: 30px;
@@ -202,10 +167,11 @@ New Registration
     font-size: 12px;
 }
 
-.btn-government {
+.btn-government,
+.btn-submit {
     background: #0038a8;
     border: 1px solid #0038a8;
-    color: white;
+    color: #fff;
     min-height: 43px;
     padding: 9px 22px;
     border-radius: 4px;
@@ -213,52 +179,68 @@ New Registration
     font-weight: 600;
 }
 
-.btn-government:hover {
+.btn-government:hover,
+.btn-submit:hover {
     background: #002b7f;
     border-color: #002b7f;
-    color: white;
+    color: #fff;
 }
 
-
-/* =========================================================
-   REVIEW SCREEN
-========================================================= */
-
-.review-container {
-    max-width: 1000px;
-    margin: 0 auto;
+.btn-government:disabled,
+.btn-submit:disabled {
+    opacity: .65;
+    cursor: not-allowed;
 }
 
-.review-header {
-    background: white;
-    border: 1px solid #dbe3ef;
-    border-left: 4px solid #0038a8;
-    padding: 24px 28px;
-    margin-bottom: 22px;
-}
-
-.review-header h1 {
-    margin: 0 0 7px;
-    color: #172554;
-    font-size: 27px;
-    font-weight: 700;
-}
-
-.review-header p {
-    margin: 0;
-    color: #64748b;
+.btn-back {
+    min-height: 43px;
+    padding: 9px 20px;
+    background: #fff;
+    border: 1px solid #94a3b8;
+    color: #334155;
+    border-radius: 4px;
     font-size: 14px;
+    font-weight: 600;
 }
 
+.btn-back:hover {
+    background: #f8fafc;
+    border-color: #64748b;
+}
 
-/* =========================================================
-   REVIEW SECTIONS
-========================================================= */
+.document-upload-box {
+    border: 1px dashed #94a3b8;
+    background: #f8fafc;
+    border-radius: 5px;
+    padding: 20px;
+}
 
-.review-section {
-    background: white;
-    border: 1px solid #dbe3ef;
-    margin-bottom: 20px;
+.document-upload-box .form-control {
+    background: #fff;
+}
+
+.document-file-info {
+    display: none;
+    margin-top: 12px;
+    padding: 12px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 4px;
+    color: #1e3a8a;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.document-file-info strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.document-guidelines {
+    margin-top: 12px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.7;
 }
 
 .review-section-header {
@@ -287,6 +269,7 @@ New Registration
 
 .review-label {
     width: 35%;
+    flex-shrink: 0;
     color: #64748b;
     font-size: 13px;
     font-weight: 600;
@@ -297,13 +280,8 @@ New Registration
     color: #1e293b;
     font-size: 14px;
     font-weight: 500;
-    word-break: break-word;
+    overflow-wrap: anywhere;
 }
-
-
-/* =========================================================
-   REVIEW NOTICE
-========================================================= */
 
 .review-notice {
     background: #eff6ff;
@@ -316,61 +294,13 @@ New Registration
     line-height: 1.6;
 }
 
-
-/* =========================================================
-   REVIEW ACTIONS
-========================================================= */
-
-.review-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    background: white;
-    border: 1px solid #dbe3ef;
-    padding: 20px 25px;
-    margin-bottom: 30px;
+.review-document-note {
+    color: #64748b;
+    font-size: 12px;
+    margin-top: 5px;
 }
-
-.btn-back {
-    min-height: 43px;
-    padding: 9px 20px;
-    background: white;
-    border: 1px solid #94a3b8;
-    color: #334155;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.btn-back:hover {
-    background: #f8fafc;
-    border-color: #64748b;
-}
-
-.btn-submit {
-    min-height: 43px;
-    padding: 9px 22px;
-    background: #0038a8;
-    border: 1px solid #0038a8;
-    color: white;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.btn-submit:hover {
-    background: #002b7f;
-    border-color: #002b7f;
-}
-
-
-/* =========================================================
-   MOBILE
-========================================================= */
 
 @media (max-width: 767px) {
-
     .registration-header,
     .review-header {
         padding: 20px;
@@ -412,1536 +342,856 @@ New Registration
     .review-label {
         margin-bottom: 4px;
     }
-
 }
-
 </style>
-
 {% endblock %}
 
 
 {% block content %}
 
-
 <!-- =========================================================
-     FORM SCREEN
+     REGISTRATION FORM SCREEN
 ========================================================= -->
-
-<div
-    id="formScreen"
-    class="registration-container"
->
-
-
-    <!-- =====================================================
-         PAGE HEADER
-    ====================================================== -->
+<div id="formScreen" class="registration-container">
 
     <div class="registration-header">
-
-        <h1>
-            New Registration
-        </h1>
-
-        <p>
-            Please provide the applicant's information
-            accurately and completely.
-        </p>
-
-        <span class="application-badge">
-            New Voter Registration
-        </span>
-
+        <h1>New Registration</h1>
+        <p>Please provide the applicant's information accurately and completely.</p>
+        <span class="application-badge">New Voter Registration</span>
     </div>
 
-
-    <!-- =====================================================
-         ERROR
-    ====================================================== -->
-
     {% if error %}
-
-        <div class="registration-error">
-
-            <strong>
-                Application Error
-            </strong>
-
-            <div class="mt-1">
-                {{ error }}
-            </div>
-
-        </div>
-
+    <div class="registration-error" role="alert">
+        <strong>Application Error</strong>
+        <div class="mt-1">{{ error }}</div>
+    </div>
     {% endif %}
 
-
-    <!-- =====================================================
-         FORM
-    ====================================================== -->
-
-    <form
-        method="POST"
-        id="registrationForm"
-    >
+    <form method="POST"
+          id="registrationForm"
+          enctype="multipart/form-data"
+          novalidate>
 
         {% csrf_token %}
 
+        <input type="hidden" name="application_type" value="NEW">
 
-        <input
-            type="hidden"
-            name="application_type"
-            value="NEW"
-        >
-
-
-        <!-- =================================================
-             PERSONAL INFORMATION
-        ================================================== -->
-
+        <!-- PERSONAL INFORMATION -->
         <div class="form-section">
 
             <div class="form-section-header">
-
                 <div class="form-section-marker"></div>
-
-                <h2>
-                    Personal Information
-                </h2>
-
+                <h2>Personal Information</h2>
             </div>
 
-
             <div class="form-section-body">
-
                 <div class="row g-4">
 
-
-                    <!-- LAST NAME -->
-
                     <div class="col-md-4">
-
-                        <label
-                            for="lastname"
-                            class="form-label"
-                        >
-                            Last Name
-                            <span class="required">*</span>
+                        <label for="lastname" class="form-label">
+                            Last Name <span class="required">*</span>
                         </label>
-
-                        <input
-                            type="text"
-                            name="lastname"
-                            id="lastname"
-                            class="form-control"
-                            value="{{ form_data.lastname|default:'' }}"
-                            required
-                        >
-
+                        <input type="text"
+                               name="lastname"
+                               id="lastname"
+                               class="form-control"
+                               value="{{ form_data.lastname|default:'' }}"
+                               maxlength="255"
+                               autocomplete="family-name"
+                               required>
                     </div>
 
-
-                    <!-- FIRST NAME -->
-
                     <div class="col-md-4">
-
-                        <label
-                            for="firstname"
-                            class="form-label"
-                        >
-                            First Name
-                            <span class="required">*</span>
+                        <label for="firstname" class="form-label">
+                            First Name <span class="required">*</span>
                         </label>
-
-                        <input
-                            type="text"
-                            name="firstname"
-                            id="firstname"
-                            class="form-control"
-                            value="{{ form_data.firstname|default:'' }}"
-                            required
-                        >
-
+                        <input type="text"
+                               name="firstname"
+                               id="firstname"
+                               class="form-control"
+                               value="{{ form_data.firstname|default:'' }}"
+                               maxlength="255"
+                               autocomplete="given-name"
+                               required>
                     </div>
 
-
-                    <!-- MIDDLE NAME -->
-
                     <div class="col-md-4">
-
-                        <label
-                            for="middlename"
-                            class="form-label"
-                        >
-                            Middle Name
-                            <span class="required">*</span>
+                        <label for="middlename" class="form-label">
+                            Middle Name <span class="required">*</span>
                         </label>
-
-                        <input
-                            type="text"
-                            name="middlename"
-                            id="middlename"
-                            class="form-control"
-                            value="{{ form_data.middlename|default:'' }}"
-                            required
-                        >
-
+                        <input type="text"
+                               name="middlename"
+                               id="middlename"
+                               class="form-control"
+                               value="{{ form_data.middlename|default:'' }}"
+                               maxlength="255"
+                               required>
                     </div>
 
-
-                    <!-- AGE -->
-
                     <div class="col-md-4">
-
-                        <label
-                            for="age"
-                            class="form-label"
-                        >
-                            Age
-                            <span class="required">*</span>
+                        <label for="age" class="form-label">
+                            Age <span class="required">*</span>
                         </label>
-
-                        <input
-                            type="number"
-                            name="age"
-                            id="age"
-                            class="form-control"
-                            min="1"
-                            max="150"
-                            value="{{ form_data.age|default:'' }}"
-                            required
-                        >
-
+                        <input type="number"
+                               name="age"
+                               id="age"
+                               class="form-control"
+                               min="1"
+                               max="150"
+                               value="{{ form_data.age|default:'' }}"
+                               required>
                     </div>
 
-
-                    <!-- SEX -->
-
                     <div class="col-md-4">
-
-                        <label
-                            for="sex"
-                            class="form-label"
-                        >
-                            Sex
-                            <span class="required">*</span>
+                        <label for="sex" class="form-label">
+                            Sex <span class="required">*</span>
                         </label>
-
-                        <select
-                            name="sex"
-                            id="sex"
-                            class="form-select"
-                            required
-                        >
-
-                            <option value="">
-                                Select Sex
-                            </option>
-
-                            <option
-                                value="Male"
-                                {% if form_data.sex == "Male" %}
-                                    selected
-                                {% endif %}
-                            >
+                        <select name="sex" id="sex" class="form-select" required>
+                            <option value="">Select Sex</option>
+                            <option value="Male"
+                                {% if form_data.sex == "Male" %}selected{% endif %}>
                                 Male
                             </option>
-
-                            <option
-                                value="Female"
-                                {% if form_data.sex == "Female" %}
-                                    selected
-                                {% endif %}
-                            >
+                            <option value="Female"
+                                {% if form_data.sex == "Female" %}selected{% endif %}>
                                 Female
                             </option>
-
                         </select>
-
-                    </div>
-
-
-                    <!-- BIRTHDATE -->
-
-                    <div class="col-md-4">
-
-                        <label
-                            for="birthdate"
-                            class="form-label"
-                        >
-                            Birthdate
-                            <span class="required">*</span>
-                        </label>
-
-                        <input
-                            type="date"
-                            name="birthdate"
-                            id="birthdate"
-                            class="form-control"
-                            value="{{ form_data.birthdate|default:'' }}"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- BIRTHPLACE -->
-
-                    <div class="col-md-4">
-
-                        <label
-                            for="birthplace"
-                            class="form-label"
-                        >
-                            Birthplace
-                            <span class="required">*</span>
-                        </label>
-
-                        <input
-                            type="text"
-                            name="birthplace"
-                            id="birthplace"
-                            class="form-control"
-                            value="{{ form_data.birthplace|default:'' }}"
-                            required
-                        >
-
                     </div>
 
                     <div class="col-md-4">
+                        <label for="birthdate" class="form-label">
+                            Birthdate <span class="required">*</span>
+                        </label>
+                        <input type="date"
+                               name="birthdate"
+                               id="birthdate"
+                               class="form-control"
+                               value="{{ form_data.birthdate|default:'' }}"
+                               required>
+                    </div>
 
-                        <label
-                            for="civil_status"
-                            class="form-label"
-                        >
-                            Civil Status
-                            <span class="required">*</span>
+                    <div class="col-md-6">
+                        <label for="birthplace" class="form-label">
+                            Birthplace <span class="required">*</span>
+                        </label>
+                        <input type="text"
+                               name="birthplace"
+                               id="birthplace"
+                               class="form-control"
+                               value="{{ form_data.birthplace|default:'' }}"
+                               maxlength="255"
+                               required>
+                    </div>
+
+                    <!-- CIVIL STATUS -->
+                    <div class="col-md-6">
+                        <label for="civil_status" class="form-label">
+                            Civil Status <span class="required">*</span>
                         </label>
 
-                        <select
-                            name="civil_status"
-                            id="civil_status"
-                            class="form-select"
-                            required
-                        >
+                        <select name="civil_status"
+                                id="civil_status"
+                                class="form-select"
+                                required>
 
-                            <option value="">
-                                Select Civil Status
-                            </option>
+                            <option value="">Select Civil Status</option>
 
-                            <option value="Single" {% if form_data.civil_status == "Single" %} selected {% endif %}>
+                            <option value="Single"
+                                {% if form_data.civil_status == "Single" %}selected{% endif %}>
                                 Single
                             </option>
 
-                            <option value="Married" {% if form_data.civil_status == "Married" %} selected {% endif %}>
+                            <option value="Married"
+                                {% if form_data.civil_status == "Married" %}selected{% endif %}>
                                 Married
                             </option>
 
-                            <option value="Widowed" {% if form_data.civil_status == "Widowed" %} selected {% endif %}>
+                            <option value="Widowed"
+                                {% if form_data.civil_status == "Widowed" %}selected{% endif %}>
                                 Widowed
                             </option>
 
-                            <option value="Separated" {% if form_data.civil_status == "Separated" %} selected {% endif %}>
+                            <option value="Separated"
+                                {% if form_data.civil_status == "Separated" %}selected{% endif %}>
                                 Separated
                             </option>
 
                         </select>
 
+                        <div class="form-text">
+                            Select your current civil status.
+                        </div>
                     </div>
 
-
                 </div>
-
             </div>
-
         </div>
 
-
-        <!-- =================================================
-             ADDRESS
-        ================================================== -->
-
+        <!-- ADDRESS -->
         <div class="form-section">
 
             <div class="form-section-header">
-
                 <div class="form-section-marker"></div>
-
-                <h2>
-                    Address
-                </h2>
-
+                <h2>Address</h2>
             </div>
 
-
             <div class="form-section-body">
-
                 <div class="row g-4">
 
-
-                    <!-- BARANGAY -->
-
                     <div class="col-md-4">
-
-                        <label
-                            for="brgy"
-                            class="form-label"
-                        >
-                            Barangay
-                            <span class="required">*</span>
+                        <label for="brgy" class="form-label">
+                            Barangay <span class="required">*</span>
                         </label>
 
-                        <select
-                            name="brgy"
-                            id="brgy"
-                            class="form-select"
-                            required
-                        >
-
-                            <option value="">
-                                Select Barangay
-                            </option>
+                        <select name="brgy" id="brgy" class="form-select" required>
+                            <option value="">Select Barangay</option>
 
                             {% for barangay in barangays %}
-
-                                <option
-                                    value="{{ barangay.id }}"
-                                    {% if form_data.brgy == barangay.id|stringformat:"s" %}
-                                        selected
-                                    {% endif %}
-                                >
-                                    {{ barangay.name }}
-                                </option>
-
+                            <option value="{{ barangay.id }}"
+                                {% if form_data.brgy == barangay.id|stringformat:"s" %}selected{% endif %}>
+                                {{ barangay.name }}
+                            </option>
                             {% endfor %}
-
                         </select>
-
                     </div>
 
-
-                    <!-- MUNICIPALITY -->
-
                     <div class="col-md-4">
-
-                        <label
-                            for="municipality"
-                            class="form-label"
-                        >
+                        <label for="municipality" class="form-label">
                             Municipality
-                            <span class="required">*</span>
                         </label>
 
-                        <input
-                            type="text"
-                            name="municipality"
-                            id="municipality"
-                            class="form-control"
-                            value="{{ form_data.municipality|default:'Pio Duran' }}"
-                            required
-                        >
+                        <input type="text"
+                               name="municipality"
+                               id="municipality"
+                               class="form-control"
+                               value="Pio Duran"
+                               readonly>
 
+                        <div class="form-text">
+                            Fixed registration municipality.
+                        </div>
                     </div>
-
-
-                    <!-- PROVINCE -->
 
                     <div class="col-md-4">
-
-                        <label
-                            for="province"
-                            class="form-label"
-                        >
+                        <label for="province" class="form-label">
                             Province
-                            <span class="required">*</span>
                         </label>
 
-                        <input
-                            type="text"
-                            name="province"
-                            id="province"
-                            class="form-control"
-                            value="{{ form_data.province|default:'Albay' }}"
-                            required
-                        >
+                        <input type="text"
+                               name="province"
+                               id="province"
+                               class="form-control"
+                               value="Albay"
+                               readonly>
 
+                        <div class="form-text">
+                            Fixed registration province.
+                        </div>
                     </div>
-
 
                 </div>
-
             </div>
-
         </div>
 
-
-        <!-- =================================================
-             CONTACT INFORMATION
-        ================================================== -->
-
+        <!-- CONTACT INFORMATION -->
         <div class="form-section">
 
             <div class="form-section-header">
-
                 <div class="form-section-marker"></div>
-
-                <h2>
-                    Contact Information
-                </h2>
-
+                <h2>Contact Information</h2>
             </div>
 
-
             <div class="form-section-body">
-
                 <div class="row g-4">
 
-
-                    <!-- PHONE -->
-
                     <div class="col-md-6">
-
-                        <label
-                            for="phone"
-                            class="form-label"
-                        >
-                            Phone Number
-                            <span class="required">*</span>
+                        <label for="phone" class="form-label">
+                            Phone Number <span class="required">*</span>
                         </label>
 
-                        <input
-                            type="text"
-                            name="phone"
-                            id="phone"
-                            class="form-control"
-                            maxlength="11"
-                            minlength="11"
-                            inputmode="numeric"
-                            pattern="09[0-9]{9}"
-                            value="{{ form_data.phone|default:'' }}"
-                            placeholder="09XXXXXXXXX"
-                            required
-                        >
+                        <input type="tel"
+                               name="phone"
+                               id="phone"
+                               class="form-control"
+                               maxlength="11"
+                               minlength="11"
+                               inputmode="numeric"
+                               pattern="09[0-9]{9}"
+                               value="{{ form_data.phone|default:'' }}"
+                               placeholder="09XXXXXXXXX"
+                               autocomplete="tel"
+                               aria-describedby="phoneHelp phoneError"
+                               required>
 
-                        <div class="form-text">
+                        <div id="phoneHelp" class="form-text">
                             Enter an 11-digit Philippine mobile number.
                         </div>
 
-                        <div class="phone-network-note">
-                            This service currently accepts
-                            <strong>Globe, TM, and DITO</strong>
-                            mobile numbers only.
-                        </div>
-
-                        <div
-                            id="phoneError"
-                            class="phone-error"
-                        ></div>
-
+                        <div id="phoneError" class="phone-error" role="alert"></div>
                     </div>
-
-
-                    <!-- EMAIL -->
 
                     <div class="col-md-6">
-
-                        <label
-                            for="email"
-                            class="form-label"
-                        >
-                            Email Address
-                            <span class="required">*</span>
+                        <label for="email" class="form-label">
+                            Email Address <span class="required">*</span>
                         </label>
 
-                        <input
-                            type="email"
-                            name="email"
-                            id="email"
-                            class="form-control"
-                            value="{{ form_data.email|default:'' }}"
-                            required
-                        >
-
+                        <input type="email"
+                               name="email"
+                               id="email"
+                               class="form-control"
+                               value="{{ form_data.email|default:'' }}"
+                               maxlength="254"
+                               autocomplete="email"
+                               required>
                     </div>
 
-
                 </div>
-
             </div>
-
         </div>
 
-
-        <!-- =================================================
-             OTHER INFORMATION
-        ================================================== -->
-
+        <!-- OTHER INFORMATION -->
         <div class="form-section">
 
             <div class="form-section-header">
-
                 <div class="form-section-marker"></div>
-
-                <h2>
-                    Other Information
-                </h2>
-
+                <h2>Other Information</h2>
             </div>
 
-
             <div class="form-section-body">
-
                 <div class="row g-4">
 
-
-                    <!-- PWD -->
-
                     <div class="col-md-6">
-
-                        <label
-                            for="pwd_status"
-                            class="form-label"
-                        >
-                            PWD Status
-                            <span class="required">*</span>
+                        <label for="pwd_status" class="form-label">
+                            PWD Status <span class="required">*</span>
                         </label>
 
-                        <select
-                            name="pwd_status"
-                            id="pwd_status"
-                            class="form-select"
-                            required
-                        >
-
-                            <option
-                                value="NO"
-                                {% if form_data.pwd_status == "NO" or not form_data.pwd_status %}
-                                    selected
-                                {% endif %}
-                            >
+                        <select name="pwd_status" id="pwd_status" class="form-select" required>
+                            <option value="NO"
+                                {% if form_data.pwd_status == "NO" or not form_data.pwd_status %}selected{% endif %}>
                                 Not PWD
                             </option>
 
-                            <option
-                                value="VISUAL"
-                                {% if form_data.pwd_status == "VISUAL" %}
-                                    selected
-                                {% endif %}
-                            >
+                            <option value="VISUAL"
+                                {% if form_data.pwd_status == "VISUAL" %}selected{% endif %}>
                                 Visual Disability
                             </option>
 
-                            <option
-                                value="HEARING"
-                                {% if form_data.pwd_status == "HEARING" %}
-                                    selected
-                                {% endif %}
-                            >
+                            <option value="HEARING"
+                                {% if form_data.pwd_status == "HEARING" %}selected{% endif %}>
                                 Hearing Disability
                             </option>
 
-                            <option
-                                value="PHYSICAL"
-                                {% if form_data.pwd_status == "PHYSICAL" %}
-                                    selected
-                                {% endif %}
-                            >
+                            <option value="PHYSICAL"
+                                {% if form_data.pwd_status == "PHYSICAL" %}selected{% endif %}>
                                 Physical Disability
                             </option>
 
-                            <option
-                                value="INTELLECTUAL"
-                                {% if form_data.pwd_status == "INTELLECTUAL" %}
-                                    selected
-                                {% endif %}
-                            >
+                            <option value="INTELLECTUAL"
+                                {% if form_data.pwd_status == "INTELLECTUAL" %}selected{% endif %}>
                                 Intellectual Disability
                             </option>
 
-                            <option
-                                value="PSYCHOSOCIAL"
-                                {% if form_data.pwd_status == "PSYCHOSOCIAL" %}
-                                    selected
-                                {% endif %}
-                            >
+                            <option value="PSYCHOSOCIAL"
+                                {% if form_data.pwd_status == "PSYCHOSOCIAL" %}selected{% endif %}>
                                 Psychosocial Disability
                             </option>
 
-                            <option
-                                value="MULTIPLE"
-                                {% if form_data.pwd_status == "MULTIPLE" %}
-                                    selected
-                                {% endif %}
-                            >
+                            <option value="MULTIPLE"
+                                {% if form_data.pwd_status == "MULTIPLE" %}selected{% endif %}>
                                 Multiple Disabilities
                             </option>
 
-                            <option
-                                value="OTHER"
-                                {% if form_data.pwd_status == "OTHER" %}
-                                    selected
-                                {% endif %}
-                            >
+                            <option value="OTHER"
+                                {% if form_data.pwd_status == "OTHER" %}selected{% endif %}>
                                 Other
                             </option>
-
                         </select>
-
                     </div>
 
-
-                    <!-- CITIZENSHIP -->
-
                     <div class="col-md-6">
-
-                        <label
-                            for="citizenship_status"
-                            class="form-label"
-                        >
-                            Citizenship
-                            <span class="required">*</span>
+                        <label for="citizenship_status" class="form-label">
+                            Citizenship <span class="required">*</span>
                         </label>
 
-                        <select
-                            name="citizenship_status"
-                            id="citizenship_status"
-                            class="form-select"
-                            required
-                        >
+                        <select name="citizenship_status"
+                                id="citizenship_status"
+                                class="form-select"
+                                required>
 
-                            <option
-                                value="BY_BIRTH"
-                                {% if form_data.citizenship_status == "BY_BIRTH" or not form_data.citizenship_status %}
-                                    selected
-                                {% endif %}
-                            >
+                            <option value="BY_BIRTH"
+                                {% if form_data.citizenship_status == "BY_BIRTH" or not form_data.citizenship_status %}selected{% endif %}>
                                 By Birth
                             </option>
 
-                            <option
-                                value="NATURALIZED"
-                                {% if form_data.citizenship_status == "NATURALIZED" %}
-                                    selected
-                                {% endif %}
-                            >
+                            <option value="NATURALIZED"
+                                {% if form_data.citizenship_status == "NATURALIZED" %}selected{% endif %}>
                                 Naturalized
                             </option>
-
                         </select>
-
                     </div>
-
-
-                    <!-- FATHER -->
 
                     <div class="col-md-6">
-
-                        <label
-                            for="father"
-                            class="form-label"
-                        >
-                            Father's Name
-                            <span class="required">*</span>
+                        <label for="father" class="form-label">
+                            Father's Name <span class="required">*</span>
                         </label>
 
-                        <input
-                            type="text"
-                            name="father"
-                            id="father"
-                            class="form-control"
-                            value="{{ form_data.father|default:'' }}"
-                            required
-                            placeholder="Lastname, Firstname Middlename"
-                        >
-
+                        <input type="text"
+                               name="father"
+                               id="father"
+                               class="form-control"
+                               value="{{ form_data.father|default:'' }}"
+                               maxlength="255"
+                               placeholder="Lastname, Firstname Middlename"
+                               required>
                     </div>
-
-
-                    <!-- MOTHER -->
 
                     <div class="col-md-6">
-
-                        <label
-                            for="mother"
-                            class="form-label"
-                        >
-                            Mother's Maiden Name
-                            <span class="required">*</span>
+                        <label for="mother" class="form-label">
+                            Mother's Maiden Name <span class="required">*</span>
                         </label>
 
-                        <input
-                            type="text"
-                            name="mother"
-                            id="mother"
-                            class="form-control"
-                            value="{{ form_data.mother|default:'' }}"
-                            required
-                            placeholder="Lastname, Firstname Middlename"
-                        >
-
+                        <input type="text"
+                               name="mother"
+                               id="mother"
+                               class="form-control"
+                               value="{{ form_data.mother|default:'' }}"
+                               maxlength="255"
+                               placeholder="Lastname, Firstname Middlename"
+                               required>
                     </div>
-
 
                 </div>
-
             </div>
-
         </div>
 
+        <!-- VALID ID / SUPPORTING DOCUMENT -->
+        <div class="form-section">
 
-        <!-- =================================================
-             FORM ACTIONS
-        ================================================== -->
-
-        <div class="form-actions">
-
-            <div class="form-actions-note">
-
-                <span class="required">*</span>
-                Required fields
-
+            <div class="form-section-header">
+                <div class="form-section-marker"></div>
+                <h2>Valid ID / Supporting Document</h2>
             </div>
 
+            <div class="form-section-body">
+                <div class="document-upload-box">
 
-            <button
-                type="button"
-                class="btn-government"
-                onclick="showReview()"
-            >
+                    <label for="valid_id_document" class="form-label">
+                        Upload Valid ID or Supporting Document
+                        <span class="required">*</span>
+                    </label>
+
+                    <input type="file"
+                           name="valid_id_document"
+                           id="valid_id_document"
+                           class="form-control"
+                           accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                           aria-describedby="documentHelp documentError"
+                           required>
+
+                    <div id="documentHelp" class="document-guidelines">
+                        <strong>Accepted formats:</strong> PDF, JPG, JPEG, and PNG.<br>
+                        <strong>Maximum file size:</strong> 5 MB.<br>
+                        Upload a clear, readable image or scan of your document.
+                    </div>
+
+                    <div id="documentFileInfo"
+                         class="document-file-info"
+                         aria-live="polite">
+
+                        <strong>Selected document</strong>
+                        <span id="documentFileName"></span>
+                        <div id="documentFileSize"></div>
+                    </div>
+
+                    <div id="documentError"
+                         class="document-error"
+                         role="alert"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORM ACTIONS -->
+        <div class="form-actions">
+            <div class="form-actions-note">
+                <span class="required">*</span> Required fields
+            </div>
+
+            <button type="button"
+                    class="btn-government"
+                    id="reviewButton"
+                    onclick="showReview()">
                 Review Application
             </button>
-
         </div>
 
-
     </form>
-
 </div>
 
 
 <!-- =========================================================
      REVIEW SCREEN
 ========================================================= -->
-
-<div
-    id="reviewScreen"
-    class="review-container"
-    style="display: none;"
->
-
-
-    <!-- =====================================================
-         REVIEW HEADER
-    ====================================================== -->
+<div id="reviewScreen" class="review-container" style="display:none">
 
     <div class="review-header">
-
-        <h1>
-            Review Application
-        </h1>
-
-        <p>
-            Please carefully review all information before
-            submitting your registration.
-        </p>
-
+        <h1>Review Application</h1>
+        <p>Please carefully review all information before submitting your registration.</p>
     </div>
-
-
-    <!-- =====================================================
-         NOTICE
-    ====================================================== -->
 
     <div class="review-notice">
-
-        <strong>
-            Please verify your information.
-        </strong>
-
-        Make sure that all personal, address, contact,
-        and other information is correct before submitting
-        the application.
-
+        <strong>Please verify your information.</strong>
+        Make sure your personal, address, contact, and other information is correct.
+        Verify that you selected the correct supporting document.
     </div>
 
-
-    <!-- =====================================================
-         APPLICATION INFORMATION
-    ====================================================== -->
-
+    <!-- APPLICATION INFORMATION -->
     <div class="review-section">
-
-        <div class="review-section-header">
-            Application Information
+        <div class="review-section-header">Application Information</div>
+        <div class="review-section-body">
+            <div class="review-row">
+                <div class="review-label">Application Type</div>
+                <div class="review-value">New Registration</div>
+            </div>
         </div>
+    </div>
 
+    <!-- PERSONAL INFORMATION -->
+    <div class="review-section">
+        <div class="review-section-header">Personal Information</div>
         <div class="review-section-body">
 
             <div class="review-row">
+                <div class="review-label">Last Name</div>
+                <div class="review-value" id="review_lastname"></div>
+            </div>
 
-                <div class="review-label">
-                    Application Type
-                </div>
+            <div class="review-row">
+                <div class="review-label">First Name</div>
+                <div class="review-value" id="review_firstname"></div>
+            </div>
 
+            <div class="review-row">
+                <div class="review-label">Middle Name</div>
+                <div class="review-value" id="review_middlename"></div>
+            </div>
+
+            <div class="review-row">
+                <div class="review-label">Age</div>
+                <div class="review-value" id="review_age"></div>
+            </div>
+
+            <div class="review-row">
+                <div class="review-label">Sex</div>
+                <div class="review-value" id="review_sex"></div>
+            </div>
+
+            <div class="review-row">
+                <div class="review-label">Birthdate</div>
+                <div class="review-value" id="review_birthdate"></div>
+            </div>
+
+            <div class="review-row">
+                <div class="review-label">Birthplace</div>
+                <div class="review-value" id="review_birthplace"></div>
+            </div>
+
+            <!-- CIVIL STATUS REVIEW -->
+            <div class="review-row">
+                <div class="review-label">Civil Status</div>
+                <div class="review-value" id="review_civil_status"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ADDRESS -->
+    <div class="review-section">
+        <div class="review-section-header">Address</div>
+        <div class="review-section-body">
+
+            <div class="review-row">
+                <div class="review-label">Barangay</div>
+                <div class="review-value" id="review_brgy"></div>
+            </div>
+
+            <div class="review-row">
+                <div class="review-label">Municipality</div>
+                <div class="review-value">Pio Duran</div>
+            </div>
+
+            <div class="review-row">
+                <div class="review-label">Province</div>
+                <div class="review-value">Albay</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- CONTACT INFORMATION -->
+    <div class="review-section">
+        <div class="review-section-header">Contact Information</div>
+        <div class="review-section-body">
+
+            <div class="review-row">
+                <div class="review-label">Phone Number</div>
+                <div class="review-value" id="review_phone"></div>
+            </div>
+
+            <div class="review-row">
+                <div class="review-label">Email Address</div>
+                <div class="review-value" id="review_email"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- OTHER INFORMATION -->
+    <div class="review-section">
+        <div class="review-section-header">Other Information</div>
+        <div class="review-section-body">
+
+            <div class="review-row">
+                <div class="review-label">PWD Status</div>
+                <div class="review-value" id="review_pwd_status"></div>
+            </div>
+
+            <div class="review-row">
+                <div class="review-label">Citizenship</div>
+                <div class="review-value" id="review_citizenship_status"></div>
+            </div>
+
+            <div class="review-row">
+                <div class="review-label">Father's Name</div>
+                <div class="review-value" id="review_father"></div>
+            </div>
+
+            <div class="review-row">
+                <div class="review-label">Mother's Name</div>
+                <div class="review-value" id="review_mother"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- DOCUMENT REVIEW -->
+    <div class="review-section">
+        <div class="review-section-header">Valid ID / Supporting Document</div>
+        <div class="review-section-body">
+
+            <div class="review-row">
+                <div class="review-label">Selected File</div>
                 <div class="review-value">
-                    New Registration
+                    <span id="review_document_name">No document selected</span>
+                    <div id="review_document_size" class="review-document-note"></div>
                 </div>
-
             </div>
 
         </div>
-
     </div>
 
-
-    <!-- =====================================================
-         PERSONAL INFORMATION
-    ====================================================== -->
-
-    <div class="review-section">
-
-        <div class="review-section-header">
-            Personal Information
-        </div>
-
-        <div class="review-section-body">
-
-
-            <div class="review-row">
-
-                <div class="review-label">
-                    Last Name
-                </div>
-
-                <div
-                    class="review-value"
-                    id="review_lastname"
-                >
-                </div>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <div class="review-label">
-                    First Name
-                </div>
-
-                <div
-                    class="review-value"
-                    id="review_firstname"
-                >
-                </div>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <div class="review-label">
-                    Middle Name
-                </div>
-
-                <div
-                    class="review-value"
-                    id="review_middlename"
-                >
-                </div>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <div class="review-label">
-                    Age
-                </div>
-
-                <div
-                    class="review-value"
-                    id="review_age"
-                >
-                </div>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <div class="review-label">
-                    Sex
-                </div>
-
-                <div
-                    class="review-value"
-                    id="review_sex"
-                >
-                </div>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <div class="review-label">
-                    Birthdate
-                </div>
-
-                <div
-                    class="review-value"
-                    id="review_birthdate"
-                >
-                </div>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <div class="review-label">
-                    Birthplace
-                </div>
-
-                <div
-                    class="review-value"
-                    id="review_birthplace"
-                >
-                </div>
-
-            </div>
-
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         ADDRESS
-    ====================================================== -->
-
-    <div class="review-section">
-
-        <div class="review-section-header">
-            Address
-        </div>
-
-        <div class="review-section-body">
-
-
-            <div class="review-row">
-
-                <div class="review-label">
-                    Barangay
-                </div>
-
-                <div
-                    class="review-value"
-                    id="review_brgy"
-                >
-                </div>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <div class="review-label">
-                    Municipality
-                </div>
-
-                <div
-                    class="review-value"
-                    id="review_municipality"
-                >
-                </div>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <div class="review-label">
-                    Province
-                </div>
-
-                <div
-                    class="review-value"
-                    id="review_province"
-                >
-                </div>
-
-            </div>
-
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         CONTACT
-    ====================================================== -->
-
-    <div class="review-section">
-
-        <div class="review-section-header">
-            Contact Information
-        </div>
-
-        <div class="review-section-body">
-
-
-            <div class="review-row">
-
-                <div class="review-label">
-                    Phone Number
-                </div>
-
-                <div
-                    class="review-value"
-                    id="review_phone"
-                >
-                </div>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <div class="review-label">
-                    Email Address
-                </div>
-
-                <div
-                    class="review-value"
-                    id="review_email"
-                >
-                </div>
-
-            </div>
-
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         OTHER INFORMATION
-    ====================================================== -->
-
-    <div class="review-section">
-
-        <div class="review-section-header">
-            Other Information
-        </div>
-
-        <div class="review-section-body">
-
-
-            <div class="review-row">
-
-                <div class="review-label">
-                    PWD Status
-                </div>
-
-                <div
-                    class="review-value"
-                    id="review_pwd_status"
-                >
-                </div>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <div class="review-label">
-                    Citizenship
-                </div>
-
-                <div
-                    class="review-value"
-                    id="review_citizenship_status"
-                >
-                </div>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <div class="review-label">
-                    Father's Name
-                </div>
-
-                <div
-                    class="review-value"
-                    id="review_father"
-                >
-                </div>
-
-            </div>
-
-
-            <div class="review-row">
-
-                <div class="review-label">
-                    Mother's Name
-                </div>
-
-                <div
-                    class="review-value"
-                    id="review_mother"
-                >
-                </div>
-
-            </div>
-
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         REVIEW ACTIONS
-    ====================================================== -->
-
+    <!-- REVIEW ACTIONS -->
     <div class="review-actions">
-
-        <button
-            type="button"
-            class="btn-back"
-            onclick="backToForm()"
-        >
+        <button type="button"
+                class="btn-back"
+                onclick="backToForm()">
             Back to Edit
         </button>
 
-
-        <button
-            type="button"
-            class="btn-submit"
-            onclick="submitApplication()"
-        >
+        <button type="button"
+                id="submitButton"
+                class="btn-submit"
+                onclick="submitApplication()">
             Submit Registration
         </button>
-
     </div>
 
-
 </div>
-
 
 {% endblock %}
 
 
 {% block extra_js %}
-
 <script>
+"use strict";
 
 /* =========================================================
-   ALLOWED MOBILE PREFIXES
-
-   ACCEPTED:
-   - Globe
-   - TM
-   - DITO
+   CONFIGURATION
 ========================================================= */
 
-const allowedMobilePrefixes = [
-
-    /* -----------------------------------------------------
-       GLOBE
-    ----------------------------------------------------- */
-
-    "0817",
-    "0904",
-    "0905",
-    "0906",
-    "0915",
-    "0916",
-    "0917",
-    "0926",
-    "0927",
-    "0935",
-    "0936",
-    "0937",
-    "0945",
-    "0953",
-    "0954",
-    "0955",
-    "0956",
-    "0965",
-    "0966",
-    "0967",
-    "0975",
-    "0976",
-    "0977",
-    "0978",
-    "0979",
-    "0994",
-    "0995",
-    "0996",
-    "0997",
-
-    /* -----------------------------------------------------
-       TM
-    ----------------------------------------------------- */
-
-    "0907",
-    "0908",
-    "0909",
-    "0910",
-    "0912",
-    "0930",
-    "0938",
-    "0939",
-    "0946",
-    "0947",
-    "0948",
-    "0949",
-    "0950",
-    "0951",
-    "0961",
-    "0962",
-    "0963",
-    "0964",
-    "0970",
-    "0971",
-    "0981",
-    "0989",
-    "0990",
-    "0991",
-    "0992",
-    "0993",
-
-    /* -----------------------------------------------------
-       DITO
-    ----------------------------------------------------- */
-
-    "0895",
-    "0896",
-    "0897",
-    "0898"
-];
+const MAX_DOCUMENT_SIZE = 5 * 1024 * 1024;
+const ALLOWED_EXTENSIONS = [".pdf", ".jpg", ".jpeg", ".png"];
 
 
 /* =========================================================
-   GET FIELD VALUE
+   HELPERS
 ========================================================= */
 
 function getValue(id) {
-
-    return document.getElementById(id).value;
-
+    const element = document.getElementById(id);
+    return element ? element.value.trim() : "";
 }
-
-
-/* =========================================================
-   GET SELECTED TEXT
-========================================================= */
 
 function getSelectedText(id) {
+    const element = document.getElementById(id);
 
-    const select =
-        document.getElementById(id);
-
-    if (
-        select.selectedIndex < 0
-    ) {
-
+    if (!element || element.selectedIndex < 0) {
         return "";
-
     }
 
-    return select.options[
-        select.selectedIndex
-    ].text;
-
+    return element.options[element.selectedIndex].text;
 }
-
-
-/* =========================================================
-   SET REVIEW VALUE
-========================================================= */
 
 function setReview(id, value) {
+    const element = document.getElementById(id);
 
-    document.getElementById(id).textContent =
-        value || "-";
+    if (element) {
+        element.textContent = value || "-";
+    }
+}
 
+function formatFileSize(bytes) {
+    if (bytes < 1024) {
+        return bytes + " bytes";
+    }
+
+    if (bytes < 1024 * 1024) {
+        return (bytes / 1024).toFixed(1) + " KB";
+    }
+
+    return (bytes / (1024 * 1024)).toFixed(2) + " MB";
 }
 
 
 /* =========================================================
-   VALIDATE MOBILE NUMBER
+   DOCUMENT VALIDATION
+========================================================= */
+
+function validateDocument() {
+    const input = document.getElementById("valid_id_document");
+    const error = document.getElementById("documentError");
+    const info = document.getElementById("documentFileInfo");
+    const fileName = document.getElementById("documentFileName");
+    const fileSize = document.getElementById("documentFileSize");
+
+    const file = input.files && input.files.length
+        ? input.files[0]
+        : null;
+
+    input.classList.remove("is-invalid");
+    error.style.display = "none";
+    error.textContent = "";
+    info.style.display = "none";
+
+    if (!file) {
+        input.classList.add("is-invalid");
+        error.textContent =
+            "Please select a valid ID or supporting document.";
+        error.style.display = "block";
+        return false;
+    }
+
+    const lastDot = file.name.lastIndexOf(".");
+    const extension = lastDot >= 0
+        ? file.name.substring(lastDot).toLowerCase()
+        : "";
+
+    if (!ALLOWED_EXTENSIONS.includes(extension)) {
+        input.classList.add("is-invalid");
+        error.textContent =
+            "Invalid file type. Upload PDF, JPG, JPEG, or PNG.";
+        error.style.display = "block";
+        return false;
+    }
+
+    if (file.size <= 0) {
+        input.classList.add("is-invalid");
+        error.textContent =
+            "The selected file is empty. Please choose another file.";
+        error.style.display = "block";
+        return false;
+    }
+
+    if (file.size > MAX_DOCUMENT_SIZE) {
+        input.classList.add("is-invalid");
+        error.textContent =
+            "The file exceeds 5 MB. Please select a smaller document.";
+        error.style.display = "block";
+        return false;
+    }
+
+    input.classList.remove("is-invalid");
+
+    fileName.textContent = file.name;
+    fileSize.textContent = "File size: " + formatFileSize(file.size);
+    info.style.display = "block";
+
+    setReview("review_document_name", file.name);
+    setReview(
+        "review_document_size",
+        "File size: " + formatFileSize(file.size)
+    );
+
+    return true;
+}
+
+document.getElementById("valid_id_document").addEventListener(
+    "change",
+    validateDocument
+);
+
+
+/* =========================================================
+   PHONE VALIDATION
 ========================================================= */
 
 function validatePhoneNumber() {
+    const phoneInput = document.getElementById("phone");
+    const phoneError = document.getElementById("phoneError");
+    const phone = phoneInput.value.trim();
 
-    const phoneInput =
-        document.getElementById("phone");
-
-    const phoneError =
-        document.getElementById("phoneError");
-
-    let phone =
-        phoneInput.value.trim();
-
-
-    /*
-     * Keep numbers only.
-     */
-
-    phone =
-        phone.replace(/\D/g, "");
-
-
-    phoneInput.value = phone;
-
-
-    /*
-     * Empty number.
-     */
+    phoneInput.classList.remove("is-invalid");
+    phoneError.style.display = "none";
+    phoneError.textContent = "";
 
     if (!phone) {
-
-        phoneInput.classList.remove(
-            "is-invalid"
-        );
-
-        phoneError.style.display =
-            "none";
-
-        phoneError.textContent =
-            "";
-
+        phoneInput.classList.add("is-invalid");
+        phoneError.textContent = "Phone number is required.";
+        phoneError.style.display = "block";
         return false;
-
     }
 
-
-    /*
-     * Must be exactly 11 digits
-     * and start with 09.
-     */
-
-    if (
-        !/^09[0-9]{9}$/.test(phone)
-    ) {
-
-        phoneInput.classList.add(
-            "is-invalid"
-        );
-
+    if (!/^09[0-9]{9}$/.test(phone)) {
+        phoneInput.classList.add("is-invalid");
         phoneError.textContent =
-            "Please enter a valid 11-digit Philippine mobile number.";
-
-        phoneError.style.display =
-            "block";
-
+            "Enter a valid 11-digit Philippine mobile number.";
+        phoneError.style.display = "block";
         return false;
-
     }
-
-
-    /*
-     * Get first four digits.
-     */
-
-    const prefix =
-        phone.substring(0, 4);
-
-
-    /*
-     * Check accepted network prefixes.
-     */
-
-    if (
-        !allowedMobilePrefixes.includes(
-            prefix
-        )
-    ) {
-
-        phoneInput.classList.add(
-            "is-invalid"
-        );
-
-        phoneError.textContent =
-            "Only Globe, TM, and DITO mobile numbers are accepted.";
-
-        phoneError.style.display =
-            "block";
-
-        return false;
-
-    }
-
-
-    /*
-     * Valid number.
-     */
-
-    phoneInput.classList.remove(
-        "is-invalid"
-    );
-
-    phoneError.style.display =
-        "none";
-
-    phoneError.textContent =
-        "";
 
     return true;
-
 }
+
+document.getElementById("phone").addEventListener("input", function () {
+    this.value = this.value.replace(/\D/g, "").substring(0, 11);
+    validatePhoneNumber();
+});
 
 
 /* =========================================================
-   PHONE INPUT
+   BIRTHDATE VALIDATION
 ========================================================= */
 
-document
-    .getElementById("phone")
-    .addEventListener(
-        "input",
-        function () {
+(function setBirthdateMaximum() {
+    const birthdateInput = document.getElementById("birthdate");
+    const today = new Date();
 
-            /*
-             * Allow numbers only.
-             */
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
 
-            this.value =
-                this.value.replace(
-                    /\D/g,
-                    ""
-                );
-
-
-            /*
-             * Limit to 11 digits.
-             */
-
-            if (
-                this.value.length > 11
-            ) {
-
-                this.value =
-                    this.value.substring(
-                        0,
-                        11
-                    );
-
-            }
-
-
-            validatePhoneNumber();
-
-        }
-    );
+    birthdateInput.max = `${year}-${month}-${day}`;
+})();
 
 
 /* =========================================================
@@ -1949,300 +1199,138 @@ document
 ========================================================= */
 
 function showReview() {
+    const form = document.getElementById("registrationForm");
 
-    const form =
-        document.getElementById(
-            "registrationForm"
-        );
-
-
-    /*
-     * Validate all required fields.
-     */
-
-    if (
-        !form.checkValidity()
-    ) {
-
+    if (!form.checkValidity()) {
         form.reportValidity();
-
         return;
-
     }
 
-
-    /*
-     * Validate mobile number
-     * and accepted network.
-     */
-
-    if (
-        !validatePhoneNumber()
-    ) {
-
-        document
-            .getElementById("phone")
-            .focus();
-
+    if (!validatePhoneNumber()) {
+        document.getElementById("phone").focus();
         return;
-
     }
 
+    if (!validateDocument()) {
+        document.getElementById("valid_id_document").focus();
+        return;
+    }
 
-    /* =====================================================
-       PERSONAL INFORMATION
-    ====================================================== */
+    // Personal information
+    setReview("review_lastname", getValue("lastname"));
+    setReview("review_firstname", getValue("firstname"));
+    setReview("review_middlename", getValue("middlename"));
+    setReview("review_age", getValue("age"));
+    setReview("review_sex", getSelectedText("sex"));
+    setReview("review_birthdate", getValue("birthdate"));
+    setReview("review_birthplace", getValue("birthplace"));
 
+    // Civil Status
     setReview(
-        "review_lastname",
-        getValue("lastname")
+        "review_civil_status",
+        getSelectedText("civil_status")
     );
 
+    // Address
+    setReview("review_brgy", getSelectedText("brgy"));
 
-    setReview(
-        "review_firstname",
-        getValue("firstname")
-    );
+    // Contact information
+    setReview("review_phone", getValue("phone"));
+    setReview("review_email", getValue("email"));
 
-
-    setReview(
-        "review_middlename",
-        getValue("middlename")
-    );
-
-
-    setReview(
-        "review_age",
-        getValue("age")
-    );
-
-
-    setReview(
-        "review_sex",
-        getSelectedText("sex")
-    );
-
-
-    setReview(
-        "review_birthdate",
-        getValue("birthdate")
-    );
-
-
-    setReview(
-        "review_birthplace",
-        getValue("birthplace")
-    );
-
-
-    /* =====================================================
-       ADDRESS
-    ====================================================== */
-
-    setReview(
-        "review_brgy",
-        getSelectedText("brgy")
-    );
-
-
-    setReview(
-        "review_municipality",
-        getValue("municipality")
-    );
-
-
-    setReview(
-        "review_province",
-        getValue("province")
-    );
-
-
-    /* =====================================================
-       CONTACT
-    ====================================================== */
-
-    setReview(
-        "review_phone",
-        getValue("phone")
-    );
-
-
-    setReview(
-        "review_email",
-        getValue("email")
-    );
-
-
-    /* =====================================================
-       OTHER INFORMATION
-    ====================================================== */
-
-    setReview(
-        "review_pwd_status",
-        getSelectedText(
-            "pwd_status"
-        )
-    );
-
-
+    // Other information
+    setReview("review_pwd_status", getSelectedText("pwd_status"));
     setReview(
         "review_citizenship_status",
-        getSelectedText(
-            "citizenship_status"
-        )
+        getSelectedText("citizenship_status")
     );
+    setReview("review_father", getValue("father"));
+    setReview("review_mother", getValue("mother"));
 
+    // Document information
+    const fileInput = document.getElementById("valid_id_document");
+    const file = fileInput.files.length ? fileInput.files[0] : null;
 
     setReview(
-        "review_father",
-        getValue("father")
+        "review_document_name",
+        file ? file.name : "No document selected"
     );
-
 
     setReview(
-        "review_mother",
-        getValue("mother")
+        "review_document_size",
+        file ? "File size: " + formatFileSize(file.size) : ""
     );
 
+    // Show review screen
+    document.getElementById("formScreen").style.display = "none";
+    document.getElementById("reviewScreen").style.display = "block";
 
-    /* =====================================================
-       HIDE FORM
-    ====================================================== */
-
-    document.getElementById(
-        "formScreen"
-    ).style.display = "none";
-
-
-    /* =====================================================
-       SHOW REVIEW
-    ====================================================== */
-
-    document.getElementById(
-        "reviewScreen"
-    ).style.display = "block";
-
-
-    /* =====================================================
-       SCROLL TO TOP
-    ====================================================== */
-
-    window.scrollTo(
-        0,
-        0
-    );
-
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 }
 
 
 /* =========================================================
-   BACK TO FORM
+   BACK TO EDIT
 ========================================================= */
 
 function backToForm() {
+    document.getElementById("reviewScreen").style.display = "none";
+    document.getElementById("formScreen").style.display = "block";
 
-    document.getElementById(
-        "reviewScreen"
-    ).style.display = "none";
-
-
-    document.getElementById(
-        "formScreen"
-    ).style.display = "block";
-
-
-    window.scrollTo(
-        0,
-        0
-    );
-
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 }
 
 
 /* =========================================================
-   FINAL SUBMISSION
+   SUBMIT REGISTRATION
 ========================================================= */
 
 function submitApplication() {
+    const form = document.getElementById("registrationForm");
 
-    const form =
-        document.getElementById(
-            "registrationForm"
-        );
-
-
-    /*
-     * Validate form again before
-     * final submission.
-     */
-
-    if (
-        !form.checkValidity()
-    ) {
-
-        document.getElementById(
-            "reviewScreen"
-        ).style.display = "none";
-
-        document.getElementById(
-            "formScreen"
-        ).style.display = "block";
-
+    if (!form.checkValidity()) {
+        backToForm();
         form.reportValidity();
-
         return;
-
     }
 
-
-    /*
-     * Validate phone again.
-     */
-
-    if (
-        !validatePhoneNumber()
-    ) {
-
-        document.getElementById(
-            "reviewScreen"
-        ).style.display = "none";
-
-        document.getElementById(
-            "formScreen"
-        ).style.display = "block";
-
-        document
-            .getElementById("phone")
-            .focus();
-
+    if (!validatePhoneNumber()) {
+        backToForm();
+        document.getElementById("phone").focus();
         return;
-
     }
 
+    if (!validateDocument()) {
+        backToForm();
+        document.getElementById("valid_id_document").focus();
+        return;
+    }
+
+    // Ensure the correct application type is submitted.
+    const applicationType = form.querySelector(
+        'input[name="application_type"]'
+    );
+
+    if (applicationType) {
+        applicationType.value = "NEW";
+    }
+
+    const submitButton = document.getElementById("submitButton");
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Submitting...";
 
     /*
-     * Make sure the application type
-     * is always NEW.
+     * Submit the original multipart form.
+     * This preserves the uploaded file and the selected civil status.
      */
-
-    const applicationType =
-        form.querySelector(
-            'input[name="application_type"]'
-        );
-
-
-    applicationType.value =
-        "NEW";
-
-
-    /*
-     * Submit the Django form.
-     */
-
-    form.submit();
-
+    HTMLFormElement.prototype.submit.call(form);
 }
-
 </script>
-
 {% endblock %}
