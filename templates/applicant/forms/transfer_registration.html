@@ -184,6 +184,12 @@
         color: var(--gov-red);
     }
 
+    .optional {
+        color: var(--gov-muted);
+        font-size: 12px;
+        font-weight: 500;
+    }
+
     .form-control,
     .form-select {
         width: 100%;
@@ -526,9 +532,7 @@
 
     {% if not applicant %}
 
-        <!-- ================================================
-             STEP 1: FIND APPLICANT
-        ================================================= -->
+        <!-- STEP 1: FIND APPLICANT -->
         <section class="form-card">
             <div class="form-card-header">
                 <h2>Find Your Registration</h2>
@@ -555,6 +559,7 @@
                                 class="form-control"
                                 value="{{ search_data.lastname|default:'' }}"
                                 autocomplete="family-name"
+                                maxlength="150"
                                 required
                             >
                         </div>
@@ -571,13 +576,16 @@
                                 class="form-control"
                                 value="{{ search_data.firstname|default:'' }}"
                                 autocomplete="given-name"
+                                maxlength="150"
                                 required
                             >
                         </div>
 
+                        <!-- MIDDLE NAME IS OPTIONAL -->
                         <div class="col-md-6 col-lg-3">
                             <label for="search_middlename" class="form-label">
                                 Middle Name
+                                <span class="optional">(Optional)</span>
                             </label>
 
                             <input
@@ -587,10 +595,12 @@
                                 class="form-control"
                                 value="{{ search_data.middlename|default:'' }}"
                                 autocomplete="additional-name"
+                                maxlength="150"
                             >
 
                             <small class="form-text">
-                                Optional if no middle name is recorded.
+                                Leave blank if you do not have a middle name
+                                or it is not recorded.
                             </small>
                         </div>
 
@@ -613,8 +623,10 @@
                     <div class="information-notice">
                         <strong>Important</strong>
                         Enter your information as it appears in your existing
-                        registration record. If more than one record matches,
-                        provide your middle name to narrow the search.
+                        registration record. If you leave the middle name blank,
+                        the system should search using your first name, last name,
+                        and birthdate. If multiple records match, additional
+                        verification may be required.
                     </div>
 
                     <div class="button-row">
@@ -632,9 +644,7 @@
 
     {% else %}
 
-        <!-- ================================================
-             APPLICANT INFORMATION
-        ================================================= -->
+        <!-- APPLICANT INFORMATION -->
         <section class="form-card">
             <div class="form-card-header">
                 <h2>Applicant Information</h2>
@@ -661,10 +671,7 @@
                         <span class="applicant-label">Full Name</span>
 
                         <span class="applicant-value">
-                            {{ applicant.lastname }}, {{ applicant.firstname }}
-                            {% if applicant.middlename %}
-                                {{ applicant.middlename }}
-                            {% endif %}
+                            {{ applicant.lastname }}, {{ applicant.firstname }}{% if applicant.middlename %} {{ applicant.middlename }}{% endif %}
                         </span>
                     </div>
 
@@ -695,10 +702,7 @@
             </div>
         </section>
 
-        <!-- ================================================
-             STEP 2: SINGLE TRANSFER FORM
-             enctype is required for file uploads.
-        ================================================= -->
+        <!-- STEP 2: TRANSFER FORM -->
         <form
             method="POST"
             id="transferForm"
@@ -866,9 +870,7 @@
                 </div>
             </section>
 
-            <!-- ================================================
-                 REQUIRED VALID ID UPLOAD
-            ================================================= -->
+            <!-- VALID ID UPLOAD -->
             <section class="form-card">
                 <div class="form-card-header">
                     <h2>Valid Identification Document</h2>

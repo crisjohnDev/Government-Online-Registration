@@ -150,6 +150,16 @@
         margin-bottom: 7px;
     }
 
+    .required {
+        color: #ce1126;
+    }
+
+    .optional {
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 400;
+    }
+
     .form-control {
         width: 100%;
         min-height: 44px;
@@ -157,6 +167,7 @@
         border-radius: 4px;
         color: #1e293b;
         font-size: 14px;
+        box-sizing: border-box;
     }
 
     .form-control:focus {
@@ -407,7 +418,9 @@
 
             <div class="row g-3">
                 <div class="col-md-4">
-                    <label for="lastname" class="form-label">Last Name</label>
+                    <label for="lastname" class="form-label">
+                        Last Name <span class="required">*</span>
+                    </label>
                     <input
                         type="text"
                         id="lastname"
@@ -415,12 +428,15 @@
                         class="form-control"
                         value="{{ search_data.lastname|default:'' }}"
                         autocomplete="family-name"
+                        maxlength="150"
                         required
                     >
                 </div>
 
                 <div class="col-md-4">
-                    <label for="firstname" class="form-label">First Name</label>
+                    <label for="firstname" class="form-label">
+                        First Name <span class="required">*</span>
+                    </label>
                     <input
                         type="text"
                         id="firstname"
@@ -428,24 +444,36 @@
                         class="form-control"
                         value="{{ search_data.firstname|default:'' }}"
                         autocomplete="given-name"
+                        maxlength="150"
                         required
                     >
                 </div>
 
+                <!-- MIDDLE NAME IS OPTIONAL -->
                 <div class="col-md-4">
-                    <label for="middlename" class="form-label">Middle Name</label>
+                    <label for="middlename" class="form-label">
+                        Middle Name
+                        <span class="optional">(Optional)</span>
+                    </label>
                     <input
                         type="text"
                         id="middlename"
                         name="middlename"
                         class="form-control"
                         value="{{ search_data.middlename|default:'' }}"
-                        required
+                        autocomplete="additional-name"
+                        maxlength="150"
                     >
+                    <div class="form-text">
+                        Leave blank if you do not have a middle name or it is
+                        not recorded in your registration details.
+                    </div>
                 </div>
 
                 <div class="col-md-6">
-                    <label for="birthdate" class="form-label">Birthdate</label>
+                    <label for="birthdate" class="form-label">
+                        Birthdate <span class="required">*</span>
+                    </label>
                     <input
                         type="date"
                         id="birthdate"
@@ -459,7 +487,10 @@
 
             <div class="information-notice">
                 <strong>Important</strong>
-                Enter your information exactly as it appears in your existing voter registration record.
+                Enter your information accurately as it appears in your
+                existing voter registration record. If you leave the middle
+                name blank, the system should search using your first name,
+                last name, and birthdate.
             </div>
 
             <div class="button-row">
@@ -489,8 +520,7 @@
             <div class="applicant-item">
                 <span class="applicant-label">Full Name</span>
                 <span class="applicant-value">
-                    {{ applicant.lastname }}, {{ applicant.firstname }}
-                    {{ applicant.middlename }}
+                    {{ applicant.lastname }}, {{ applicant.firstname }}{% if applicant.middlename %} {{ applicant.middlename }}{% endif %}
                 </span>
             </div>
 
@@ -521,12 +551,12 @@
 
             <div class="applicant-item">
                 <span class="applicant-label">Municipality</span>
-                <span class="applicant-value">{{ applicant.municipality }}</span>
+                <span class="applicant-value">{{ applicant.municipality|default:"Not specified" }}</span>
             </div>
 
             <div class="applicant-item">
                 <span class="applicant-label">Province</span>
-                <span class="applicant-value">{{ applicant.province }}</span>
+                <span class="applicant-value">{{ applicant.province|default:"Not specified" }}</span>
             </div>
         </div>
     </div>
@@ -551,7 +581,7 @@
 
             <div class="mb-4">
                 <label for="reason" class="form-label">
-                    Reason for Reinstatement <span class="text-danger">*</span>
+                    Reason for Reinstatement <span class="required">*</span>
                 </label>
 
                 <textarea
@@ -572,7 +602,7 @@
 
             <div class="mb-4">
                 <label for="valid_id_document" class="form-label">
-                    Upload Valid ID <span class="text-danger">*</span>
+                    Upload Valid ID <span class="required">*</span>
                 </label>
 
                 <div class="upload-box">
@@ -590,7 +620,8 @@
                     </span>
 
                     <div class="form-text">
-                        Accepted formats: PDF, JPG, JPEG, and PNG. Maximum file size: 5 MB.
+                        Accepted formats: PDF, JPG, JPEG, and PNG.
+                        Maximum file size: 5 MB.
                     </div>
                 </div>
             </div>
@@ -598,8 +629,8 @@
             <div class="information-notice">
                 <strong>Before submitting</strong>
                 Make sure your identification document is clear and readable.
-                Your request will be marked as pending until it is reviewed by the
-                authorized registration personnel.
+                Your request will be marked as pending until it is reviewed by
+                the authorized registration personnel.
             </div>
 
             <div class="button-row">
@@ -637,12 +668,19 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        fileName.textContent = "Selected file: " + file.name;
-
-        const extension = file.name.split(".").pop().toLowerCase();
+        const extension = file.name.includes(".")
+            ? file.name.split(".").pop().toLowerCase()
+            : "";
 
         if (!allowedExtensions.includes(extension)) {
             alert("Invalid file format. Please select a PDF, JPG, JPEG, or PNG file.");
+            fileInput.value = "";
+            fileName.textContent = "No file selected.";
+            return;
+        }
+
+        if (file.size <= 0) {
+            alert("The selected file is empty. Please choose another file.");
             fileInput.value = "";
             fileName.textContent = "No file selected.";
             return;
@@ -652,7 +690,12 @@ document.addEventListener("DOMContentLoaded", function () {
             alert("The selected file exceeds the 5 MB limit.");
             fileInput.value = "";
             fileName.textContent = "No file selected.";
+            return;
         }
+
+        fileName.textContent =
+            "Selected file: " + file.name +
+            " (" + (file.size / (1024 * 1024)).toFixed(2) + " MB)";
     });
 
     form.addEventListener("submit", function (event) {
@@ -662,6 +705,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (reason.length < 5 || reason.length > 2000) {
             event.preventDefault();
             alert("Please enter a reason between 5 and 2,000 characters.");
+            document.getElementById("reason").focus();
             return;
         }
 
@@ -672,17 +716,21 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const extension = file.name.split(".").pop().toLowerCase();
+        const extension = file.name.includes(".")
+            ? file.name.split(".").pop().toLowerCase()
+            : "";
 
         if (!allowedExtensions.includes(extension)) {
             event.preventDefault();
             alert("Please upload a PDF, JPG, JPEG, or PNG file.");
+            fileInput.focus();
             return;
         }
 
-        if (file.size > maxFileSize) {
+        if (file.size <= 0 || file.size > maxFileSize) {
             event.preventDefault();
-            alert("The ID document must not exceed 5 MB.");
+            alert("Please select a non-empty ID document no larger than 5 MB.");
+            fileInput.focus();
             return;
         }
 

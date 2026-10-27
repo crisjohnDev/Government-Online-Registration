@@ -5,9 +5,6 @@
 
 {% block extra_css %}
 <style>
-/* =========================================================
-   GOVERNMENT REGISTRATION DESIGN
-========================================================= */
 .registration-container,
 .review-container {
     max-width: 1100px;
@@ -96,6 +93,12 @@
 
 .required {
     color: #ce1126;
+}
+
+.optional {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 500;
 }
 
 .form-control,
@@ -346,12 +349,9 @@
 </style>
 {% endblock %}
 
-
 {% block content %}
 
-<!-- =========================================================
-     REGISTRATION FORM SCREEN
-========================================================= -->
+<!-- REGISTRATION FORM SCREEN -->
 <div id="formScreen" class="registration-container">
 
     <div class="registration-header">
@@ -373,12 +373,10 @@
           novalidate>
 
         {% csrf_token %}
-
         <input type="hidden" name="application_type" value="NEW">
 
         <!-- PERSONAL INFORMATION -->
         <div class="form-section">
-
             <div class="form-section-header">
                 <div class="form-section-marker"></div>
                 <h2>Personal Information</h2>
@@ -415,9 +413,10 @@
                                required>
                     </div>
 
+                    <!-- MIDDLE NAME: OPTIONAL -->
                     <div class="col-md-4">
                         <label for="middlename" class="form-label">
-                            Middle Name <span class="required">*</span>
+                            Middle Name <span class="optional">(Optional)</span>
                         </label>
                         <input type="text"
                                name="middlename"
@@ -425,7 +424,7 @@
                                class="form-control"
                                value="{{ form_data.middlename|default:'' }}"
                                maxlength="255"
-                               required>
+                               autocomplete="additional-name">
                     </div>
 
                     <div class="col-md-4">
@@ -484,41 +483,32 @@
                                required>
                     </div>
 
-                    <!-- CIVIL STATUS -->
                     <div class="col-md-6">
                         <label for="civil_status" class="form-label">
                             Civil Status <span class="required">*</span>
                         </label>
-
                         <select name="civil_status"
                                 id="civil_status"
                                 class="form-select"
                                 required>
-
                             <option value="">Select Civil Status</option>
-
                             <option value="Single"
                                 {% if form_data.civil_status == "Single" %}selected{% endif %}>
                                 Single
                             </option>
-
                             <option value="Married"
                                 {% if form_data.civil_status == "Married" %}selected{% endif %}>
                                 Married
                             </option>
-
                             <option value="Widowed"
                                 {% if form_data.civil_status == "Widowed" %}selected{% endif %}>
                                 Widowed
                             </option>
-
                             <option value="Separated"
                                 {% if form_data.civil_status == "Separated" %}selected{% endif %}>
                                 Separated
                             </option>
-
                         </select>
-
                         <div class="form-text">
                             Select your current civil status.
                         </div>
@@ -530,7 +520,6 @@
 
         <!-- ADDRESS -->
         <div class="form-section">
-
             <div class="form-section-header">
                 <div class="form-section-marker"></div>
                 <h2>Address</h2>
@@ -543,10 +532,8 @@
                         <label for="brgy" class="form-label">
                             Barangay <span class="required">*</span>
                         </label>
-
                         <select name="brgy" id="brgy" class="form-select" required>
                             <option value="">Select Barangay</option>
-
                             {% for barangay in barangays %}
                             <option value="{{ barangay.id }}"
                                 {% if form_data.brgy == barangay.id|stringformat:"s" %}selected{% endif %}>
@@ -560,14 +547,12 @@
                         <label for="municipality" class="form-label">
                             Municipality
                         </label>
-
                         <input type="text"
                                name="municipality"
                                id="municipality"
                                class="form-control"
                                value="Pio Duran"
                                readonly>
-
                         <div class="form-text">
                             Fixed registration municipality.
                         </div>
@@ -577,14 +562,12 @@
                         <label for="province" class="form-label">
                             Province
                         </label>
-
                         <input type="text"
                                name="province"
                                id="province"
                                class="form-control"
                                value="Albay"
                                readonly>
-
                         <div class="form-text">
                             Fixed registration province.
                         </div>
@@ -596,7 +579,6 @@
 
         <!-- CONTACT INFORMATION -->
         <div class="form-section">
-
             <div class="form-section-header">
                 <div class="form-section-marker"></div>
                 <h2>Contact Information</h2>
@@ -609,7 +591,6 @@
                         <label for="phone" class="form-label">
                             Phone Number <span class="required">*</span>
                         </label>
-
                         <input type="tel"
                                name="phone"
                                id="phone"
@@ -623,27 +604,24 @@
                                autocomplete="tel"
                                aria-describedby="phoneHelp phoneError"
                                required>
-
                         <div id="phoneHelp" class="form-text">
                             Enter an 11-digit Philippine mobile number.
                         </div>
-
                         <div id="phoneError" class="phone-error" role="alert"></div>
                     </div>
 
+                    <!-- EMAIL: OPTIONAL -->
                     <div class="col-md-6">
                         <label for="email" class="form-label">
-                            Email Address <span class="required">*</span>
+                            Email Address <span class="optional">(Optional)</span>
                         </label>
-
                         <input type="email"
                                name="email"
                                id="email"
                                class="form-control"
                                value="{{ form_data.email|default:'' }}"
                                maxlength="254"
-                               autocomplete="email"
-                               required>
+                               autocomplete="email">
                     </div>
 
                 </div>
@@ -652,7 +630,6 @@
 
         <!-- OTHER INFORMATION -->
         <div class="form-section">
-
             <div class="form-section-header">
                 <div class="form-section-marker"></div>
                 <h2>Other Information</h2>
@@ -665,43 +642,35 @@
                         <label for="pwd_status" class="form-label">
                             PWD Status <span class="required">*</span>
                         </label>
-
                         <select name="pwd_status" id="pwd_status" class="form-select" required>
                             <option value="NO"
                                 {% if form_data.pwd_status == "NO" or not form_data.pwd_status %}selected{% endif %}>
                                 Not PWD
                             </option>
-
                             <option value="VISUAL"
                                 {% if form_data.pwd_status == "VISUAL" %}selected{% endif %}>
                                 Visual Disability
                             </option>
-
                             <option value="HEARING"
                                 {% if form_data.pwd_status == "HEARING" %}selected{% endif %}>
                                 Hearing Disability
                             </option>
-
                             <option value="PHYSICAL"
                                 {% if form_data.pwd_status == "PHYSICAL" %}selected{% endif %}>
                                 Physical Disability
                             </option>
-
                             <option value="INTELLECTUAL"
                                 {% if form_data.pwd_status == "INTELLECTUAL" %}selected{% endif %}>
                                 Intellectual Disability
                             </option>
-
                             <option value="PSYCHOSOCIAL"
                                 {% if form_data.pwd_status == "PSYCHOSOCIAL" %}selected{% endif %}>
                                 Psychosocial Disability
                             </option>
-
                             <option value="MULTIPLE"
                                 {% if form_data.pwd_status == "MULTIPLE" %}selected{% endif %}>
                                 Multiple Disabilities
                             </option>
-
                             <option value="OTHER"
                                 {% if form_data.pwd_status == "OTHER" %}selected{% endif %}>
                                 Other
@@ -713,17 +682,14 @@
                         <label for="citizenship_status" class="form-label">
                             Citizenship <span class="required">*</span>
                         </label>
-
                         <select name="citizenship_status"
                                 id="citizenship_status"
                                 class="form-select"
                                 required>
-
                             <option value="BY_BIRTH"
                                 {% if form_data.citizenship_status == "BY_BIRTH" or not form_data.citizenship_status %}selected{% endif %}>
                                 By Birth
                             </option>
-
                             <option value="NATURALIZED"
                                 {% if form_data.citizenship_status == "NATURALIZED" %}selected{% endif %}>
                                 Naturalized
@@ -735,7 +701,6 @@
                         <label for="father" class="form-label">
                             Father's Name <span class="required">*</span>
                         </label>
-
                         <input type="text"
                                name="father"
                                id="father"
@@ -750,7 +715,6 @@
                         <label for="mother" class="form-label">
                             Mother's Maiden Name <span class="required">*</span>
                         </label>
-
                         <input type="text"
                                name="mother"
                                id="mother"
@@ -767,7 +731,6 @@
 
         <!-- VALID ID / SUPPORTING DOCUMENT -->
         <div class="form-section">
-
             <div class="form-section-header">
                 <div class="form-section-marker"></div>
                 <h2>Valid ID / Supporting Document</h2>
@@ -798,7 +761,6 @@
                     <div id="documentFileInfo"
                          class="document-file-info"
                          aria-live="polite">
-
                         <strong>Selected document</strong>
                         <span id="documentFileName"></span>
                         <div id="documentFileSize"></div>
@@ -816,7 +778,6 @@
             <div class="form-actions-note">
                 <span class="required">*</span> Required fields
             </div>
-
             <button type="button"
                     class="btn-government"
                     id="reviewButton"
@@ -828,10 +789,7 @@
     </form>
 </div>
 
-
-<!-- =========================================================
-     REVIEW SCREEN
-========================================================= -->
+<!-- REVIEW SCREEN -->
 <div id="reviewScreen" class="review-container" style="display:none">
 
     <div class="review-header">
@@ -845,7 +803,6 @@
         Verify that you selected the correct supporting document.
     </div>
 
-    <!-- APPLICATION INFORMATION -->
     <div class="review-section">
         <div class="review-section-header">Application Information</div>
         <div class="review-section-body">
@@ -856,129 +813,101 @@
         </div>
     </div>
 
-    <!-- PERSONAL INFORMATION -->
     <div class="review-section">
         <div class="review-section-header">Personal Information</div>
         <div class="review-section-body">
-
             <div class="review-row">
                 <div class="review-label">Last Name</div>
                 <div class="review-value" id="review_lastname"></div>
             </div>
-
             <div class="review-row">
                 <div class="review-label">First Name</div>
                 <div class="review-value" id="review_firstname"></div>
             </div>
-
             <div class="review-row">
                 <div class="review-label">Middle Name</div>
                 <div class="review-value" id="review_middlename"></div>
             </div>
-
             <div class="review-row">
                 <div class="review-label">Age</div>
                 <div class="review-value" id="review_age"></div>
             </div>
-
             <div class="review-row">
                 <div class="review-label">Sex</div>
                 <div class="review-value" id="review_sex"></div>
             </div>
-
             <div class="review-row">
                 <div class="review-label">Birthdate</div>
                 <div class="review-value" id="review_birthdate"></div>
             </div>
-
             <div class="review-row">
                 <div class="review-label">Birthplace</div>
                 <div class="review-value" id="review_birthplace"></div>
             </div>
-
-            <!-- CIVIL STATUS REVIEW -->
             <div class="review-row">
                 <div class="review-label">Civil Status</div>
                 <div class="review-value" id="review_civil_status"></div>
             </div>
-
         </div>
     </div>
 
-    <!-- ADDRESS -->
     <div class="review-section">
         <div class="review-section-header">Address</div>
         <div class="review-section-body">
-
             <div class="review-row">
                 <div class="review-label">Barangay</div>
                 <div class="review-value" id="review_brgy"></div>
             </div>
-
             <div class="review-row">
                 <div class="review-label">Municipality</div>
                 <div class="review-value">Pio Duran</div>
             </div>
-
             <div class="review-row">
                 <div class="review-label">Province</div>
                 <div class="review-value">Albay</div>
             </div>
-
         </div>
     </div>
 
-    <!-- CONTACT INFORMATION -->
     <div class="review-section">
         <div class="review-section-header">Contact Information</div>
         <div class="review-section-body">
-
             <div class="review-row">
                 <div class="review-label">Phone Number</div>
                 <div class="review-value" id="review_phone"></div>
             </div>
-
             <div class="review-row">
                 <div class="review-label">Email Address</div>
                 <div class="review-value" id="review_email"></div>
             </div>
-
         </div>
     </div>
 
-    <!-- OTHER INFORMATION -->
     <div class="review-section">
         <div class="review-section-header">Other Information</div>
         <div class="review-section-body">
-
             <div class="review-row">
                 <div class="review-label">PWD Status</div>
                 <div class="review-value" id="review_pwd_status"></div>
             </div>
-
             <div class="review-row">
                 <div class="review-label">Citizenship</div>
                 <div class="review-value" id="review_citizenship_status"></div>
             </div>
-
             <div class="review-row">
                 <div class="review-label">Father's Name</div>
                 <div class="review-value" id="review_father"></div>
             </div>
-
             <div class="review-row">
                 <div class="review-label">Mother's Name</div>
                 <div class="review-value" id="review_mother"></div>
             </div>
-
         </div>
     </div>
 
-    <!-- DOCUMENT REVIEW -->
     <div class="review-section">
         <div class="review-section-header">Valid ID / Supporting Document</div>
         <div class="review-section-body">
-
             <div class="review-row">
                 <div class="review-label">Selected File</div>
                 <div class="review-value">
@@ -986,18 +915,15 @@
                     <div id="review_document_size" class="review-document-note"></div>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- REVIEW ACTIONS -->
     <div class="review-actions">
         <button type="button"
                 class="btn-back"
                 onclick="backToForm()">
             Back to Edit
         </button>
-
         <button type="button"
                 id="submitButton"
                 class="btn-submit"
@@ -1005,27 +931,16 @@
             Submit Registration
         </button>
     </div>
-
 </div>
 
 {% endblock %}
-
 
 {% block extra_js %}
 <script>
 "use strict";
 
-/* =========================================================
-   CONFIGURATION
-========================================================= */
-
 const MAX_DOCUMENT_SIZE = 5 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = [".pdf", ".jpg", ".jpeg", ".png"];
-
-
-/* =========================================================
-   HELPERS
-========================================================= */
 
 function getValue(id) {
     const element = document.getElementById(id);
@@ -1062,11 +977,7 @@ function formatFileSize(bytes) {
     return (bytes / (1024 * 1024)).toFixed(2) + " MB";
 }
 
-
-/* =========================================================
-   DOCUMENT VALIDATION
-========================================================= */
-
+/* DOCUMENT VALIDATION */
 function validateDocument() {
     const input = document.getElementById("valid_id_document");
     const error = document.getElementById("documentError");
@@ -1120,8 +1031,6 @@ function validateDocument() {
         return false;
     }
 
-    input.classList.remove("is-invalid");
-
     fileName.textContent = file.name;
     fileSize.textContent = "File size: " + formatFileSize(file.size);
     info.style.display = "block";
@@ -1140,11 +1049,7 @@ document.getElementById("valid_id_document").addEventListener(
     validateDocument
 );
 
-
-/* =========================================================
-   PHONE VALIDATION
-========================================================= */
-
+/* PHONE VALIDATION */
 function validatePhoneNumber() {
     const phoneInput = document.getElementById("phone");
     const phoneError = document.getElementById("phoneError");
@@ -1177,11 +1082,7 @@ document.getElementById("phone").addEventListener("input", function () {
     validatePhoneNumber();
 });
 
-
-/* =========================================================
-   BIRTHDATE VALIDATION
-========================================================= */
-
+/* BIRTHDATE VALIDATION */
 (function setBirthdateMaximum() {
     const birthdateInput = document.getElementById("birthdate");
     const today = new Date();
@@ -1193,11 +1094,7 @@ document.getElementById("phone").addEventListener("input", function () {
     birthdateInput.max = `${year}-${month}-${day}`;
 })();
 
-
-/* =========================================================
-   SHOW REVIEW
-========================================================= */
-
+/* SHOW REVIEW */
 function showReview() {
     const form = document.getElementById("registrationForm");
 
@@ -1216,29 +1113,25 @@ function showReview() {
         return;
     }
 
-    // Personal information
     setReview("review_lastname", getValue("lastname"));
     setReview("review_firstname", getValue("firstname"));
+
+    // Optional middle name: display a dash when left blank.
     setReview("review_middlename", getValue("middlename"));
+
     setReview("review_age", getValue("age"));
     setReview("review_sex", getSelectedText("sex"));
     setReview("review_birthdate", getValue("birthdate"));
     setReview("review_birthplace", getValue("birthplace"));
+    setReview("review_civil_status", getSelectedText("civil_status"));
 
-    // Civil Status
-    setReview(
-        "review_civil_status",
-        getSelectedText("civil_status")
-    );
-
-    // Address
     setReview("review_brgy", getSelectedText("brgy"));
 
-    // Contact information
     setReview("review_phone", getValue("phone"));
+
+    // Optional email: display a dash when left blank.
     setReview("review_email", getValue("email"));
 
-    // Other information
     setReview("review_pwd_status", getSelectedText("pwd_status"));
     setReview(
         "review_citizenship_status",
@@ -1247,7 +1140,6 @@ function showReview() {
     setReview("review_father", getValue("father"));
     setReview("review_mother", getValue("mother"));
 
-    // Document information
     const fileInput = document.getElementById("valid_id_document");
     const file = fileInput.files.length ? fileInput.files[0] : null;
 
@@ -1261,7 +1153,6 @@ function showReview() {
         file ? "File size: " + formatFileSize(file.size) : ""
     );
 
-    // Show review screen
     document.getElementById("formScreen").style.display = "none";
     document.getElementById("reviewScreen").style.display = "block";
 
@@ -1271,11 +1162,7 @@ function showReview() {
     });
 }
 
-
-/* =========================================================
-   BACK TO EDIT
-========================================================= */
-
+/* BACK TO EDIT */
 function backToForm() {
     document.getElementById("reviewScreen").style.display = "none";
     document.getElementById("formScreen").style.display = "block";
@@ -1286,11 +1173,7 @@ function backToForm() {
     });
 }
 
-
-/* =========================================================
-   SUBMIT REGISTRATION
-========================================================= */
-
+/* SUBMIT REGISTRATION */
 function submitApplication() {
     const form = document.getElementById("registrationForm");
 
@@ -1312,7 +1195,6 @@ function submitApplication() {
         return;
     }
 
-    // Ensure the correct application type is submitted.
     const applicationType = form.querySelector(
         'input[name="application_type"]'
     );
@@ -1326,10 +1208,6 @@ function submitApplication() {
     submitButton.disabled = true;
     submitButton.textContent = "Submitting...";
 
-    /*
-     * Submit the original multipart form.
-     * This preserves the uploaded file and the selected civil status.
-     */
     HTMLFormElement.prototype.submit.call(form);
 }
 </script>

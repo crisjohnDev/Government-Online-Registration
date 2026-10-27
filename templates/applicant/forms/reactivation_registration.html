@@ -162,6 +162,12 @@
     color: #ce1126;
 }
 
+.optional {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 500;
+}
+
 .form-control {
     display: block;
     width: 100%;
@@ -444,6 +450,7 @@ textarea.form-control {
             record. Provide your registration details, reason, and a
             copy of your valid identification.
         </p>
+
         <span class="application-badge">Voter Registration Services</span>
 
         <div class="step-indicator" aria-label="Application steps">
@@ -465,6 +472,7 @@ textarea.form-control {
         <div class="reactivation-error" role="alert">
             <strong>Unable to process your request</strong>
             <div>{{ error }}</div>
+
             {% if applicant and form_data.reason %}
                 <p class="mb-0 mt-2">
                     Your entered information is preserved where possible.
@@ -482,12 +490,15 @@ textarea.form-control {
                 <div class="card-header-marker"></div>
                 <div>
                     <h2>Find Your Registration</h2>
-                    <p>Enter your information as it appears in your registration record.</p>
+                    <p>
+                        Enter your information as it appears in your
+                        registration record.
+                    </p>
                 </div>
             </div>
 
             <div class="card-body-government">
-                <form method="POST">
+                <form method="POST" id="findApplicantForm">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="find_applicant">
 
@@ -496,6 +507,7 @@ textarea.form-control {
                             <label for="lastname" class="form-label">
                                 Last Name <span class="required">*</span>
                             </label>
+
                             <input
                                 type="text"
                                 id="lastname"
@@ -512,6 +524,7 @@ textarea.form-control {
                             <label for="firstname" class="form-label">
                                 First Name <span class="required">*</span>
                             </label>
+
                             <input
                                 type="text"
                                 id="firstname"
@@ -524,10 +537,13 @@ textarea.form-control {
                             >
                         </div>
 
+                        <!-- MIDDLE NAME IS OPTIONAL -->
                         <div class="col-md-6">
                             <label for="middlename" class="form-label">
-                                Middle Name <span class="required">*</span>
+                                Middle Name
+                                <span class="optional">(Optional)</span>
                             </label>
+
                             <input
                                 type="text"
                                 id="middlename"
@@ -536,14 +552,19 @@ textarea.form-control {
                                 value="{{ search_data.middlename|default:'' }}"
                                 autocomplete="additional-name"
                                 maxlength="150"
-                                required
                             >
+
+                            <small class="form-help">
+                                Leave blank if you do not have a middle name
+                                or it is not recorded.
+                            </small>
                         </div>
 
                         <div class="col-md-6">
                             <label for="birthdate" class="form-label">
                                 Birthdate <span class="required">*</span>
                             </label>
+
                             <input
                                 type="date"
                                 id="birthdate"
@@ -557,8 +578,9 @@ textarea.form-control {
 
                     <div class="information-notice">
                         <strong>Important</strong>
-                        Enter the exact name and birthdate associated with
-                        your registration record.
+                        Enter your correct last name, first name, and
+                        birthdate. If you enter a middle name, it may be
+                        used to help identify your registration record.
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-4">
@@ -596,11 +618,14 @@ textarea.form-control {
 
             <div class="card-body-government">
                 <div class="applicant-grid">
+
                     <div class="applicant-item">
                         <span class="applicant-label">Full Name</span>
                         <span class="applicant-value">
                             {{ applicant.lastname }}, {{ applicant.firstname }}
-                            {% if applicant.middlename %} {{ applicant.middlename }}{% endif %}
+                            {% if applicant.middlename %}
+                                {{ applicant.middlename }}
+                            {% endif %}
                         </span>
                     </div>
 
@@ -646,11 +671,12 @@ textarea.form-control {
                             {{ applicant.province|default:"Not specified" }}
                         </span>
                     </div>
+
                 </div>
             </div>
         </section>
 
-        <!-- REACTIVATION FORM: MUST USE multipart/form-data -->
+        <!-- REACTIVATION REQUEST FORM -->
         <form
             method="POST"
             enctype="multipart/form-data"
@@ -667,13 +693,17 @@ textarea.form-control {
                     <div class="card-header-marker"></div>
                     <div>
                         <h2>Reason for Reactivation</h2>
-                        <p>Explain why your voter registration should be reactivated.</p>
+                        <p>
+                            Explain why your voter registration should
+                            be reactivated.
+                        </p>
                     </div>
                 </div>
 
                 <div class="card-body-government">
                     <label for="reason" class="form-label">
-                        Reason for Reactivation <span class="required">*</span>
+                        Reason for Reactivation
+                        <span class="required">*</span>
                     </label>
 
                     <textarea
@@ -700,7 +730,10 @@ textarea.form-control {
                     <div class="card-header-marker"></div>
                     <div>
                         <h2>Valid Identification</h2>
-                        <p>Upload a clear copy of your valid ID for verification.</p>
+                        <p>
+                            Upload a clear copy of your valid ID for
+                            verification.
+                        </p>
                     </div>
                 </div>
 
@@ -721,16 +754,19 @@ textarea.form-control {
                             </svg>
                         </div>
 
-                        <p class="upload-panel-title">Upload a Copy of Your Valid ID</p>
+                        <p class="upload-panel-title">
+                            Upload a Copy of Your Valid ID
+                        </p>
 
                         <p class="upload-panel-description">
-                            Select a readable image or PDF of your identification.
-                            Ensure that your name and photograph or identifying
+                            Select a readable image or PDF of your
+                            identification. Ensure that the identifying
                             details are clear.
                         </p>
 
                         <label for="valid_id_document" class="form-label">
-                            Valid ID Document <span class="required">*</span>
+                            Valid ID Document
+                            <span class="required">*</span>
                         </label>
 
                         <input
@@ -758,8 +794,8 @@ textarea.form-control {
                         <strong>Before submitting</strong>
                         Review your reason and make sure the uploaded ID is
                         correct and readable. Your request will be reviewed
-                        by authorized personnel. Submitting this form does not
-                        automatically reactivate your registration.
+                        by authorized personnel. Submitting this form does
+                        not automatically reactivate your registration.
                     </div>
                 </div>
             </section>
@@ -794,6 +830,8 @@ textarea.form-control {
 </div>
 
 <script>
+"use strict";
+
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("reactivationForm");
     const fileInput = document.getElementById("valid_id_document");
@@ -804,7 +842,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const allowedExtensions = ["pdf", "jpg", "jpeg", "png"];
     const maxFileSize = 5 * 1024 * 1024;
 
-    if (fileInput) {
+    if (fileInput && filePreview) {
         fileInput.addEventListener("change", function () {
             filePreview.textContent = "";
             filePreview.classList.remove("visible");
@@ -815,11 +853,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            const extension = file.name.split(".").pop().toLowerCase();
+            const extension = file.name.includes(".")
+                ? file.name.split(".").pop().toLowerCase()
+                : "";
 
             if (!allowedExtensions.includes(extension)) {
                 this.value = "";
-                alert("Invalid file type. Please select a PDF, JPG, JPEG, or PNG file.");
+                alert(
+                    "Invalid file type. Please select a PDF, JPG, JPEG, or PNG file."
+                );
+                return;
+            }
+
+            if (file.size <= 0) {
+                this.value = "";
+                alert("The selected file is empty. Please choose another file.");
                 return;
             }
 
@@ -854,7 +902,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            const extension = file.name.split(".").pop().toLowerCase();
+            const extension = file.name.includes(".")
+                ? file.name.split(".").pop().toLowerCase()
+                : "";
 
             if (!allowedExtensions.includes(extension)) {
                 event.preventDefault();
@@ -863,9 +913,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            if (file.size > maxFileSize) {
+            if (file.size <= 0 || file.size > maxFileSize) {
                 event.preventDefault();
-                alert("The valid ID file must not exceed 5 MB.");
+                alert("Please select a non-empty ID file no larger than 5 MB.");
                 fileInput.focus();
                 return;
             }

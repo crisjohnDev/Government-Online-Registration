@@ -208,6 +208,12 @@
         color: var(--gov-danger);
     }
 
+    .optional-mark {
+        color: var(--gov-muted);
+        font-size: 12px;
+        font-weight: 500;
+    }
+
     .form-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -308,6 +314,11 @@
     .btn-primary-gov:hover {
         color: #fff;
         background: var(--gov-blue-dark);
+    }
+
+    .btn-primary-gov:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
     }
 
     .btn-secondary-gov {
@@ -425,10 +436,6 @@
         line-height: 1.8;
     }
 
-    .hidden {
-        display: none !important;
-    }
-
     @media (max-width: 640px) {
         .update-page {
             padding: 22px 10px 35px;
@@ -527,6 +534,7 @@
                     <strong>Before you begin</strong><br>
                     Enter your registration details as they appear in your existing record.
                     Make sure the information is accurate so your record can be located.
+                    Middle name is optional if you do not have one.
                 </div>
             </div>
 
@@ -576,7 +584,7 @@
 
                             <div class="form-field">
                                 <label for="search_middlename" class="form-label">
-                                    Middle Name
+                                    Middle Name <span class="optional-mark">(Optional)</span>
                                 </label>
                                 <input
                                     type="text"
@@ -588,7 +596,7 @@
                                     maxlength="100"
                                 >
                                 <small class="form-text">
-                                    Leave blank if you do not have a middle name.
+                                    Leave blank if you do not have a middle name or if none is recorded.
                                 </small>
                             </div>
 
@@ -714,7 +722,7 @@
 
                             <div class="form-field">
                                 <label for="middlename" class="form-label">
-                                    Middle Name
+                                    Middle Name <span class="optional-mark">(Optional)</span>
                                 </label>
                                 <input
                                     type="text"
@@ -724,6 +732,9 @@
                                     value="{{ form_data.middlename|default:applicant.middlename }}"
                                     maxlength="100"
                                 >
+                                <small class="form-text">
+                                    Leave blank if you do not have a middle name.
+                                </small>
                             </div>
 
                             <div class="form-field">
@@ -912,18 +923,20 @@
 
                             <div class="form-field">
                                 <label for="email" class="form-label">
-                                    Email Address <span class="required-mark">*</span>
+                                    Email Address <span class="optional-mark">(Optional)</span>
                                 </label>
                                 <input
                                     type="email"
                                     id="email"
                                     name="email"
                                     class="form-control"
-                                    value="{{ form_data.email|default:applicant.email }}"
+                                    value="{{ form_data.email|default:applicant.email|default:'' }}"
                                     maxlength="254"
                                     autocomplete="email"
-                                    required
                                 >
+                                <small class="form-text">
+                                    You may leave this blank if you do not have an email address.
+                                </small>
                             </div>
 
                         </div>
@@ -1199,7 +1212,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (updateForm) {
         updateForm.addEventListener("submit", function (event) {
-            fileError.textContent = "";
+            if (fileError) {
+                fileError.textContent = "";
+            }
 
             if (fileInput) {
                 const file = fileInput.files && fileInput.files[0];
